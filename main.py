@@ -1,5 +1,7 @@
+from test_pytest import addition
+
 def main():
-    print("test")
+    print(addition(4,5))
 
 # Using the special variable 
 # __name__
