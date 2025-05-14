@@ -1,6 +1,5 @@
-def addition(x, y):
-    """Function qui fait l'addition de 2 nombres"""
-    return x + y
+"""Fichier avec 2 tests unitaires"""
+from main import addition
 
 def test_addition_positive():
     """Test d'addition de 2 nombres positives"""

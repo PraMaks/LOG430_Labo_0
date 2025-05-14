@@ -1,5 +1,7 @@
-"""Import de la fonction d'addition"""
-from test_pytest import addition
+"""Fichier main"""
+def addition(x, y):
+    """Function qui fait l'addition de 2 nombres"""
+    return x + y
 
 def main():
     """Function main qui lance la fonction d'addition"""
