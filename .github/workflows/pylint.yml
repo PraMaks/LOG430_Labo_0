@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  Pylint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -28,6 +28,10 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
+  TestUnitaires:
+    needs: Pylint
+    runs-on: ubuntu-latest
+    steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
