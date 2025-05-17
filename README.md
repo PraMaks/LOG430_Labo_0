@@ -7,8 +7,9 @@ Une mini application Python qui fait l'addition de 2 nombres avec 2 tests unitai
 ## Architecture/Structure du projet
 
 Langage de programmation utilisé : Python (version 3.12.3)
+Ce langage est préinstallé sur la VM pour ce lab. 
 
-Technologie utilisée pour les tests unitaires (en Python) : PyTest (version 7.4.4)
+Technologie utilisée pour les tests unitaires (en Python) : PyTest (version 7.4.4). Ce framework de tests unitaires est documenté et populaire dans les autres projets.
 
 Application principale est dans le fichier : main.py. Celle-ci permet de faire l'addition de 2 nombres.
 
@@ -16,9 +17,9 @@ Fichier pour lancer les tests unitaires : test_pytest.py. Celui-ci contient 2 te
 
 Docker est utilisé pour générer une image de l'application (main.py). Le modèle de l'image Docker utilisé est "python:3.12-slim" qui permet de générer une image lègère et optimisée.
 
-Docker Compose est utilisée pour lancer l'image Docker générée.
+Docker Compose est utilisée pour lancer l'image Docker générée. Docker est utilisée pour pouvoir créer une image Docker de l'application pour après pouvoir les lancer dans des containers indépendants. Cela serait utile plus tard dans ce cours, lorsque l'application serait plus complexe.
 
-Ce projet utilise un pipeline CI/CD avec GitHub Actions après chaque push sur la branche principale (main). Le pipeline contient 4 jobs:
+Ce projet utilise un pipeline CI/CD avec GitHub Actions après chaque push sur la branche principale (main) pour tester le code poussé. Le pipeline contient 4 jobs:
 
     1) PyLint pour verifier le format des fichiers .py
     2) PyTest pour lancer les tests unitaires et verifier qu'il n'y a pas d'erreurs de logique
