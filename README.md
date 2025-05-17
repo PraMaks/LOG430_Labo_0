@@ -2,14 +2,14 @@
 
 ## C'est quoi ?
 
-Une mini application Python qui fait l'addition de 2 nombres avec 2 tests unitaires de PyTest.
+Une mini application Python qui fait l'addition de 2 nombres avec 2 tests unitaires de Pytest.
 
 ## Architecture/Structure du projet
 
 Langage de programmation utilisé : Python (version 3.12.3)
 Ce langage est préinstallé sur la VM pour ce lab. 
 
-Technologie utilisée pour les tests unitaires (en Python) : PyTest (version 7.4.4). Ce framework de tests unitaires est documenté et populaire dans les autres projets.
+Technologie utilisée pour les tests unitaires (en Python) : Pytest (version 7.4.4). Ce framework de tests unitaires est documenté et populaire dans les autres projets.
 
 Application principale est dans le fichier : main.py. Celle-ci permet de faire l'addition de 2 nombres.
 
@@ -22,7 +22,7 @@ Docker Compose est utilisée pour lancer l'image Docker générée. Docker est u
 Ce projet utilise un pipeline CI/CD avec GitHub Actions après chaque push sur la branche principale (main) pour tester le code poussé. Le pipeline contient 4 jobs:
 
     1) PyLint pour verifier le format des fichiers .py
-    2) PyTest pour lancer les tests unitaires et verifier qu'il n'y a pas d'erreurs de logique
+    2) Pytest pour lancer les tests unitaires et verifier qu'il n'y a pas d'erreurs de logique
     3) Création et sauvegarde (comme un artifact) d'une image Docker de l'application 
     4) Utilisation de l'image Docker stoquée comme un artifact et push de celle-ci sur Docker Hub
 
@@ -32,7 +32,7 @@ Le lien vers l'image Docker sur Docker Hub : https://hub.docker.com/repository/d
 
 Avec git d'installé sur le poste, lancer "git clone https://github.com/PraMaks/LOG430_Labo_0.git" dans une ligne de commandes (Git Bash recommandé)
 
-Si PyTest n'est pas installé sur le poste: lancer "sudo apt install python3-pytest" ou utiliser pip comme alternative
+Si Pytest n'est pas installé sur le poste: lancer "sudo apt install python3-pytest" ou utiliser pip comme alternative
 
 Pour lancer l'application: À partir de la racine de ce projet lancer : "python3 main.py"
 
