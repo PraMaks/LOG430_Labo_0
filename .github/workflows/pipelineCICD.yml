@@ -71,8 +71,7 @@ jobs:
     - name: Build Docker image
       working-directory: ${{ github.workspace }}
       run: docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/python-addition-app:latest .
-    - name: Push to Docker Hub
-      run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/python-addition-app:latest
+   
 
 
  
