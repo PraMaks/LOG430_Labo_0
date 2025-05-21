@@ -1,6 +1,5 @@
 from datetime import datetime
 from mongoengine import connect, DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, ListField, StringField, IntField, get_connection
-import time
 
 db_name = "labo1"
 collection_inventaire = "magasinInventaire"
@@ -67,10 +66,51 @@ def main():
     print(f"Lancement de la console Client")
 
     while True:
-        for item in MagasinInventaire.objects:
-            print(f"Produit: {item.name}, Quantité: {item.qty}, Price: {item.price}")
+        print(f"Options:")
+        print(f"   'a': Rechercher un produit")
+        print(f"   'b': Enregistrer une vente")
+        print(f"   'c': Gestion des retours")
+        print(f"   'd': Consulter état de stock")
+        print(f"   'q': Quitter")
+
+        choix = input("Entrez votre choix: ")
+
+        if choix == 'a':
+            print("Recherche d'un produit")
+
+            nom_produit = input("Entrez le nom du produit recherché : ")
+
+            produit = MagasinInventaire.objects(name=nom_produit).first()
+
+            if produit:
+                print(f"Produit trouvé : {produit.name}")
+                print(f"Prix : {produit.price}")
+                print(f"Quantité en stock : {produit.qty}")
+            else:
+                print(f"Produit '{nom_produit}' introuvable.")
+
+
+            
+        elif choix == 'b':
+            print("Enregistrement d'une vente")
+            
+        elif choix == 'c':
+            print("Gestion des retours")
+            
+        elif choix == 'd':
+            print("Inventaire du magasin : ")
+            for item in MagasinInventaire.objects:
+                print(f"Produit: {item.name}, Quantité: {item.qty}, Price: {item.price}")
+            
+        elif choix == 'q':
+            print("Fin du programme...")
+            break
+
+        else:
+            print(f"Commande inconnue")
+
+        
         print(f"---------------------------")
-        time.sleep(2)
 
 if __name__ == "__main__":
     main()
