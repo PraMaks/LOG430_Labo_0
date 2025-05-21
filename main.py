@@ -1,13 +1,19 @@
-"""Fichier main"""
-def addition(x, y):
-    """Function qui fait l'addition de 2 nombres"""
-    return x + y
+from mongoengine import connect, Document, StringField, IntField
+import time
+
+connect(db="labo1", host="localhost", port=27017)
+
+class MagasinInventaire(Document):
+    meta = {'collection': 'magasinInventaire'}
+    name = StringField(required=True)
+    price = IntField(required=True)
+    qty = IntField(required=True)
 
 def main():
-    """Function main qui lance la fonction d'addition"""
-    print(addition(4,5))
+    while True:
+        for item in MagasinInventaire.objects:
+            print(f"Produit: {item.name}, Quantité: {item.qty}, Price: {item.price}")
+        time.sleep(2)
 
-# Using the special variable
-# __name__
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
