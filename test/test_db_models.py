@@ -1,15 +1,22 @@
 """Module principal des tests unitaires de l'application."""
 import pytest
 from mongoengine import connect, disconnect
-from main import StoreInventory, StoreSale, search_product
+from src.db_models import StoreInventory, StoreSale
+from src.main import search_product
 
 TEST_DB_NAME = "test_labo1"
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_and_teardown_db():
-    """Fonction lancée avant chaque test pour raser la bd de test"""
-    disconnect()  # Déconnecte toute connexion existante avant d'en créer une nouvelle
-    connect(TEST_DB_NAME, host="localhost", port=27017, alias="default")
+    """Fixture lancée avant chaque test pour réinitialiser la base de test."""
+    disconnect()
+    connect(
+        db=TEST_DB_NAME,
+        host="localhost",
+        port=27017,
+        alias="testdb"
+    )
+    
     StoreInventory.drop_collection()
     StoreSale.drop_collection()
     yield
@@ -18,7 +25,7 @@ def setup_and_teardown_db():
     disconnect()
 
 def test_search_product_found():
-    """Test pour chercher un produit"""
+    """Test pour la recherche d'un produit existant."""
     StoreInventory(name="TestProduct", price=10, qty=5).save()
     product = search_product("TestProduct")
     assert product is not None

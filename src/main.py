@@ -1,74 +1,7 @@
 """Module principal de gestion d'inventaire et de ventes pour un magasin."""
-from datetime import datetime
-from mongoengine import connect, DateTimeField, Document, EmbeddedDocument, \
-    EmbeddedDocumentField, ListField, StringField, IntField, get_connection
+from src.db_models import StoreInventory, StoreSale, ProductSold
+from src.db_config import init_db
 from bson.objectid import ObjectId
-
-# Constantes
-DB_NAME = "labo1"
-COLLECTION_INVENTORY = "magasinInventaire"
-COLLECTION_SALES = "magasinVentes"
-connect(db=DB_NAME, host="localhost", port=27017)
-
-# pylint: disable=too-few-public-methods
-class StoreInventory(Document):
-    """Modèle représentant un produit en inventaire."""
-    meta = {'collection': COLLECTION_INVENTORY}
-    name = StringField(required=True)
-    price = IntField(required=True)
-    qty = IntField(required=True)
-
-# pylint: disable=too-few-public-methods
-class ProductSold(EmbeddedDocument):
-    """Modèle représentant un produit vendu."""
-    name = StringField(required=True)
-    qty = IntField(required=True)
-    price = IntField(required=True)
-    total_price = IntField(required=True)
-
-# pylint: disable=too-few-public-methods
-class StoreSale(Document):
-    """Modèle représentant une vente."""
-    meta = {'collection': COLLECTION_SALES}
-    date = DateTimeField(default=datetime.utcnow)
-    total_price = IntField(required=True)
-    contents = ListField(EmbeddedDocumentField(ProductSold))
-
-def init_db():
-    """Initialise la base de données et remplit l'inventaire si nécessaire."""
-    client = get_connection()
-    db = client[DB_NAME]
-
-    if DB_NAME not in client.list_database_names():
-        print(f"Base de données '{DB_NAME}' n'existe pas sur ce poste...")
-        print("Elle va être créée...")
-    else:
-        print(f"Base de données '{DB_NAME}' trouvée.")
-
-    if COLLECTION_INVENTORY not in db.list_collection_names():
-        print(f"Collection '{COLLECTION_INVENTORY}' n'existe pas...")
-        print("Elle va être créée et remplie avec des données de base...")
-        mylist = [
-            {"name": "Bread", "price": "4", "qty": "5"},
-            {"name": "Soda", "price": "3", "qty": "10"},
-            {"name": "Candy", "price": "2", "qty": "15"},
-        ]
-        for item in mylist:
-            StoreInventory(
-                name=item["name"],
-                price=int(item["price"]),
-                qty=int(item["qty"])
-            ).save()
-            print(f"Ajout de '{item['name']}'")
-    else:
-        print(f"Collection '{COLLECTION_INVENTORY}' trouvée.")
-
-    if COLLECTION_SALES not in db.list_collection_names():
-        print(f"Collection '{COLLECTION_SALES}' n'existe pas...")
-        db.create_collection(COLLECTION_SALES)
-        print(f"Ajout de la collection '{COLLECTION_SALES}'")
-    else:
-        print(f"Collection '{COLLECTION_SALES}' trouvée.")
 
 def search_product(product_name):
     """Recherche un produit dans l'inventaire."""
@@ -228,5 +161,5 @@ def main_loop(input_func=input, print_func=print):
         print_func("---------------------------")
 
 if __name__ == "__main__":
-    init_db()
+    init_db(prod=True)
     main_loop()
