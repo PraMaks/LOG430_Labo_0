@@ -9,7 +9,7 @@ def init_db(prod=True):
 
     # Pour docker-compose pour être capable de lancer mongodb
     mongo_host = os.getenv("MONGO_HOST", "localhost")
-    mongo_port = int(os.getenv("MONGO_PORT", 27018))
+    mongo_port = int(os.getenv("MONGO_PORT", "27018"))
 
     register_connection(
         alias='default',
