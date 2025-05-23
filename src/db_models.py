@@ -1,5 +1,5 @@
 """Module qui contient les objects de mongodb pour python"""
-from datetime import datetime
+from datetime import datetime, UTC
 from mongoengine import (
     DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField,
     ListField, StringField, IntField
@@ -31,6 +31,6 @@ class StoreSale(Document):
         'collection': COLLECTION_SALES,
         'db_alias': 'default'
     }
-    date = DateTimeField(default=datetime.utcnow)
+    date = DateTimeField(default=datetime.now(UTC))
     total_price = IntField(required=True)
     contents = ListField(EmbeddedDocumentField(ProductSold))
