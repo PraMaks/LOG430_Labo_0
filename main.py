@@ -2,49 +2,52 @@ from datetime import datetime
 from mongoengine import connect, DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, ListField, StringField, IntField, get_connection
 from bson.objectid import ObjectId
 
-db_name = "labo1"
-collection_inventory = "magasinInventaire"
-collection_sales = "magasinVentes"
-connect(db=db_name, host="localhost", port=27017)
+# Constantes
+DB_NAME = "labo1"
+COLLECTION_INVENTORY = "magasinInventaire"
+COLLECTION_SALES = "magasinVentes"
+connect(db=DB_NAME, host="localhost", port=27017)
 
 class StoreInventory(Document):
-    meta = {'collection': collection_inventory}
+    """Modèle représentant un produit en inventaire."""
+    meta = {'collection': COLLECTION_INVENTORY}
     name = StringField(required=True)
     price = IntField(required=True)
     qty = IntField(required=True)
 
 class ProductSold(EmbeddedDocument):
+    """Modèle représentant un produit vendu."""
     name = StringField(required=True)
     qty = IntField(required=True)
     price = IntField(required=True)
     total_price = IntField(required=True)
 
 class StoreSale(Document):
-    meta = {'collection': collection_sales}
+    """Modèle représentant une vente."""
+    meta = {'collection': COLLECTION_SALES}
     date = DateTimeField(default=datetime.utcnow)
     total_price = IntField(required=True)
     contents = ListField(EmbeddedDocumentField(ProductSold))
 
-
 def init_db():
+    """Initialise la base de données et remplit l'inventaire si nécessaire."""
     client = get_connection()
-    db = client[db_name]
+    db = client[DB_NAME]
 
-    if db_name not in client.list_database_names():
-        print(f"Base de données '{db_name}' n'existe pas sur ce poste...")
-        print(f"Elle va être créée...")
+    if DB_NAME not in client.list_database_names():
+        print(f"Base de données '{DB_NAME}' n'existe pas sur ce poste...")
+        print("Elle va être créée...")
     else:
-        print(f"Base de données '{db_name}' trouvée.")
+        print(f"Base de données '{DB_NAME}' trouvée.")
 
-    if collection_inventory not in db.list_collection_names():
-        print(f"Collection '{collection_inventory}' n'existe pas dans la base '{db_name}'...")
-        print(f"Elle va être créée et remplie avec des données de base...")
+    if COLLECTION_INVENTORY not in db.list_collection_names():
+        print(f"Collection '{COLLECTION_INVENTORY}' n'existe pas...")
+        print("Elle va être créée et remplie avec des données de base...")
         mylist = [
             {"name": "Bread", "price": "4", "qty": "5"},
             {"name": "Soda", "price": "3", "qty": "10"},
             {"name": "Candy", "price": "2", "qty": "15"},
         ]
-
         for item in mylist:
             StoreInventory(
                 name=item["name"],
@@ -52,20 +55,18 @@ def init_db():
                 qty=int(item["qty"])
             ).save()
             print(f"Ajout de '{item['name']}'")
-
     else:
-        print(f"Collection '{collection_inventory}' trouvée dans la base '{db_name}'.")
+        print(f"Collection '{COLLECTION_INVENTORY}' trouvée.")
 
-    if collection_sales not in db.list_collection_names():
-        print(f"Collection '{collection_sales}' n'existe pas dans la base '{db_name}'...")
-        print(f"Elle va être créée...")
-        db.create_collection(collection_sales)
-        print(f"Ajout de la collection '{collection_sales}'")
+    if COLLECTION_SALES not in db.list_collection_names():
+        print(f"Collection '{COLLECTION_SALES}' n'existe pas...")
+        db.create_collection(COLLECTION_SALES)
+        print(f"Ajout de la collection '{COLLECTION_SALES}'")
     else:
-        print(f"Collection '{collection_sales}' trouvée dans la base '{db_name}'.")
-
+        print(f"Collection '{COLLECTION_SALES}' trouvée.")
 
 def search_product(product_name):
+    """Recherche un produit dans l'inventaire."""
     product = StoreInventory.objects(name=product_name).first()
     if product:
         return {
@@ -75,9 +76,8 @@ def search_product(product_name):
         }
     return None
 
-
 def register_sale(input_func=input, print_func=print):
-    # Ajout : afficher l'inventaire actuel
+    """Enregistre une vente via des entrées utilisateur."""
     print_func("\n--- État du stock actuel ---")
     display_inventory(print_func=print_func)
     print_func("----------------------------\n")
@@ -91,7 +91,6 @@ def register_sale(input_func=input, print_func=print):
             break
 
         product = StoreInventory.objects(name=product_name).first()
-
         if not product:
             print_func(f"Produit '{product_name}' introuvable.")
             continue
@@ -132,35 +131,30 @@ def register_sale(input_func=input, print_func=print):
         sale.save()
         print_func(f"Vente enregistrée. Total : {total_price}$")
 
-
-
 def handle_return(input_func=input, print_func=print):
+    """Gère le retour d'une vente."""
     ventes = list(StoreSale.objects())
-
     if not ventes:
         print_func("Aucune vente enregistrée.")
         return None
 
     vente_dict = {}
-
     print_func("Liste des ventes :")
     for i, vente in enumerate(ventes, start=1):
         vente_num = f"Vente #{i}"
-        vente_dict[vente_num] = vente.id  # stocker l'ID pour correspondance
+        vente_dict[vente_num] = vente.id
 
         print_func(f"\n   {vente_num} | Date: {vente.date.strftime('%Y-%m-%d %H:%M:%S')} | Total: {vente.total_price}$")
         for p in vente.contents:
             print_func(f"      - {p.qty}x {p.name} à {p.price}$ chacun (Total: {p.total_price}$)")
 
     choix_vente = input_func("\nEntrez le numéro de la vente à retourner (ex: Vente #2) : ").strip()
-
     if choix_vente not in vente_dict:
         print_func("Numéro de vente invalide.")
         return None
 
     vente_id = vente_dict[choix_vente]
     sale = StoreSale.objects(id=ObjectId(vente_id)).first()
-
     if not sale:
         print_func("Vente introuvable.")
         return None
@@ -178,14 +172,14 @@ def handle_return(input_func=input, print_func=print):
     print_func(f"{choix_vente} retournée et supprimée de la base.")
     return vente_id
 
-
 def display_inventory(print_func=print):
+    """Affiche l'état actuel de l'inventaire."""
     print_func("Inventaire du magasin : ")
     for item in StoreInventory.objects:
         print_func(f"Produit: {item.name}, Quantité: {item.qty}, Price: {item.price}")
 
-
 def main_loop(input_func=input, print_func=print):
+    """Boucle principale d'interaction utilisateur."""
     while True:
         print_func("Options:")
         print_func("   'a': Rechercher un produit")
@@ -226,7 +220,6 @@ def main_loop(input_func=input, print_func=print):
             print_func("Commande inconnue")
 
         print_func("---------------------------")
-
 
 if __name__ == "__main__":
     init_db()
