@@ -67,10 +67,10 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build Docker image
       run: |
-        docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/python-addition-app:latest .
+        docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/python-magasin-app:latest .
     - name: Save Docker image as tar archive
       run: |
-        docker save docker.io/${{ secrets.DOCKER_USERNAME }}/python-addition-app:latest -o image.tar
+        docker save docker.io/${{ secrets.DOCKER_USERNAME }}/python-magasin-app:latest -o image.tar
     - name: Upload Docker image as artifact
       uses: actions/upload-artifact@v4
       with:
