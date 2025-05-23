@@ -1,4 +1,5 @@
 """Module de configuration de base de donnees"""
+import os
 from mongoengine import register_connection, get_connection
 from src.db_models import StoreInventory, COLLECTION_INVENTORY, COLLECTION_SALES
 
@@ -6,11 +7,15 @@ def init_db(prod=True):
     """Fonction qui s'occupe d'initialiser la bd selon le contexte (prod ou test)"""
     db_name = "labo1" if prod else "test_labo1"
 
+    # Pour docker-compose pour être capable de lancer mongodb
+    mongo_host = os.getenv("MONGO_HOST", "localhost")
+    mongo_port = int(os.getenv("MONGO_PORT", 27018))
+
     register_connection(
         alias='default',
         name=db_name,
-        host="localhost",
-        port=27017
+        host=mongo_host,
+        port=mongo_port
     )
 
     client = get_connection()

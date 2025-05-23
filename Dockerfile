@@ -1,14 +1,17 @@
-# Use the official Python image from Docker Hub
+# Utiliser une image Python légère
 FROM python:3.12-slim
 
-# Set the working directory in the container
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copy the local application files into the container
-COPY main.py test_pytest.py ./
+# Copier les fichiers de l'application
+COPY . .
 
-# Install pytest
-RUN pip install --no-cache-dir pytest
+# Chemin vers src
+ENV PYTHONPATH=/app
 
-# Default command to run tests
-CMD ["pytest", "test_pytest.py"]
+# Installer les dépendances
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Commande par défaut (modifiable avec docker-compose)
+CMD ["python", "src/main.py"]
