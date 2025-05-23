@@ -1,5 +1,6 @@
 from datetime import datetime
-from mongoengine import connect, BooleanField, DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, ListField, StringField, IntField, get_connection
+from mongoengine import connect, DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, ListField, StringField, IntField, get_connection
+from bson.objectid import ObjectId
 
 db_name = "labo1"
 collection_inventory = "magasinInventaire"
@@ -23,7 +24,6 @@ class StoreSale(Document):
     date = DateTimeField(default=datetime.utcnow)
     total_price = IntField(required=True)
     contents = ListField(EmbeddedDocumentField(ProductSold))
-    is_returned = BooleanField(default=False)
 
 def main():
     client = get_connection()
@@ -170,8 +170,31 @@ def main():
                 for p in vente.contents:
                     print(f"      - {p.qty}x {p.name} à {p.price}$ chacun (Total: {p.total_price}$)")
 
+            choix_vente = input("\nEntrez le numéro de la vente à retourner (ex: Vente #2) : ").strip()
 
+            if choix_vente not in vente_dict:
+                print("Numéro de vente invalide.")
+                continue
             
+            vente_id = vente_dict[choix_vente]
+            sale = StoreSale.objects(id=ObjectId(vente_id)).first()
+
+            if not sale:
+                print("Vente introuvable.")
+                continue
+
+            # Remettre les produits dans l'inventaire
+            for produit in sale.contents:
+                item = StoreInventory.objects(name=produit.name).first()
+                if item:
+                    item.qty += produit.qty
+                    item.save()
+                    print(f"Retour : +{produit.qty} {produit.name} dans l'inventaire.")
+                else:
+                    print(f"Produit '{produit.name}' non trouvé dans l'inventaire.")
+
+            sale.delete()
+            print(f"{choix_vente} retournée et supprimée de la base.")
             
         elif choice == 'd':
             print("Inventaire du magasin : ")
