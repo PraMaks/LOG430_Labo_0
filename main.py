@@ -149,7 +149,8 @@ def handle_return(input_func=input, print_func=print):
         vente_num = f"Vente #{i}"
         vente_dict[vente_num] = vente.id
 
-        print_func(f"\n   {vente_num} | Date: {vente.date.strftime('%Y-%m-%d %H:%M:%S')} | Total: {vente.total_price}$")
+        print_func(f"\n   {vente_num} | Date: {vente.date.strftime('%Y-%m-%d %H:%M:%S')} " +
+                    f" | Total: {vente.total_price}$")
         for p in vente.contents:
             print_func(f"      - {p.qty}x {p.name} à {p.price}$ chacun (Total: {p.total_price}$)")
 
