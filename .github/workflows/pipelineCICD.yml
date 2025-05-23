@@ -90,7 +90,7 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
       - name: Push Docker image to Docker Hub
-        run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/python-addition-app:latest
+        run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/python-magasin-app:latest
 
    
 
