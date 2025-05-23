@@ -1,7 +1,9 @@
+"""Module de configuration de base de donnees"""
 from mongoengine import register_connection, get_connection
 from src.db_models import StoreInventory, COLLECTION_INVENTORY, COLLECTION_SALES
 
 def init_db(prod=True):
+    """Fonction qui s'occupe d'initialiser la bd selon le contexte (prod ou test)"""
     db_name = "labo1" if prod else "test_labo1"
 
     register_connection(

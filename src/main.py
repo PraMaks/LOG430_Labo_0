@@ -1,7 +1,7 @@
 """Module principal de gestion d'inventaire et de ventes pour un magasin."""
+from bson.objectid import ObjectId
 from src.db_models import StoreInventory, StoreSale, ProductSold
 from src.db_config import init_db
-from bson.objectid import ObjectId
 
 def search_product(product_name):
     """Recherche un produit dans l'inventaire."""

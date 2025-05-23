@@ -8,6 +8,7 @@ TEST_DB_NAME = "test_labo1"
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_and_teardown_db():
+    """Fonction lancée avant chaque test pour raser la bd de test"""
     disconnect()
     connect(
         db=TEST_DB_NAME,
@@ -16,19 +17,19 @@ def setup_and_teardown_db():
         alias="testdb",
         uuidRepresentation="standard" # Pour enlever un warning avec pytest
     )
-    
-    StoreInventory._meta['db_alias'] = 'testdb'
-    StoreSale._meta['db_alias'] = 'testdb'
-    
+
+    StoreInventory._meta['db_alias'] = 'testdb' # pylint: disable=protected-access
+    StoreSale._meta['db_alias'] = 'testdb' # pylint: disable=protected-access
+
     StoreInventory.drop_collection()
     StoreSale.drop_collection()
-    yield
+    yield # séparation entre avant et après le test
     StoreInventory.drop_collection()
     StoreSale.drop_collection()
     disconnect()
-    
-    StoreInventory._meta['db_alias'] = 'default'
-    StoreSale._meta['db_alias'] = 'default'
+
+    StoreInventory._meta['db_alias'] = 'default' # pylint: disable=protected-access
+    StoreSale._meta['db_alias'] = 'default' # pylint: disable=protected-access
 
 
 def test_search_product_found():
