@@ -16,8 +16,8 @@ class StoreInventory(Document):
 class ProductSold(EmbeddedDocument):
     name = StringField(required=True)
     qty = IntField(required=True)
-    price = IntField(required=True) 
-    total_price = IntField(required=True)  
+    price = IntField(required=True)
+    total_price = IntField(required=True)
 
 class StoreSale(Document):
     meta = {'collection': collection_sales}
@@ -25,7 +25,8 @@ class StoreSale(Document):
     total_price = IntField(required=True)
     contents = ListField(EmbeddedDocumentField(ProductSold))
 
-def main():
+
+def init_db():
     client = get_connection()
     db = client[db_name]
 
@@ -39,11 +40,11 @@ def main():
         print(f"Collection '{collection_inventory}' n'existe pas dans la base '{db_name}'...")
         print(f"Elle va être créée et remplie avec des données de base...")
         mylist = [
-            { "name": "Bread", "price": "4", "qty": "5" },
-            { "name": "Soda", "price": "3", "qty": "10" },
-            { "name": "Candy", "price": "2", "qty": "15" },
+            {"name": "Bread", "price": "4", "qty": "5"},
+            {"name": "Soda", "price": "3", "qty": "10"},
+            {"name": "Candy", "price": "2", "qty": "15"},
         ]
-        
+
         for item in mylist:
             StoreInventory(
                 name=item["name"],
@@ -58,158 +59,175 @@ def main():
     if collection_sales not in db.list_collection_names():
         print(f"Collection '{collection_sales}' n'existe pas dans la base '{db_name}'...")
         print(f"Elle va être créée...")
-    
         db.create_collection(collection_sales)
         print(f"Ajout de la collection '{collection_sales}'")
     else:
         print(f"Collection '{collection_sales}' trouvée dans la base '{db_name}'.")
 
-    print(f"Lancement de la console Client")
+
+def search_product(product_name):
+    product = StoreInventory.objects(name=product_name).first()
+    if product:
+        return {
+            "name": product.name,
+            "price": product.price,
+            "qty": product.qty
+        }
+    return None
+
+
+def register_sale(input_func=input, print_func=print):
+    # Ajout : afficher l'inventaire actuel
+    print_func("\n--- État du stock actuel ---")
+    display_inventory(print_func=print_func)
+    print_func("----------------------------\n")
+
+    sold_products = []
+    total_price = 0
 
     while True:
-        print(f"Options:")
-        print(f"   'a': Rechercher un produit")
-        print(f"   'b': Enregistrer une vente")
-        print(f"   'c': Gestion des retours")
-        print(f"   'd': Consulter état de stock")
-        print(f"   'q': Quitter")
+        product_name = input_func("Nom du produit (laisser vide pour terminer) : ").strip()
+        if product_name == "":
+            break
 
-        choice = input("Entrez votre choix: ")
+        product = StoreInventory.objects(name=product_name).first()
+
+        if not product:
+            print_func(f"Produit '{product_name}' introuvable.")
+            continue
+
+        try:
+            quantity = int(input_func(f"Quantité de '{product_name}' à vendre : "))
+        except ValueError:
+            print_func("Quantité invalide.")
+            continue
+
+        if quantity <= 0:
+            print_func("La quantité doit être positive.")
+            continue
+
+        if product.qty < quantity:
+            print_func(f"Stock insuffisant pour '{product_name}'. En stock : {product.qty}")
+            continue
+
+        total_item = product.price * quantity
+        total_price += total_item
+
+        sold_products.append(ProductSold(
+            name=product.name,
+            qty=quantity,
+            price=product.price,
+            total_price=total_item
+        ))
+
+        product.qty -= quantity
+        product.save()
+        print_func(f"Vente enregistrée pour '{product_name}', {quantity} unités.")
+
+    if sold_products:
+        sale = StoreSale(
+            total_price=total_price,
+            contents=sold_products
+        )
+        sale.save()
+        print_func(f"Vente enregistrée. Total : {total_price}$")
+
+
+
+def handle_return(input_func=input, print_func=print):
+    ventes = list(StoreSale.objects())
+
+    if not ventes:
+        print_func("Aucune vente enregistrée.")
+        return None
+
+    vente_dict = {}
+
+    print_func("Liste des ventes :")
+    for i, vente in enumerate(ventes, start=1):
+        vente_num = f"Vente #{i}"
+        vente_dict[vente_num] = vente.id  # stocker l'ID pour correspondance
+
+        print_func(f"\n   {vente_num} | Date: {vente.date.strftime('%Y-%m-%d %H:%M:%S')} | Total: {vente.total_price}$")
+        for p in vente.contents:
+            print_func(f"      - {p.qty}x {p.name} à {p.price}$ chacun (Total: {p.total_price}$)")
+
+    choix_vente = input_func("\nEntrez le numéro de la vente à retourner (ex: Vente #2) : ").strip()
+
+    if choix_vente not in vente_dict:
+        print_func("Numéro de vente invalide.")
+        return None
+
+    vente_id = vente_dict[choix_vente]
+    sale = StoreSale.objects(id=ObjectId(vente_id)).first()
+
+    if not sale:
+        print_func("Vente introuvable.")
+        return None
+
+    for produit in sale.contents:
+        item = StoreInventory.objects(name=produit.name).first()
+        if item:
+            item.qty += produit.qty
+            item.save()
+            print_func(f"Retour : +{produit.qty} {produit.name} dans l'inventaire.")
+        else:
+            print_func(f"Produit '{produit.name}' non trouvé dans l'inventaire.")
+
+    sale.delete()
+    print_func(f"{choix_vente} retournée et supprimée de la base.")
+    return vente_id
+
+
+def display_inventory(print_func=print):
+    print_func("Inventaire du magasin : ")
+    for item in StoreInventory.objects:
+        print_func(f"Produit: {item.name}, Quantité: {item.qty}, Price: {item.price}")
+
+
+def main_loop(input_func=input, print_func=print):
+    while True:
+        print_func("Options:")
+        print_func("   'a': Rechercher un produit")
+        print_func("   'b': Enregistrer une vente")
+        print_func("   'c': Gestion des retours")
+        print_func("   'd': Consulter état de stock")
+        print_func("   'q': Quitter")
+
+        choice = input_func("Entrez votre choix: ")
 
         if choice == 'a':
-            print("Recherche d'un produit")
-
-            product_name = input("Entrez le nom du produit recherché : ")
-
-            product = StoreInventory.objects(name=product_name).first()
-
+            print_func("Recherche d'un produit")
+            product_name = input_func("Entrez le nom du produit recherché : ")
+            product = search_product(product_name)
             if product:
-                print(f"Produit trouvé : {product.name}")
-                print(f"Prix : {product.price}")
-                print(f"Quantité en stock : {product.qty}")
+                print_func(f"Produit trouvé : {product['name']}")
+                print_func(f"Prix : {product['price']}")
+                print_func(f"Quantité en stock : {product['qty']}")
             else:
-                print(f"Produit '{product_name}' introuvable.")
+                print_func(f"Produit '{product_name}' introuvable.")
 
-
-            
         elif choice == 'b':
-            print("Enregistrement d'une vente")
+            print_func("Enregistrement d'une vente")
+            register_sale(input_func=input_func, print_func=print_func)
 
-            sold_products = []
-            total_price  = 0
-
-            while True:
-                product_name = input("Nom du produit (laisser vide pour terminer) : ").strip()
-                if product_name == "":
-                    break
-
-                product = StoreInventory.objects(name=product_name).first()
-
-                if not product:
-                    print(f"Produit '{product_name}' introuvable.")
-                    continue
-
-                try:
-                    quantite = int(input(f"Quantité de '{product_name}' à vendre : "))
-
-                except ValueError:
-                    print("Quantité invalide.")
-                    continue
-
-                if quantite <= 0:
-                    print("La quantité doit être positive.")
-                    continue
-
-                if product.qty < quantite:
-                    print(f"Stock insuffisant pour '{product_name}'. En stock : {product.qty}")
-                    continue
-
-                # Calcul et création de produit vendu
-                total_item = product.price * quantite
-                total_price += total_item
-
-                sold_products.append(ProductSold(
-                    name=product.name,
-                    qty=quantite,
-                    price=product.price,
-                    total_price=total_item
-                ))
-
-                # Mise à jour de l'inventaire
-                product.qty -= quantite
-                product.save()
-                print(f"Vente enregistrée pour '{product_name}', {quantite} unités.")
-
-            if sold_products:
-                sale = StoreSale(
-                    total_price=total_price,
-                    contents=sold_products
-                )
-                sale.save()
-                print(f"Vente enregistrée. Total : {total_price}$")
-            else:
-                print("Aucune vente enregistrée.")
-            
         elif choice == 'c':
-            print("Gestion des retours")
+            print_func("Gestion des retours")
+            handle_return(input_func=input_func, print_func=print_func)
 
-            ventes = StoreSale.objects()
-
-            if not ventes:
-                print("Aucune vente enregistrée.")
-                continue
-
-            vente_dict = {}
-
-            print("Liste des ventes :")
-            for i, vente in enumerate(ventes, start=1):
-                vente_num = f"Vente #{i}"
-                vente_dict[vente_num] = vente.id  # stocker l'ID pour correspondance
-
-                print(f"\n   {vente_num} | Date: {vente.date.strftime('%Y-%m-%d %H:%M:%S')} | Total: {vente.total_price}$")
-                for p in vente.contents:
-                    print(f"      - {p.qty}x {p.name} à {p.price}$ chacun (Total: {p.total_price}$)")
-
-            choix_vente = input("\nEntrez le numéro de la vente à retourner (ex: Vente #2) : ").strip()
-
-            if choix_vente not in vente_dict:
-                print("Numéro de vente invalide.")
-                continue
-            
-            vente_id = vente_dict[choix_vente]
-            sale = StoreSale.objects(id=ObjectId(vente_id)).first()
-
-            if not sale:
-                print("Vente introuvable.")
-                continue
-
-            # Remettre les produits dans l'inventaire
-            for produit in sale.contents:
-                item = StoreInventory.objects(name=produit.name).first()
-                if item:
-                    item.qty += produit.qty
-                    item.save()
-                    print(f"Retour : +{produit.qty} {produit.name} dans l'inventaire.")
-                else:
-                    print(f"Produit '{produit.name}' non trouvé dans l'inventaire.")
-
-            sale.delete()
-            print(f"{choix_vente} retournée et supprimée de la base.")
-            
         elif choice == 'd':
-            print("Inventaire du magasin : ")
-            for item in StoreInventory.objects:
-                print(f"Produit: {item.name}, Quantité: {item.qty}, Price: {item.price}")
-            
+            display_inventory(print_func=print_func)
+
         elif choice == 'q':
-            print("Fin du programme...")
+            print_func("Fin du programme...")
             break
 
         else:
-            print(f"Commande inconnue")
+            print_func("Commande inconnue")
 
-        
-        print(f"---------------------------")
+        print_func("---------------------------")
+
 
 if __name__ == "__main__":
-    main()
+    init_db()
+    main_loop()
