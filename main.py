@@ -1,5 +1,7 @@
+"""Module principal de gestion d'inventaire et de ventes pour un magasin."""
 from datetime import datetime
-from mongoengine import connect, DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, ListField, StringField, IntField, get_connection
+from mongoengine import connect, DateTimeField, Document, EmbeddedDocument, \
+    EmbeddedDocumentField, ListField, StringField, IntField, get_connection
 from bson.objectid import ObjectId
 
 # Constantes
@@ -8,6 +10,7 @@ COLLECTION_INVENTORY = "magasinInventaire"
 COLLECTION_SALES = "magasinVentes"
 connect(db=DB_NAME, host="localhost", port=27017)
 
+# pylint: disable=too-few-public-methods
 class StoreInventory(Document):
     """Modèle représentant un produit en inventaire."""
     meta = {'collection': COLLECTION_INVENTORY}
@@ -15,6 +18,7 @@ class StoreInventory(Document):
     price = IntField(required=True)
     qty = IntField(required=True)
 
+# pylint: disable=too-few-public-methods
 class ProductSold(EmbeddedDocument):
     """Modèle représentant un produit vendu."""
     name = StringField(required=True)
@@ -22,6 +26,7 @@ class ProductSold(EmbeddedDocument):
     price = IntField(required=True)
     total_price = IntField(required=True)
 
+# pylint: disable=too-few-public-methods
 class StoreSale(Document):
     """Modèle représentant une vente."""
     meta = {'collection': COLLECTION_SALES}
