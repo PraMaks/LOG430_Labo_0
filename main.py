@@ -1,28 +1,29 @@
 from datetime import datetime
-from mongoengine import connect, DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, ListField, StringField, IntField, get_connection
+from mongoengine import connect, BooleanField, DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, ListField, StringField, IntField, get_connection
 
 db_name = "labo1"
-collection_inventaire = "magasinInventaire"
-collection_ventes = "magasinVentes"
+collection_inventory = "magasinInventaire"
+collection_sales = "magasinVentes"
 connect(db=db_name, host="localhost", port=27017)
 
-class MagasinInventaire(Document):
-    meta = {'collection': collection_inventaire}
+class StoreInventory(Document):
+    meta = {'collection': collection_inventory}
     name = StringField(required=True)
     price = IntField(required=True)
     qty = IntField(required=True)
 
-class ProduitVendu(EmbeddedDocument):
+class ProductSold(EmbeddedDocument):
     name = StringField(required=True)
     qty = IntField(required=True)
     price = IntField(required=True) 
     total_price = IntField(required=True)  
 
-class MagasinVente(Document):
-    meta = {'collection': collection_ventes}
+class StoreSale(Document):
+    meta = {'collection': collection_sales}
     date = DateTimeField(default=datetime.utcnow)
     total_price = IntField(required=True)
-    contents = ListField(EmbeddedDocumentField(ProduitVendu))
+    contents = ListField(EmbeddedDocumentField(ProductSold))
+    is_returned = BooleanField(default=False)
 
 def main():
     client = get_connection()
@@ -34,8 +35,8 @@ def main():
     else:
         print(f"Base de données '{db_name}' trouvée.")
 
-    if collection_inventaire not in db.list_collection_names():
-        print(f"Collection '{collection_inventaire}' n'existe pas dans la base '{db_name}'...")
+    if collection_inventory not in db.list_collection_names():
+        print(f"Collection '{collection_inventory}' n'existe pas dans la base '{db_name}'...")
         print(f"Elle va être créée et remplie avec des données de base...")
         mylist = [
             { "name": "Bread", "price": "4", "qty": "5" },
@@ -44,7 +45,7 @@ def main():
         ]
         
         for item in mylist:
-            MagasinInventaire(
+            StoreInventory(
                 name=item["name"],
                 price=int(item["price"]),
                 qty=int(item["qty"])
@@ -52,16 +53,16 @@ def main():
             print(f"Ajout de '{item['name']}'")
 
     else:
-        print(f"Collection '{collection_inventaire}' trouvée dans la base '{db_name}'.")
+        print(f"Collection '{collection_inventory}' trouvée dans la base '{db_name}'.")
 
-    if collection_ventes not in db.list_collection_names():
-        print(f"Collection '{collection_ventes}' n'existe pas dans la base '{db_name}'...")
+    if collection_sales not in db.list_collection_names():
+        print(f"Collection '{collection_sales}' n'existe pas dans la base '{db_name}'...")
         print(f"Elle va être créée...")
     
-        db.create_collection(collection_ventes)
-        print(f"Ajout de la collection '{collection_ventes}'")
+        db.create_collection(collection_sales)
+        print(f"Ajout de la collection '{collection_sales}'")
     else:
-        print(f"Collection '{collection_ventes}' trouvée dans la base '{db_name}'.")
+        print(f"Collection '{collection_sales}' trouvée dans la base '{db_name}'.")
 
     print(f"Lancement de la console Client")
 
@@ -73,36 +74,111 @@ def main():
         print(f"   'd': Consulter état de stock")
         print(f"   'q': Quitter")
 
-        choix = input("Entrez votre choix: ")
+        choice = input("Entrez votre choix: ")
 
-        if choix == 'a':
+        if choice == 'a':
             print("Recherche d'un produit")
 
-            nom_produit = input("Entrez le nom du produit recherché : ")
+            product_name = input("Entrez le nom du produit recherché : ")
 
-            produit = MagasinInventaire.objects(name=nom_produit).first()
+            product = StoreInventory.objects(name=product_name).first()
 
-            if produit:
-                print(f"Produit trouvé : {produit.name}")
-                print(f"Prix : {produit.price}")
-                print(f"Quantité en stock : {produit.qty}")
+            if product:
+                print(f"Produit trouvé : {product.name}")
+                print(f"Prix : {product.price}")
+                print(f"Quantité en stock : {product.qty}")
             else:
-                print(f"Produit '{nom_produit}' introuvable.")
+                print(f"Produit '{product_name}' introuvable.")
 
 
             
-        elif choix == 'b':
+        elif choice == 'b':
             print("Enregistrement d'une vente")
+
+            sold_products = []
+            total_price  = 0
+
+            while True:
+                product_name = input("Nom du produit (laisser vide pour terminer) : ").strip()
+                if product_name == "":
+                    break
+
+                product = StoreInventory.objects(name=product_name).first()
+
+                if not product:
+                    print(f"Produit '{product_name}' introuvable.")
+                    continue
+
+                try:
+                    quantite = int(input(f"Quantité de '{product_name}' à vendre : "))
+
+                except ValueError:
+                    print("Quantité invalide.")
+                    continue
+
+                if quantite <= 0:
+                    print("La quantité doit être positive.")
+                    continue
+
+                if product.qty < quantite:
+                    print(f"Stock insuffisant pour '{product_name}'. En stock : {product.qty}")
+                    continue
+
+                # Calcul et création de produit vendu
+                total_item = product.price * quantite
+                total_price += total_item
+
+                sold_products.append(ProductSold(
+                    name=product.name,
+                    qty=quantite,
+                    price=product.price,
+                    total_price=total_item
+                ))
+
+                # Mise à jour de l'inventaire
+                product.qty -= quantite
+                product.save()
+                print(f"Vente enregistrée pour '{product_name}', {quantite} unités.")
+
+            if sold_products:
+                sale = StoreSale(
+                    total_price=total_price,
+                    contents=sold_products
+                )
+                sale.save()
+                print(f"Vente enregistrée. Total : {total_price}$")
+            else:
+                print("Aucune vente enregistrée.")
             
-        elif choix == 'c':
+        elif choice == 'c':
             print("Gestion des retours")
+
+            ventes = StoreSale.objects()
+
+            if not ventes:
+                print("Aucune vente enregistrée.")
+                continue
+
+            vente_dict = {}
+
+            print("Liste des ventes :")
+            for i, vente in enumerate(ventes, start=1):
+                vente_num = f"Vente #{i}"
+                vente_dict[vente_num] = vente.id  # stocker l'ID pour correspondance
+
+                print(f"\n   {vente_num} | Date: {vente.date.strftime('%Y-%m-%d %H:%M:%S')} | Total: {vente.total_price}$")
+                for p in vente.contents:
+                    print(f"      - {p.qty}x {p.name} à {p.price}$ chacun (Total: {p.total_price}$)")
+
+
             
-        elif choix == 'd':
+            
+        elif choice == 'd':
             print("Inventaire du magasin : ")
-            for item in MagasinInventaire.objects:
+            for item in StoreInventory.objects:
                 print(f"Produit: {item.name}, Quantité: {item.qty}, Price: {item.price}")
             
-        elif choix == 'q':
+        elif choice == 'q':
             print("Fin du programme...")
             break
 
