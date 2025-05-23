@@ -8,14 +8,17 @@ TEST_DB_NAME = "test_labo1"
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_and_teardown_db():
-    """Fixture lancée avant chaque test pour réinitialiser la base de test."""
     disconnect()
     connect(
         db=TEST_DB_NAME,
         host="localhost",
         port=27017,
-        alias="testdb"
+        alias="testdb",
+        uuidRepresentation="standard" # Pour enlever un warning avec pytest
     )
+    
+    StoreInventory._meta['db_alias'] = 'testdb'
+    StoreSale._meta['db_alias'] = 'testdb'
     
     StoreInventory.drop_collection()
     StoreSale.drop_collection()
@@ -23,6 +26,10 @@ def setup_and_teardown_db():
     StoreInventory.drop_collection()
     StoreSale.drop_collection()
     disconnect()
+    
+    StoreInventory._meta['db_alias'] = 'default'
+    StoreSale._meta['db_alias'] = 'default'
+
 
 def test_search_product_found():
     """Test pour la recherche d'un produit existant."""
