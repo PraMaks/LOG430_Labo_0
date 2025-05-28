@@ -2,3 +2,4 @@ mongoengine==0.29.1
 pymongo==4.13.0
 pylint==3.1.0
 pytest==8.3.5
+Requests==2.32.3

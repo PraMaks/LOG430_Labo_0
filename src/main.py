@@ -2,17 +2,28 @@
 from bson.objectid import ObjectId
 from src.db_models import StoreInventory, StoreSale, ProductSold
 from src.db_config import init_db
+import requests
+import sys
 
 def search_product(product_name):
     """Recherche un produit dans l'inventaire."""
-    product = StoreInventory.objects(name=product_name).first()
+    """product = StoreInventory.objects(name=product_name).first()
     if product:
         return {
             "name": product.name,
             "price": product.price,
             "qty": product.qty
         }
-    return None
+    return None"""
+    url = "http://127.0.0.1:3000/products"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  
+        data = response.json()  
+        print(data)  
+    except requests.exceptions.RequestException as e:
+        print(f"Erreur lors de la requête : {e}")
 
 def register_sale(input_func=input, print_func=print):
     """Enregistre une vente via des entrées utilisateur."""
@@ -161,5 +172,18 @@ def main_loop(input_func=input, print_func=print):
         print_func("---------------------------")
 
 if __name__ == "__main__":
-    init_db(prod=True)
-    main_loop()
+    num_magasin_string = sys.argv[1]
+    
+    if num_magasin_string.isdigit():
+        num_magasin_int = int(num_magasin_string)
+        if num_magasin_int > 0 and num_magasin_int < 6:
+            print("Numero de magasin:", sys.argv[1])
+            init_db(prod=True)
+            main_loop()
+        else:
+            print("Magasin choisi n'existe pas")
+    elif num_magasin_string == "admin" :
+        print("console maison mère")
+
+    else:
+        print("Option non supportée")
