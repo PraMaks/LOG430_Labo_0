@@ -1,4 +1,5 @@
 """Module principal de gestion d'inventaire et de ventes pour un magasin."""
+import datetime
 import requests
 import sys
 
@@ -48,7 +49,6 @@ def register_sale(store_number, input_func=input, print_func=print):
             print_func("Quantité invalide.")
             continue
 
-        # Vérification du stock
         available_qty = product_map[product_name]['qty']
         if quantity > available_qty:
             print_func(f"Stock insuffisant. Il reste seulement {available_qty} unités.")
@@ -69,7 +69,7 @@ def register_sale(store_number, input_func=input, print_func=print):
     try:
         response = requests.post(url, json=sold_products)
         response.raise_for_status()
-        print("Vente envoyée avec succès.")
+        print_func("Vente envoyée avec succès.")
         print_func("--- Vente enregistrée ---")
         total = sum(p["total_price"] for p in sold_products)
         for p in sold_products:
@@ -78,48 +78,51 @@ def register_sale(store_number, input_func=input, print_func=print):
     except requests.exceptions.RequestException as e:
         print(f"Erreur lors de l'envoi de la vente : {e}")
 
-def handle_return(input_func=input, print_func=print):
+def handle_return(store_number, input_func=input, print_func=print):
     """Gère le retour d'une vente."""
-    """ventes = list(StoreSale.objects())
-    if not ventes:
-        print_func("Aucune vente enregistrée.")
-        return None
+    url = f"http://127.0.0.1:3000/{store_number}/sales"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  
+        sales = response.json()  
 
-    vente_dict = {}
-    print_func("Liste des ventes :")
-    for i, vente in enumerate(ventes, start=1):
-        vente_num = f"Vente #{i}"
-        vente_dict[vente_num] = vente.id
+        if not sales:
+            print_func("Aucune vente enregistrée pour ce magasin.")
+            return
 
-        print_func(f"\n   {vente_num} | Date: {vente.date.strftime('%Y-%m-%d %H:%M:%S')} " +
-                    f" | Total: {vente.total_price}$")
-        for p in vente.contents:
-            print_func(f"      - {p.qty}x {p.name} à {p.price}$ chacun (Total: {p.total_price}$)")
+        print_func(f"Ventes du Magasin {store_number} :")
+        for i, sale in enumerate(sales, start=1):
+            print_func(f"Vente #{i} — Date: {sale['date']} — Total: {sale['total_price']} $")
+            print_func("  Produits vendus :")
+            for item in sale['contents']:
+                print_func(f"    - Produit: {item['name']}, Quantité: {item['qty']}, Prix unitaire: {item['price']} $, Total: {item['total_price']} $")
+        
+    except requests.exceptions.RequestException as e:
+        print_func(f"Erreur lors de la requête : {e}")
 
-    choix_vente = input_func("\nEntrez le numéro de la vente à retourner (ex: Vente #2) : ").strip()
-    if choix_vente not in vente_dict:
-        print_func("Numéro de vente invalide.")
-        return None
+    sale_choice = input_func("\nEntrez le numéro de la vente à retourner : ").strip()
+    
+    if not sale_choice.isdigit():
+        print_func("Entrée invalide. Veuillez entrer un nombre.")
+        return
 
-    vente_id = vente_dict[choix_vente]
-    sale = StoreSale.objects(id=ObjectId(vente_id)).first()
-    if not sale:
-        print_func("Vente introuvable.")
-        return None
+    sale_index = int(sale_choice) - 1
 
-    for produit in sale.contents:
-        item = StoreInventory.objects(name=produit.name).first()
-        if item:
-            item.qty += produit.qty
-            item.save()
-            print_func(f"Retour : +{produit.qty} {produit.name} dans l'inventaire.")
-        else:
-            print_func(f"Produit '{produit.name}' non trouvé dans l'inventaire.")
+    if sale_index < 0 or sale_index >= len(sales):
+        print_func(f"Numéro hors plage. Veuillez choisir un nombre entre 0 et {len(sales) - 1}.")
+        return
 
-    sale.delete()
-    print_func(f"{choix_vente} retournée et supprimée de la base.")
-    return vente_id
-    """
+    sale_id = sales[sale_index]['_id']
+    url = f"http://127.0.0.1:3000/{store_number}/returnSale/{sale_id}"
+    try:
+        response = requests.delete(url)
+        response.raise_for_status()
+        result = response.json()
+        print_func(f"{result.get('message', 'Vente supprimée avec succès.')}")
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Erreur lors de l'envoi de la vente : {e}")
+
 
 def display_inventory(store_number, print_func=print):
     """Affiche l'état actuel de l'inventaire."""
@@ -155,7 +158,7 @@ def main_loop(store_number, input_func=input, print_func=print):
             register_sale(store_number, input_func=input_func, print_func=print_func)
 
         elif choice == 'c':
-            handle_return(input_func=input_func, print_func=print_func)
+            handle_return(store_number, input_func=input_func, print_func=print_func)
 
         elif choice == 'd':
             display_inventory(store_number, print_func=print_func)
