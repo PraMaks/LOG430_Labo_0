@@ -20,7 +20,6 @@ async function startServer() {
 
     await initDb(); 
 
-    // Montage des routes
     app.use('/', storeRoutes);
     app.use('/admin', adminRoutes);
 

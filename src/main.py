@@ -1,6 +1,4 @@
 """Module principal de gestion d'inventaire et de ventes pour un magasin."""
-from bson.objectid import ObjectId
-from src.db_models import StoreInventory, StoreSale, ProductSold
 import requests
 import sys
 
@@ -23,64 +21,66 @@ def search_product(store_number, product_name, print_func=print):
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
 
-def register_sale(input_func=input, print_func=print):
+def register_sale(store_number, input_func=input, print_func=print):
     """Enregistre une vente via des entrées utilisateur."""
-    print_func("\n--- État du stock actuel ---")
-    display_inventory(print_func=print_func)
-    print_func("----------------------------\n")
+    print_func("--- État du stock actuel ---")
+    data = display_inventory(store_number, print_func=print)
+    print_func("----------------------------")
+
+    product_map = {product['name']: product for product in data}
 
     sold_products = []
-    total_price = 0
-
     while True:
         product_name = input_func("Nom du produit (laisser vide pour terminer) : ").strip()
         if product_name == "":
             break
 
-        product = StoreInventory.objects(name=product_name).first()
-        if not product:
+        if product_name not in product_map:
             print_func(f"Produit '{product_name}' introuvable.")
             continue
 
         try:
             quantity = int(input_func(f"Quantité de '{product_name}' à vendre : "))
+            if quantity <= 0:
+                print_func("La quantité doit être positive.")
+                continue
         except ValueError:
             print_func("Quantité invalide.")
             continue
 
-        if quantity <= 0:
-            print_func("La quantité doit être positive.")
+        # Vérification du stock
+        available_qty = product_map[product_name]['qty']
+        if quantity > available_qty:
+            print_func(f"Stock insuffisant. Il reste seulement {available_qty} unités.")
             continue
 
-        if product.qty < quantity:
-            print_func(f"Stock insuffisant pour '{product_name}'. En stock : {product.qty}")
-            continue
+        sold_products.append({
+            "name": product_name,
+            "qty": quantity,
+            "price": product_map[product_name]['price'],
+            "total_price": product_map[product_name]['price'] * quantity
+        })
 
-        total_item = product.price * quantity
-        total_price += total_item
-
-        sold_products.append(ProductSold(
-            name=product.name,
-            qty=quantity,
-            price=product.price,
-            total_price=total_item
-        ))
-
-        product.qty -= quantity
-        product.save()
-        print_func(f"Vente enregistrée pour '{product_name}', {quantity} unités.")
-
-    if sold_products:
-        sale = StoreSale(
-            total_price=total_price,
-            contents=sold_products
-        )
-        sale.save()
-        print_func(f"Vente enregistrée. Total : {total_price}$")
+    if not sold_products:
+        print_func("Aucun produit saisi, vente annulée.")
+        return
+    
+    url = f"http://127.0.0.1:3000/{store_number}/registerSale"
+    try:
+        response = requests.post(url, json=sold_products)
+        response.raise_for_status()
+        print("Vente envoyée avec succès.")
+        print_func("--- Vente enregistrée ---")
+        total = sum(p["total_price"] for p in sold_products)
+        for p in sold_products:
+            print_func(f"{p['qty']}x {p['name']} à {p['price']}$ - Total: {p['total_price']}$")
+        print_func(f"Montant total : {total}$")
+    except requests.exceptions.RequestException as e:
+        print(f"Erreur lors de l'envoi de la vente : {e}")
 
 def handle_return(input_func=input, print_func=print):
     """Gère le retour d'une vente."""
-    ventes = list(StoreSale.objects())
+    """ventes = list(StoreSale.objects())
     if not ventes:
         print_func("Aucune vente enregistrée.")
         return None
@@ -119,6 +119,7 @@ def handle_return(input_func=input, print_func=print):
     sale.delete()
     print_func(f"{choix_vente} retournée et supprimée de la base.")
     return vente_id
+    """
 
 def display_inventory(store_number, print_func=print):
     """Affiche l'état actuel de l'inventaire."""
@@ -130,8 +131,9 @@ def display_inventory(store_number, print_func=print):
         print_func(f"Inventaire du Magasin {store_number} :")
         for item in data:
             print_func(f"Produit: {item['name']}, Quantité: {item['qty']}, Prix: {item['price']}")
+        return data
     except requests.exceptions.RequestException as e:
-        print(f"Erreur lors de la requête : {e}")
+        print_func(f"Erreur lors de la requête : {e}")
 
 def main_loop(store_number, input_func=input, print_func=print):
     """Boucle principale d'interaction utilisateur."""
@@ -146,16 +148,13 @@ def main_loop(store_number, input_func=input, print_func=print):
         choice = input_func("Entrez votre choix: ")
 
         if choice == 'a':
-            print_func("Recherche d'un produit")
             product_name = input_func("Entrez le nom du produit recherché : ")
             search_product(store_number, product_name)
 
         elif choice == 'b':
-            print_func("Enregistrement d'une vente")
-            register_sale(input_func=input_func, print_func=print_func)
+            register_sale(store_number, input_func=input_func, print_func=print_func)
 
         elif choice == 'c':
-            print_func("Gestion des retours")
             handle_return(input_func=input_func, print_func=print_func)
 
         elif choice == 'd':

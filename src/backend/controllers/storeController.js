@@ -1,5 +1,6 @@
 const StoreInventory = require('../models/StoreInventory');
 const Store = require('../models/Store');
+const StoreSale = require('../models/StoreSale');
 
 exports.getProductsByStore = async (req, res) => {
   const storeNumber = parseInt(req.params.storeNumber);
@@ -65,5 +66,63 @@ exports.getProductByStoreByName = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+
+exports.postNewSale = async (req, res) => {
+  const storeNumber = req.params.storeNumber;
+  const soldProducts = req.body;
+
+  console.log(storeNumber);
+  console.log(soldProducts);
+
+  if (!Array.isArray(soldProducts) || soldProducts.length === 0) {
+    return res.status(400).json({ error: 'Données de vente invalides ou vides.' });
+  }
+
+  try {
+    if (isNaN(storeNumber) || storeNumber < 1 || storeNumber > 5) {
+        return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
+    }
+
+    const storeName = `Magasin ${storeNumber}`; 
+
+    const store = await Store.findOne({ name: storeName });
+    if (!store) {
+      return res.status(404).json({ error: `Magasin '${storeName}' introuvable` });
+    }
+
+    let totalPrice = 0;
+
+    for (const item of soldProducts) {
+      const product = await StoreInventory.findOne({ store: store._id, name: item.name });
+
+      if (!product) {
+        return res.status(404).json({ error: `Produit '${item.name}' introuvable dans le magasin ${storeNumber}` });
+      }
+
+      if (product.qty < item.qty) {
+        return res.status(400).json({ error: `Stock insuffisant pour '${item.name}'. Disponible : ${product.qty}` });
+      }
+
+      product.qty -= item.qty;
+      await product.save();
+
+      totalPrice += item.total_price;
+    }
+
+    const sale = new StoreSale({
+      store: store._id,
+      total_price: totalPrice,
+      contents: soldProducts
+    });
+
+    await sale.save();
+
+    res.status(201).json({ message: "Vente enregistrée avec succès." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erreur serveur lors de l'enregistrement de la vente." });
   }
 };

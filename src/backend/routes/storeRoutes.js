@@ -3,17 +3,11 @@ const router = express.Router();
 const productController = require('../controllers/storeController');
 const StoreSale = require('../models/StoreSale');
 
-router.get('/', (req, res) => {
-    res.send('Hello World!');
-});
-
-router.get('/about', (req, res) => {
-    res.send('Welcome to about us page');
-});
-
 router.get('/:storeNumber/productSearch/:productName', productController.getProductByStoreByName);
 
 router.get('/:storeNumber/products', productController.getProductsByStore);
+
+router.post('/:storeNumber/registerSale', productController.postNewSale);
 
 router.get('/sales', async (req, res) => {
     try {
