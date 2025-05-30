@@ -128,7 +128,7 @@ def display_inventory(print_func=print):
     for item in StoreInventory.objects:
         print_func(f"Produit: {item.name}, Quantité: {item.qty}, Price: {item.price}")
 
-def main_loop(input_func=input, print_func=print):
+def main_loop(store_number, input_func=input, print_func=print):
     """Boucle principale d'interaction utilisateur."""
     while True:
         print_func("Options:")
@@ -172,6 +172,10 @@ def main_loop(input_func=input, print_func=print):
         print_func("---------------------------")
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Veuillez spécifier un numéro de magasin (1-5) ou 'admin'.")
+        sys.exit(1)
+
     num_magasin_string = sys.argv[1]
     
     if num_magasin_string.isdigit():
@@ -179,7 +183,7 @@ if __name__ == "__main__":
         if num_magasin_int > 0 and num_magasin_int < 6:
             print("Numero de magasin:", sys.argv[1])
             init_db(prod=True)
-            main_loop()
+            main_loop(num_magasin_int)
         else:
             print("Magasin choisi n'existe pas")
     elif num_magasin_string == "admin" :
