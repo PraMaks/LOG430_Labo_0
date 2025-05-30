@@ -8,10 +8,9 @@ exports.getProductsByStore = async (req, res) => {
     return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
   }
 
-  const storeName = `Magasin ${storeNumber}`;
+  const storeName = `Magasin ${storeNumber}`; 
 
   try {
-    // On cherche le magasin par son nom dans la collection Stores
     const store = await Store.findOne({ name: storeName });
     if (!store) {
       return res.status(404).json({ error: `Magasin '${storeName}' introuvable` });
@@ -26,8 +25,42 @@ exports.getProductsByStore = async (req, res) => {
         price: product.price,
         qty: product.qty
     }));
-
     res.json(products);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+exports.getProductByStoreByName = async (req, res) => {
+  const storeNumber = parseInt(req.params.storeNumber);
+  const productName = req.params.productName;
+
+  if (isNaN(storeNumber) || storeNumber < 1 || storeNumber > 5) {
+    return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
+  }
+
+  const storeName = `Magasin ${storeNumber}`;
+
+  try {
+    const store = await Store.findOne({ name: storeName });
+    if (!store) {
+      return res.status(404).json({ error: `Magasin '${storeName}' introuvable` });
+    }
+
+    // Recherche du produit dans ce magasin
+    const product = await StoreInventory.findOne({ store: store._id, name: productName });
+    if (!product) {
+      return res.status(404).json({ error: `Produit '${productName}' introuvable dans le magasin '${storeName}'` });
+    }
+
+    // Retour des infos filtrées du produit
+    res.json({
+      name: product.name,
+      price: product.price,
+      qty: product.qty
+    });
 
   } catch (err) {
     console.error(err);

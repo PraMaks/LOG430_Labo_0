@@ -11,9 +11,7 @@ router.get('/about', (req, res) => {
     res.send('Welcome to about us page');
 });
 
-router.get('/contact', (req, res) => {
-    res.send('Welcome to contact us page');
-});
+router.get('/:storeNumber/productSearch/:productName', productController.getProductByStoreByName);
 
 router.get('/:storeNumber/products', productController.getProductsByStore);
 

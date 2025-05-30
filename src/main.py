@@ -1,29 +1,27 @@
 """Module principal de gestion d'inventaire et de ventes pour un magasin."""
 from bson.objectid import ObjectId
 from src.db_models import StoreInventory, StoreSale, ProductSold
-from src.db_config import init_db
 import requests
 import sys
 
-def search_product(product_name):
+def search_product(store_number, product_name, print_func=print):
     """Recherche un produit dans l'inventaire."""
-    """product = StoreInventory.objects(name=product_name).first()
-    if product:
-        return {
-            "name": product.name,
-            "price": product.price,
-            "qty": product.qty
-        }
-    return None"""
-    url = "http://127.0.0.1:3000/products"
-
+    url = f"http://127.0.0.1:3000/{store_number}/productSearch/{product_name}"
     try:
         response = requests.get(url)
+        if response.status_code == 404:
+            # Workaround pour ne pas lever d'exception
+            print_func(f"Erreur: Produit '{product_name}' introuvable dans le magasin {store_number}")
+            return
         response.raise_for_status()  
+        
         data = response.json()  
-        print(data)  
+        print_func(f"Produit trouvé dans Magasin {store_number} :")
+        print_func(f"  Nom: {data.get('name')}")
+        print_func(f"  Prix: {data.get('price')}")
+        print_func(f"  Quantité: {data.get('qty')}")
     except requests.exceptions.RequestException as e:
-        print(f"Erreur lors de la requête : {e}")
+        print_func(f"Erreur lors de la requête : {e}")
 
 def register_sale(input_func=input, print_func=print):
     """Enregistre une vente via des entrées utilisateur."""
@@ -125,7 +123,6 @@ def handle_return(input_func=input, print_func=print):
 def display_inventory(store_number, print_func=print):
     """Affiche l'état actuel de l'inventaire."""
     url = f"http://127.0.0.1:3000/{store_number}/products"
-
     try:
         response = requests.get(url)
         response.raise_for_status()  
@@ -151,13 +148,7 @@ def main_loop(store_number, input_func=input, print_func=print):
         if choice == 'a':
             print_func("Recherche d'un produit")
             product_name = input_func("Entrez le nom du produit recherché : ")
-            product = search_product(product_name)
-            if product:
-                print_func(f"Produit trouvé : {product['name']}")
-                print_func(f"Prix : {product['price']}")
-                print_func(f"Quantité en stock : {product['qty']}")
-            else:
-                print_func(f"Produit '{product_name}' introuvable.")
+            search_product(store_number, product_name)
 
         elif choice == 'b':
             print_func("Enregistrement d'une vente")
