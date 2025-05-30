@@ -1,13 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const initDb = require('./initDb'); 
 
 const app = express();
 const port = 3000;
-
-// Connexion à MongoDB locale
-mongoose.connect('mongodb://127.0.0.1:27017/labo2')
-.then(() => console.log('Connecté à MongoDB'))
-.catch((err) => console.error('Erreur de connexion MongoDB:', err));
 
 // Middleware pour parser le JSON
 app.use(express.json());
@@ -16,10 +12,24 @@ app.use(express.json());
 const storeRoutes = require('./routes/storeRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
-// Montage des routes
-app.use('/', storeRoutes);     
-app.use('/admin', adminRoutes);   
+// Fonction de démarrage
+async function startServer() {
+  try {
+    await mongoose.connect('mongodb://127.0.0.1:27017/labo2');
+    console.log('Connecté à MongoDB');
 
-app.listen(port, () => {
-    console.log(`Serveur lancé sur http://localhost:${port}`);
-});
+    await initDb(); 
+
+    // Montage des routes
+    app.use('/', storeRoutes);
+    app.use('/admin', adminRoutes);
+
+    app.listen(port, () => {
+      console.log(`Serveur lancé sur http://localhost:${port}`);
+    });
+  } catch (err) {
+    console.error('Erreur de démarrage du serveur :', err);
+  }
+}
+
+startServer();

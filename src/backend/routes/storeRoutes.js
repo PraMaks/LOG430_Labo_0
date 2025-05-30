@@ -15,7 +15,7 @@ router.get('/contact', (req, res) => {
     res.send('Welcome to contact us page');
 });
 
-router.get('/products', productController.getAllProducts);
+router.get('/:storeNumber/products', productController.getProductsByStore);
 
 router.get('/sales', async (req, res) => {
     try {

@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
 const storeSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    price: { type: Number, required: true },
-    qty: { type: Number, required: true }
+    name: { type: String, required: true, unique: true },
+    address: { type: String, required: true }
 }, {
-    collection: 'magasinInventaire' 
+    collection: 'magasins'
 });
 
-module.exports = mongoose.model('StoreInventory', storeInventorySchema);
+module.exports = mongoose.model('Store', storeSchema);

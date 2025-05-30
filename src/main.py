@@ -122,11 +122,19 @@ def handle_return(input_func=input, print_func=print):
     print_func(f"{choix_vente} retournée et supprimée de la base.")
     return vente_id
 
-def display_inventory(print_func=print):
+def display_inventory(store_number, print_func=print):
     """Affiche l'état actuel de l'inventaire."""
-    print_func("Inventaire du magasin : ")
-    for item in StoreInventory.objects:
-        print_func(f"Produit: {item.name}, Quantité: {item.qty}, Price: {item.price}")
+    url = f"http://127.0.0.1:3000/{store_number}/products"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  
+        data = response.json()  
+        print_func(f"Inventaire du Magasin {store_number} :")
+        for item in data:
+            print_func(f"Produit: {item['name']}, Quantité: {item['qty']}, Prix: {item['price']}")
+    except requests.exceptions.RequestException as e:
+        print(f"Erreur lors de la requête : {e}")
 
 def main_loop(store_number, input_func=input, print_func=print):
     """Boucle principale d'interaction utilisateur."""
@@ -160,7 +168,7 @@ def main_loop(store_number, input_func=input, print_func=print):
             handle_return(input_func=input_func, print_func=print_func)
 
         elif choice == 'd':
-            display_inventory(print_func=print_func)
+            display_inventory(store_number, print_func=print_func)
 
         elif choice == 'q':
             print_func("Fin du programme...")
@@ -182,7 +190,6 @@ if __name__ == "__main__":
         num_magasin_int = int(num_magasin_string)
         if num_magasin_int > 0 and num_magasin_int < 6:
             print("Numero de magasin:", sys.argv[1])
-            init_db(prod=True)
             main_loop(num_magasin_int)
         else:
             print("Magasin choisi n'existe pas")

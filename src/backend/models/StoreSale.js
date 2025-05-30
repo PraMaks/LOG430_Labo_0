@@ -8,6 +8,7 @@ const productSoldSchema = new mongoose.Schema({
 }, { _id: false }); 
 
 const storeSaleSchema = new mongoose.Schema({
+    store: { type: mongoose.Schema.Types.ObjectId, ref: 'Store', required: true },
     date: { type: Date, default: () => new Date() },
     total_price: { type: Number, required: true },
     contents: { type: [productSoldSchema], required: true }
