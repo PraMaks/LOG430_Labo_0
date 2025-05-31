@@ -269,7 +269,63 @@ def generate_sales_report(print_func=print):
             most_sold_products = [name for name, qty in product_sold_dict.items() if qty == max_qty]
             print_func("    Produit(s) le(s) plus vendu(s) : " + ", ".join(most_sold_products))
 
+def display_store_performance(print_func=print):
+    """Affiche un tableau de bord des performances des magasins."""
+    report_sales_dict = { 
+        1: [],
+        2: [],
+        3: [],
+        4: [],
+        5: [],
+    }
+    report_products_dict = { }
+    for i in range(1, 6):
+        url = f"http://127.0.0.1:3000/{i}/products"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  
+            data = response.json()  
+            report_products_dict[i] = data;
+        except requests.exceptions.RequestException as e:
+            print_func(f"Erreur lors de la requête : {e}")
 
+    for i in range(1, 6):
+        url = f"http://127.0.0.1:3000/{i}/sales"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  
+            sales = response.json()  
+
+            if not sales:
+                continue
+            report_sales_dict[i] = sales;
+        except requests.exceptions.RequestException as e:
+            print_func(f"Erreur lors de la requête : {e}")
+
+    report_stores_dict = { }
+    url = f"http://127.0.0.1:3000/admin/stores"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  
+        data = response.json()  
+        
+        for store in data:
+            if store['name'].startswith('Magasin '):
+                try:
+                    number = int(store['name'].split()[1])
+                    if 1 <= number <= 5:
+                        report_stores_dict[number] = {
+                            'name': store['name'],
+                            'address': store['address'],
+                            'nb_requests': store['nb_requests']
+                        }
+                except ValueError:
+                    continue  # Workaround pour sauter Magasin Central
+
+        print(report_stores_dict)
+
+    except requests.exceptions.RequestException as e:
+        print_func(f"Erreur lors de la requête : {e}")
 
 def main_loop(store_number, input_func=input, print_func=print):
     """Boucle principale d'interaction utilisateur."""
@@ -362,6 +418,9 @@ def main_loop_admin(input_func=input, print_func=print):
 
         elif choice == 'f':
             generate_sales_report(print_func=print_func)
+
+        elif choice == 'g':
+            display_store_performance(print_func=print_func)
 
         elif choice == 'q':
             print_func("Fin du programme...")
