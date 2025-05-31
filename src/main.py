@@ -17,6 +17,7 @@ def search_product(store_number, product_name, print_func=print):
         data = response.json()  
         print_func(f"Produit trouvé dans Magasin {store_number} :")
         print_func(f"  Nom: {data.get('name')}")
+        print_func(f"  Description: {data.get('description')}")
         print_func(f"  Prix: {data.get('price')}")
         print_func(f"  Quantité: {data.get('qty')}")
     except requests.exceptions.RequestException as e:
@@ -56,6 +57,7 @@ def register_sale(store_number, input_func=input, print_func=print):
 
         sold_products.append({
             "name": product_name,
+            "description": product_map[product_name]['description'],
             "qty": quantity,
             "price": product_map[product_name]['price'],
             "total_price": product_map[product_name]['price'] * quantity
@@ -172,6 +174,56 @@ def main_loop(store_number, input_func=input, print_func=print):
 
         print_func("---------------------------")
 
+def main_loop_admin(input_func=input, print_func=print):
+    """Boucle principale d'interaction utilisateur."""
+    while True:
+        print_func("Options:")
+        print_func("   'a': Rechercher un produit")
+        print_func("   'b': Enregistrer une vente")
+        print_func("   'c': Gestion des retours")
+        print_func("   'd': Consulter état de stock")
+        print_func("   'q': Quitter")
+
+        choice = input_func("Entrez votre choix: ")
+
+        if choice == 'a':
+            store_number = int(input_func("Entrez le numéro de magasin (1 à 5) : "))
+            if 1 <= store_number <= 5:
+                product_name = input_func("Entrez le nom du produit recherché : ")
+                search_product(store_number, product_name)
+            else : 
+                print_func("Numéro de magasin invalide")
+
+        elif choice == 'b':
+            store_number = int(input_func("Entrez le numéro de magasin (1 à 5) : "))
+            if 1 <= store_number <= 5:
+                register_sale(store_number, input_func=input_func, print_func=print_func)
+            else : 
+                print_func("Numéro de magasin invalide")
+
+        elif choice == 'c':
+            store_number = int(input_func("Entrez le numéro de magasin (1 à 5) : "))
+            if 1 <= store_number <= 5:
+                handle_return(store_number, input_func=input_func, print_func=print_func)
+            else : 
+                print_func("Numéro de magasin invalide")
+
+        elif choice == 'd':
+            store_number = int(input_func("Entrez le numéro de magasin (1 à 5) : "))
+            if 1 <= store_number <= 5:
+                display_inventory(store_number, print_func=print_func)
+            else : 
+                print_func("Numéro de magasin invalide")
+
+        elif choice == 'q':
+            print_func("Fin du programme...")
+            break
+
+        else:
+            print_func("Commande inconnue")
+
+        print_func("---------------------------")
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Veuillez spécifier un numéro de magasin (1-5) ou 'admin'.")
@@ -186,8 +238,10 @@ if __name__ == "__main__":
             main_loop(num_magasin_int)
         else:
             print("Magasin choisi n'existe pas")
+
     elif num_magasin_string == "admin" :
-        print("console maison mère")
+        print("Console maison mère")
+        main_loop_admin()
 
     else:
         print("Option non supportée")

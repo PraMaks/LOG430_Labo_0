@@ -10,9 +10,9 @@ const DEFAULT_STORES = [
 ];
 
 const DEFAULT_PRODUCTS = [
-  { name: 'Bread', price: 4, qty: 5 },
-  { name: 'Soda', price: 3, qty: 10 },
-  { name: 'Candy', price: 2, qty: 15 },
+  { name: 'Bread', description: 'Very Tasty Bread', price: 4, qty: 5 },
+  { name: 'Soda', description: 'Very Refreshing', price: 3, qty: 10 },
+  { name: 'Candy', description: 'Very Sugary', price: 2, qty: 15 },
 ];
 
 async function initDb() {
@@ -34,6 +34,7 @@ async function initDb() {
         const inventoryItem = new StoreInventory({
           store: store._id,
           name: product.name,
+          description: product.description,
           price: product.price,
           qty: product.qty,
         });

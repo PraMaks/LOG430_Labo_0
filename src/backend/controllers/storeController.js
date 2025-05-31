@@ -23,6 +23,7 @@ exports.getProductsByStore = async (req, res) => {
     // On filtre les données JSON
     const products = rawProducts.map(product => ({
         name: product.name,
+        description: product.description,
         price: product.price,
         qty: product.qty
     }));
@@ -59,6 +60,7 @@ exports.getProductByStoreByName = async (req, res) => {
     // Retour des infos filtrées du produit
     res.json({
       name: product.name,
+      descriptiom: procuct.description,
       price: product.price,
       qty: product.qty
     });
