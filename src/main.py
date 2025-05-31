@@ -1,5 +1,4 @@
 """Module principal de gestion d'inventaire et de ventes pour un magasin."""
-import datetime
 import requests
 import sys
 
@@ -20,6 +19,7 @@ def search_product(store_number, product_name, print_func=print):
         print_func(f"  Description: {data.get('description')}")
         print_func(f"  Prix: {data.get('price')}")
         print_func(f"  Quantité: {data.get('qty')}")
+        print_func(f"  Quantité Max: {data.get('max_qty')}")
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
 
@@ -78,7 +78,7 @@ def register_sale(store_number, input_func=input, print_func=print):
             print_func(f"{p['qty']}x {p['name']} à {p['price']}$ - Total: {p['total_price']}$")
         print_func(f"Montant total : {total}$")
     except requests.exceptions.RequestException as e:
-        print(f"Erreur lors de l'envoi de la vente : {e}")
+        print_func(f"Erreur lors de l'envoi de la vente : {e}")
 
 def handle_return(store_number, input_func=input, print_func=print):
     """Gère le retour d'une vente."""
@@ -123,7 +123,7 @@ def handle_return(store_number, input_func=input, print_func=print):
         print_func(f"{result.get('message', 'Vente supprimée avec succès.')}")
         
     except requests.exceptions.RequestException as e:
-        print(f"Erreur lors de l'envoi de la vente : {e}")
+        print_func(f"Erreur lors de l'envoi de la vente : {e}")
 
 
 def display_inventory(store_number, print_func=print):
@@ -135,10 +135,87 @@ def display_inventory(store_number, print_func=print):
         data = response.json()  
         print_func(f"Inventaire du Magasin {store_number} :")
         for item in data:
-            print_func(f"Produit: {item['name']}, Quantité: {item['qty']}, Prix: {item['price']}")
+            print_func(f"Produit: {item['name']}, Quantité: {item['qty']}, Quantité Max: {item['max_qty']},  Prix: {item['price']}")
         return data
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
+
+def display_main_inventory(print_func=print):
+    """Affiche l'état actuel de l'inventaire du magasin mère."""
+    url = f"http://127.0.0.1:3000/mainStore/products"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  
+        data = response.json()  
+        print_func(f"Inventaire du Magasin Mère :")
+        for item in data:
+            print_func(f"Produit: {item['name']}, Quantité: {item['qty']}, Quantité Max: {item['max_qty']},  Prix: {item['price']}")
+        return data
+    except requests.exceptions.RequestException as e:
+        print_func(f"Erreur lors de la requête : {e}")
+
+def request_supplies(store_number, print_func=print):
+    """Affiche l'état actuel de l'inventaire du magasin mère."""
+    url = f"http://127.0.0.1:3000/mainStore/products"
+    
+
+def generate_sales_report(print_func=print):
+    """Affiche le rapport des ventes parmi les magasins."""
+    report_sales_dict = { 
+        1: [],
+        2: [],
+        3: [],
+        4: [],
+        5: [],
+    }
+    report_products_dict = { }
+    for i in range(1, 6):
+        url = f"http://127.0.0.1:3000/{i}/products"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  
+            data = response.json()  
+            report_products_dict[i] = data;
+        except requests.exceptions.RequestException as e:
+            print_func(f"Erreur lors de la requête : {e}")
+
+    for i in range(1, 6):
+        url = f"http://127.0.0.1:3000/{i}/sales"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  
+            sales = response.json()  
+
+            if not sales:
+                continue
+            report_sales_dict[i] = sales;
+        except requests.exceptions.RequestException as e:
+            print_func(f"Erreur lors de la requête : {e}")
+    
+    print_func("------------ RAPPORT ------------")
+    for i in range(1, 6):
+        product_sold_dict = {}
+
+        print_func(f"Magasin #{i} :")
+        print_func(f"   Stock restant du Magasin #{i} :")
+        for item in report_products_dict[i]:
+            print_func(f"       Produit: {item['name']}, Description: {item['description']}, Quantité: {item['qty']}, Quantité Max: {item['max_qty']}, Prix: {item['price']}")
+
+        print_func(f"   Ventes du Magasin #{i} :")
+        if not report_sales_dict[i]:
+            print_func("        Aucune vente enregistrée pour ce magasin.")
+            print_func("        Impossible de determiner quel produit est le plus vendu")
+        else:
+            for j, sale in enumerate(report_sales_dict[i], start=1):
+                print_func(f"           Vente #{j} — Date: {sale['date']} — Total: {sale['total_price']} $")
+                print_func("                Produits vendus :")
+                for item in sale['contents']:
+                    print_func(f"                   - Produit: {item['name']}, Quantité: {item['qty']}, Prix unitaire: {item['price']} $, Total: {item['total_price']} $")
+                    product_sold_dict[item['name']] = product_sold_dict.get(item['name'], 0) + item['qty']
+
+            max_qty = max(product_sold_dict.values())
+            most_sold_products = [name for name, qty in product_sold_dict.items() if qty == max_qty]
+            print_func("    Produit(s) le(s) plus vendu(s) : " + ", ".join(most_sold_products))
 
 def main_loop(store_number, input_func=input, print_func=print):
     """Boucle principale d'interaction utilisateur."""
@@ -147,7 +224,9 @@ def main_loop(store_number, input_func=input, print_func=print):
         print_func("   'a': Rechercher un produit")
         print_func("   'b': Enregistrer une vente")
         print_func("   'c': Gestion des retours")
-        print_func("   'd': Consulter état de stock")
+        print_func("   'd': Consulter état de stock du magasin")
+        print_func("   'e': Consulter état de stock du magasin mère")
+        print_func("   'f': Déclencher un réapprovisionnement")
         print_func("   'q': Quitter")
 
         choice = input_func("Entrez votre choix: ")
@@ -164,6 +243,12 @@ def main_loop(store_number, input_func=input, print_func=print):
 
         elif choice == 'd':
             display_inventory(store_number, print_func=print_func)
+
+        elif choice == 'e':
+            display_main_inventory(print_func=print_func)
+
+        elif choice == 'f':
+            request_supplies(print_func=print_func)
 
         elif choice == 'q':
             print_func("Fin du programme...")
@@ -182,6 +267,9 @@ def main_loop_admin(input_func=input, print_func=print):
         print_func("   'b': Enregistrer une vente")
         print_func("   'c': Gestion des retours")
         print_func("   'd': Consulter état de stock")
+        print_func("   'e': Consulter état de stock du magasin mère")
+        print_func("   'f': Générer un rapport consolidé des ventes")
+        print_func("   'g': Visualiser les performances des magasins")
         print_func("   'q': Quitter")
 
         choice = input_func("Entrez votre choix: ")
@@ -214,6 +302,12 @@ def main_loop_admin(input_func=input, print_func=print):
                 display_inventory(store_number, print_func=print_func)
             else : 
                 print_func("Numéro de magasin invalide")
+
+        elif choice == 'e':
+            display_main_inventory(print_func=print_func)
+
+        elif choice == 'f':
+            generate_sales_report(print_func=print_func)
 
         elif choice == 'q':
             print_func("Fin du programme...")

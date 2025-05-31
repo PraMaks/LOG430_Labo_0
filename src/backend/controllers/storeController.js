@@ -25,7 +25,8 @@ exports.getProductsByStore = async (req, res) => {
         name: product.name,
         description: product.description,
         price: product.price,
-        qty: product.qty
+        qty: product.qty,
+        max_qty: product.max_qty
     }));
     res.json(products);
 
@@ -60,9 +61,10 @@ exports.getProductByStoreByName = async (req, res) => {
     // Retour des infos filtrées du produit
     res.json({
       name: product.name,
-      descriptiom: procuct.description,
+      descriptiom: product.description,
       price: product.price,
-      qty: product.qty
+      qty: product.qty,
+      max_qty: product.max_qty
     });
 
   } catch (err) {
@@ -179,8 +181,6 @@ exports.deleteSaleByStore = async (req, res) => {
       return res.status(404).json({ error: "Vente introuvable pour ce magasin." });
     }
 
-    console.log(sale);
-
     // Remettre les produits vendus en stock
     for (const item of sale.contents) {
       const inventoryItem = await StoreInventory.findOne({ store: store._id, name: item.name });
@@ -196,6 +196,34 @@ exports.deleteSaleByStore = async (req, res) => {
     await StoreSale.deleteOne({ _id: saleId });
 
     res.status(200).json({ message: "Vente supprimée et stock mis à jour." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+exports.getProductsFromMainStore = async (req, res) => {
+  const storeName = `Magasin Central`; 
+
+  try {
+    const store = await Store.findOne({ name: storeName });
+    if (!store) {
+      return res.status(404).json({ error: `Magasin '${storeName}' introuvable` });
+    }
+
+    // On cherche les produits liés à ce magasin via son ObjectId
+    const rawProducts = await StoreInventory.find({ store: store._id });
+
+    // On filtre les données JSON
+    const products = rawProducts.map(product => ({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        qty: product.qty,
+        max_qty: product.max_qty
+    }));
+    res.json(products);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erreur serveur" });
