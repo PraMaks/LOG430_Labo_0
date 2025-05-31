@@ -154,10 +154,62 @@ def display_main_inventory(print_func=print):
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
 
-def request_supplies(store_number, print_func=print):
+def request_supplies(store_number, input_func=input, print_func=print):
     """Affiche l'état actuel de l'inventaire du magasin mère."""
-    url = f"http://127.0.0.1:3000/mainStore/products"
-    
+    print_func("--- État du stock actuel ---")
+    dataStore = display_inventory(store_number, print_func=print)
+    print_func("----------------------------")
+    print_func("--- État du stock de la maison Mère ---")
+    dataStoreMain = display_main_inventory(print_func=print)
+    print_func("----------------------------")  
+
+    product_map = {product['name']: product for product in dataStore}
+    product_main_map = {product['name']: product for product in dataStoreMain}
+
+    requested_products = []
+    while True:
+        product_name = input_func("Nom du produit (laisser vide pour terminer) : ").strip()
+        if product_name == "":
+            break
+
+        if product_name not in product_map:
+            print_func(f"Produit '{product_name}' introuvable.")
+            continue
+
+        try:
+            quantity = int(input_func(f"Quantité de '{product_name}' à demander : "))
+            if quantity <= 0:
+                print_func("La quantité doit être positive.")
+                continue
+        except ValueError:
+            print_func("Quantité invalide.")
+            continue
+
+        available_qty = product_main_map[product_name]['qty']
+        if quantity > available_qty:
+            print_func(f"Stock insuffisant. Il reste seulement {available_qty} unités.")
+            continue
+
+        requested_products.append({
+            "name": product_name,
+            "qty": quantity,
+        })
+
+    if not requested_products:
+        print_func("Aucun produit saisi, vente annulée.")
+        return
+
+
+    url = f"http://127.0.0.1:3000/{store_number}/requestSupplies"
+    try:
+        response = requests.post(url, json=requested_products)
+        response.raise_for_status()
+        print_func("Demande d'approvisionnement envoyée avec succès.")
+        print_func("Détails de la demande :")
+        for product in requested_products:
+            print_func(f" - {product['qty']}x {product['name']}")
+    except requests.exceptions.RequestException as e:
+        print_func(f"Erreur lors de la demande d'approvisionnement : {e}")
 
 def generate_sales_report(print_func=print):
     """Affiche le rapport des ventes parmi les magasins."""
@@ -217,6 +269,8 @@ def generate_sales_report(print_func=print):
             most_sold_products = [name for name, qty in product_sold_dict.items() if qty == max_qty]
             print_func("    Produit(s) le(s) plus vendu(s) : " + ", ".join(most_sold_products))
 
+
+
 def main_loop(store_number, input_func=input, print_func=print):
     """Boucle principale d'interaction utilisateur."""
     while True:
@@ -248,7 +302,7 @@ def main_loop(store_number, input_func=input, print_func=print):
             display_main_inventory(print_func=print_func)
 
         elif choice == 'f':
-            request_supplies(print_func=print_func)
+            request_supplies(store_number, print_func=print_func)
 
         elif choice == 'q':
             print_func("Fin du programme...")

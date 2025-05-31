@@ -14,4 +14,6 @@ router.get('/:storeNumber/sales', productController.getSalesByStore);
 
 router.delete('/:storeNumber/returnSale/:saleId', productController.deleteSaleByStore);
 
+router.post('/:storeNumber/requestSupplies', productController.postNewSupplyRequestFromStore)
+
 module.exports = router;

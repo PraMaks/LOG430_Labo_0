@@ -2,12 +2,12 @@ const Store = require('./models/Store');
 const StoreInventory = require('./models/StoreInventory');
 
 const DEFAULT_STORES = [
-  { name: 'Magasin 1', address: '123 rue Principale' },
-  { name: 'Magasin 2', address: '456 avenue du Centre' },
-  { name: 'Magasin 3', address: '789 boulevard Nord' },
-  { name: 'Magasin 4', address: '321 chemin Sud' },
-  { name: 'Magasin 5', address: '654 route Est' },
-  { name: 'Magasin Central', address: '146 route Centrale' },
+  { name: 'Magasin 1', address: '123 rue Principale', nb_requests: 0 },
+  { name: 'Magasin 2', address: '456 avenue du Centre', nb_requests: 0 },
+  { name: 'Magasin 3', address: '789 boulevard Nord', nb_requests: 0 },
+  { name: 'Magasin 4', address: '321 chemin Sud', nb_requests: 0 },
+  { name: 'Magasin 5', address: '654 route Est', nb_requests: 0 },
+  { name: 'Magasin Central', address: '146 route Centrale', nb_requests: 0 },
 ];
 
 const DEFAULT_PRODUCTS = [
@@ -73,7 +73,7 @@ async function initDb() {
           max_qty: product.max_qty*10
         });
         await copiedProduct.save();
-        console.log(`Copie de '${product.name}' dans 'Magasin Central'`);
+        console.log(`Ajout de '${product.name}' dans 'Magasin Central'`);
       }
     }
   }

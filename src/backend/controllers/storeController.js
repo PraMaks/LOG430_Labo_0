@@ -1,6 +1,7 @@
 const StoreInventory = require('../models/StoreInventory');
 const Store = require('../models/Store');
 const StoreSale = require('../models/StoreSale');
+const SupplyRequest = require('../models/SupplyRequest');
 
 exports.getProductsByStore = async (req, res) => {
   const storeNumber = parseInt(req.params.storeNumber);
@@ -227,5 +228,52 @@ exports.getProductsFromMainStore = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+exports.postNewSupplyRequestFromStore = async (req, res) => {
+  const storeNumber = req.params.storeNumber;
+  const requestedSupplies = req.body;
+
+  if (!Array.isArray(requestedSupplies) || requestedSupplies.length === 0) {
+    return res.status(400).json({ error: 'Données de vente invalides ou vides.' });
+  }
+
+  try {
+    if (isNaN(storeNumber) || storeNumber < 1 || storeNumber > 5) {
+        return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
+    }
+
+    // On cherche le magasin
+    const storeName = `Magasin ${storeNumber}`; 
+    const store = await Store.findOne({ name: storeName });
+    if (!store) {
+      return res.status(404).json({ error: `Magasin '${storeName}' introuvable` });
+    }
+
+    // Gestion des produits
+    for (const item of requestedSupplies) {
+      const product = await StoreInventory.findOne({ store: store._id, name: item.name });
+
+      if (!product) {
+        return res.status(404).json({ error: `Produit '${item.name}' introuvable dans le magasin ${storeNumber}` });
+      }
+    }
+
+    // Gestion de la requete
+    const supplyRequest = new SupplyRequest({
+      store: store._id,
+      products: requestedSupplies
+    });
+    await supplyRequest.save();
+    await Store.updateOne(
+      { _id: store._id },
+      { $inc: { nb_requests: 1 } }
+    );
+    res.status(201).json({ message: "Requete enregistrée avec succès." });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erreur serveur lors de l'enregistrement de la requete." });
   }
 };
