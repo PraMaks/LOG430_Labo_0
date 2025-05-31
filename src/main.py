@@ -1,6 +1,7 @@
 """Module principal de gestion d'inventaire et de ventes pour un magasin."""
 import requests
 import sys
+from datetime import timedelta, datetime
 
 def search_product(store_number, product_name, print_func=print):
     """Recherche un produit dans l'inventaire."""
@@ -322,10 +323,49 @@ def display_store_performance(print_func=print):
                 except ValueError:
                     continue  # Workaround pour sauter Magasin Central
 
-        print(report_stores_dict)
-
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
+
+    print_func("------------ Tableau de bord ------------")
+    for i in range(1, 6):
+        total_profit = 0
+
+        print_func(f"Magasin #{i} :")
+        print_func(f"   Chiffres d'affaire du Magasin #{i} :")
+        if not report_sales_dict[i]:
+            print_func("        Aucune vente enregistrée pour ce magasin")
+        else:
+            for sale in report_sales_dict[i]:
+                total_profit += sale['total_price']
+        print_func(f"        Profit total: {total_profit}$")    
+
+        print_func(f"   Alertes de rupture de stock du Magasin #{i} : {report_stores_dict[i]['nb_requests']}")
+
+        print_func(f"   Produits en surstock dans le Magasin #{i} : ")
+        for product in report_products_dict[i]:
+            if product['qty'] > product['max_qty']:
+                print_func(f"       {product['name']} est en surstock : Quantité max {product['max_qty']} mais il en a {product['qty']} en stock")
+        
+        weekly_sales = {}
+        for sale in report_sales_dict[i]:
+            try:
+                date = datetime.fromisoformat(sale['date'].replace('Z', '+00:00'))
+                year, week, _ = date.isocalendar()
+                key = (year, week)
+                if key not in weekly_sales:
+                    weekly_sales[key] = 0
+                weekly_sales[key] += sale['total_price']
+            except Exception:
+                continue
+
+        sorted_weeks = sorted(weekly_sales.items())
+        print_func("        Tendances hebdomadaires :")
+        for (year, week), total in sorted_weeks:
+            # Calcul du lundi de la semaine
+            monday = datetime.fromisocalendar(year, week, 1).date()
+            sunday = monday + timedelta(days=6)
+            print_func(f"            Semaine du {monday} au {sunday} : {total}$")
+
 
 def main_loop(store_number, input_func=input, print_func=print):
     """Boucle principale d'interaction utilisateur."""
