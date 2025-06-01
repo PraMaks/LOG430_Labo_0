@@ -1,17 +1,18 @@
-# Utiliser une image Python légère
-FROM python:3.12-slim
+FROM node:20-slim
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers de l'application
+# Copy package files from root
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of your app (including src/backend)
 COPY . .
 
-# Chemin vers src
-ENV PYTHONPATH=/app
+# Expose the port your Express app uses
+EXPOSE 3000
 
-# Installer les dépendances
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Commande par défaut (modifiable avec docker-compose)
-CMD ["python", "src/main.py"]
+# Start your Express app (adjust path if needed)
+CMD ["node", "src/backend/app.js"]

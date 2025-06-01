@@ -15,7 +15,10 @@ const adminRoutes = require('./routes/adminRoutes');
 // Fonction de démarrage
 async function startServer() {
   try {
-    await mongoose.connect('mongodb://127.0.0.1:27017/labo2');
+    const mongoHost = process.env.MONGO_HOST || 'localhost';
+    const mongoPort = process.env.MONGO_PORT || '27017';
+    const mongoUrl = `mongodb://${mongoHost}:${mongoPort}/labo2`;
+    await mongoose.connect(mongoUrl);
     console.log('Connecté à MongoDB');
 
     await initDb(); 

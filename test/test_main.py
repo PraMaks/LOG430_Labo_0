@@ -59,7 +59,7 @@ def test_display_inventory_fail(mock_get): # pylint: disable=unused-argument
     """Test pour lorsqu'une erreur survient pour l'affichage d'inventaire"""
     output = []
     data = display_inventory(1, print_func=output.append)
-    assert data == "error"
+    assert data is None
     assert any("Erreur lors de la requête" in line for line in output)
 
 @patch("requests.post")

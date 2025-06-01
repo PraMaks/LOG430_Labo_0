@@ -25,12 +25,17 @@ def search_product(store_number, product_name, print_func=print):
         print_func(f"  Quantité Max: {data.get('max_qty')}")
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
+        return
 
 def register_sale(store_number, input_func=input, print_func=print):
     """Enregistre une vente via des entrées utilisateur."""
     print_func("--- État du stock actuel ---")
     data = display_inventory(store_number, print_func=print)
     print_func("----------------------------")
+
+    if data is None:
+        print_func("Erreur de recolte de données")
+        return
 
     product_map = {product['name']: product for product in data}
 
@@ -82,6 +87,7 @@ def register_sale(store_number, input_func=input, print_func=print):
         print_func(f"Montant total : {total}$")
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de l'envoi de la vente : {e}")
+        return
 
 def handle_return(store_number, input_func=input, print_func=print):
     """Gère le retour d'une vente."""
@@ -105,6 +111,7 @@ def handle_return(store_number, input_func=input, print_func=print):
 
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
+        return
 
     sale_choice = input_func("\nEntrez le numéro de la vente à retourner : ").strip()
 
@@ -128,6 +135,7 @@ def handle_return(store_number, input_func=input, print_func=print):
 
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de l'envoi de la vente : {e}")
+        return
 
 
 def display_inventory(store_number, print_func=print):
@@ -144,7 +152,7 @@ def display_inventory(store_number, print_func=print):
         return data
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
-    return "error"
+        return None
 
 def display_main_inventory(print_func=print):
     """Affiche l'état actuel de l'inventaire du magasin mère."""
@@ -160,16 +168,25 @@ def display_main_inventory(print_func=print):
         return data
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
-    return "error"
+        return None
 
 def request_supplies(store_number, input_func=input, print_func=print):
     """Affiche l'état actuel de l'inventaire du magasin mère."""
     print_func("--- État du stock actuel ---")
     data_store = display_inventory(store_number, print_func=print)
     print_func("----------------------------")
+
+    if data_store is None:
+        print_func("Erreur de recolte de données")
+        return
+
     print_func("--- État du stock de la maison Mère ---")
     data_store_main = display_main_inventory(print_func=print)
     print_func("----------------------------")
+
+    if data_store_main is None:
+        print_func("Erreur de recolte de données")
+        return
 
     product_map = {product['name']: product for product in data_store}
     product_main_map = {product['name']: product for product in data_store_main}
@@ -218,6 +235,7 @@ def request_supplies(store_number, input_func=input, print_func=print):
             print_func(f" - {product['qty']}x {product['name']}")
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la demande d'approvisionnement : {e}")
+        return
 
 def generate_sales_report(print_func=print):
     """Affiche le rapport des ventes parmi les magasins."""
@@ -238,6 +256,7 @@ def generate_sales_report(print_func=print):
             report_products_dict[i] = data
         except requests.exceptions.RequestException as e:
             print_func(f"Erreur lors de la requête : {e}")
+            return
 
     for i in range(1, 6):
         url = f"http://127.0.0.1:3000/{i}/sales"
@@ -251,6 +270,7 @@ def generate_sales_report(print_func=print):
             report_sales_dict[i] = sales
         except requests.exceptions.RequestException as e:
             print_func(f"Erreur lors de la requête : {e}")
+            return
 
     print_func("------------ RAPPORT ------------")
     for i in range(1, 6):
@@ -277,7 +297,6 @@ def generate_sales_report(print_func=print):
                                 f" {item['qty']}, Prix unitaire: {item['price']} $," +
                                  f" Total: {item['total_price']} $")
                     product_sold_dict[item['name']] = product_sold_dict.get(item['name'], 0) + item['qty'] # pylint: disable=line-too-long
-            print_func(product_sold_dict.values())
             max_qty = max(product_sold_dict.values())
             most_sold_products = [name for name, qty in product_sold_dict.items() if qty == max_qty]
             print_func("    Produit(s) le(s) plus vendu(s) : " + ", ".join(most_sold_products))
@@ -301,6 +320,7 @@ def display_store_performance(print_func=print):
             report_products_dict[i] = data
         except requests.exceptions.RequestException as e:
             print_func(f"Erreur lors de la requête : {e}")
+            return
 
     for i in range(1, 6):
         url = f"http://127.0.0.1:3000/{i}/sales"
@@ -314,6 +334,7 @@ def display_store_performance(print_func=print):
             report_sales_dict[i] = sales
         except requests.exceptions.RequestException as e:
             print_func(f"Erreur lors de la requête : {e}")
+            return
 
     report_stores_dict = { }
     url = "http://127.0.0.1:3000/admin/stores"
@@ -337,6 +358,7 @@ def display_store_performance(print_func=print):
 
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
+        return
 
     print_func("------------ Tableau de bord ------------")
     for i in range(1, 6):
