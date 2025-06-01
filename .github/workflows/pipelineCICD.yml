@@ -59,38 +59,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: PYTHONPATH=$(pwd) pytest
-
-  BuildImage:
-    needs: TestUnitaires
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build Docker image
-      run: |
-        docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/python-magasin-app:latest .
-    - name: Save Docker image as tar archive
-      run: |
-        docker save docker.io/${{ secrets.DOCKER_USERNAME }}/python-magasin-app:latest -o image.tar
-    - name: Upload Docker image as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: docker-image
-        path: image.tar
-
-  PublishDockerHub:
-    needs: BuildImage
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-image
-      - name: Load Docker image from tar
-        run: docker load -i image.tar
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-      - name: Push Docker image to Docker Hub
-        run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/python-magasin-app:latest
+  
+  
 
    
 
