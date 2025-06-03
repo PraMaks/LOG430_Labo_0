@@ -366,7 +366,6 @@ def test_display_store_performance_success(mock_get, fake_product_data, fake_sal
     assert any("Semaine du" in line for line in output)
     assert any("Magasin #1" in line for line in output)
 
-
 @patch("requests.put")
 @patch("requests.get")
 def test_update_product_details_success(mock_get, mock_put):
