@@ -1,7 +1,70 @@
+# pylint: disable=redefined-outer-name
+# pylint: disable=unused-argument
+# pour eviter des problèmes avec les fixtures et args
 """Module principal des tests unitaires de l'application."""
 from unittest.mock import patch, MagicMock
+import pytest
 import requests
-from src.main import search_product,display_inventory,register_sale,handle_return,request_supplies
+from src.store_functions import (
+    display_main_inventory,
+    display_store_performance,
+    generate_sales_report,
+    search_product,
+    display_inventory,
+    register_sale,
+    handle_return,
+    request_supplies,
+)
+
+@pytest.fixture
+def fake_product_data():
+    """Fixture utilisée pour avoir accès rapide aux données fictives de produits"""
+    return [
+        {"name": "ProdA", "description": "DescA", "qty": 10, "max_qty": 50, "price": 5},
+        {"name": "ProdB", "description": "DescB", "qty": 20, "max_qty": 50, "price": 10}
+    ]
+
+@pytest.fixture
+def fake_sales_data():
+    """Fixture utilisée pour avoir accès rapide aux données fictives d'une vente"""
+    return [
+        {
+            "date": "2025-06-01",
+            "total_price": 30,
+            "contents": [
+                {"name": "ProdA", "qty": 2, "price": 5, "total_price": 10},
+                {"name": "ProdB", "qty": 2, "price": 10, "total_price": 20}
+            ]
+        }
+    ]
+
+@pytest.fixture
+def fake_sales():
+    """Fixture utilisée pour avoir accès rapide aux données fictives de 2 ventes"""
+    return [
+        {
+            "date": "2025-06-01T10:00:00Z",
+            "total_price": 100,
+            "contents": [
+                {"name": "ProdA", "qty": 2, "price": 5, "total_price": 10},
+                {"name": "ProdB", "qty": 3, "price": 10, "total_price": 30}
+            ]
+        },
+        {
+            "date": "2025-06-03T14:00:00Z",
+            "total_price": 50,
+            "contents": []
+        }
+    ]
+
+@pytest.fixture
+def fake_stores():
+    """Fixture utilisée pour avoir accès rapide aux données fictives de magasins"""
+    return [
+        {"name": f"Magasin {i}", "address": f"Adresse {i}", "nb_requests": i} for i in range(1, 6)
+    ] + [
+        {"name": "Magasin Central", "address": "Centre", "nb_requests": 0}
+    ]
 
 @patch("requests.get")
 def test_search_product_found(mock_get):
@@ -62,8 +125,34 @@ def test_display_inventory_fail(mock_get): # pylint: disable=unused-argument
     assert data is None
     assert any("Erreur lors de la requête" in line for line in output)
 
+@patch("requests.get")
+def test_display_mina_inventory_success(mock_get):
+    """Test pour afficher l'inventaire d'un magasin mère"""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = [
+        {"name": "Prod1", "qty": 5, "max_qty": 10, "price": 20},
+        {"name": "Prod2", "qty": 3, "max_qty": 8, "price": 15}
+    ]
+    mock_get.return_value = mock_response
+
+    output = []
+    data = display_main_inventory(print_func=output.append)
+    assert isinstance(data, list)
+    assert any("Inventaire du Magasin" in line for line in output)
+    assert any("Prod1" in line for line in output)
+    assert any("Prod2" in line for line in output)
+
+@patch("requests.get", side_effect=requests.exceptions.RequestException("fail"))
+def test_display_mina_inventory_fail(mock_get): # pylint: disable=unused-argument
+    """Test pour lorsqu'une erreur survient pour l'affichage d'inventaire mère"""
+    output = []
+    data = display_main_inventory(print_func=output.append)
+    assert data is None
+    assert any("Erreur lors de la requête" in line for line in output)
+
 @patch("requests.post")
-@patch("src.main.display_inventory")
+@patch("src.store_functions.display_inventory")
 def test_register_sale_success(mock_display_inventory, mock_post):
     """Test pour enregister une vente avec succès"""
     mock_display_inventory.return_value = [
@@ -88,7 +177,7 @@ def test_register_sale_success(mock_display_inventory, mock_post):
     assert any("3x ProdA" in line for line in output)
     assert any("2x ProdB" in line for line in output)
 
-@patch("src.main.display_inventory")
+@patch("src.store_functions.display_inventory")
 def test_register_sale_no_products(mock_display_inventory):
     """Test pour enregistrer une vente mais sans produits"""
     mock_display_inventory.return_value = [
@@ -182,8 +271,8 @@ def test_handle_return_delete_fail(mock_get, mock_delete):
     assert any("Erreur lors de l'envoi" in line for line in output)
 
 @patch("requests.post")
-@patch("src.main.display_inventory")
-@patch("src.main.display_main_inventory")
+@patch("src.store_functions.display_inventory")
+@patch("src.store_functions.display_main_inventory")
 def test_request_supplies_success(mock_main_inv, mock_store_inv, mock_post):
     """Test pour la demande d'approvisionnement avec succès"""
     mock_store_inv.return_value = [
@@ -207,8 +296,8 @@ def test_request_supplies_success(mock_main_inv, mock_store_inv, mock_post):
     assert any("envoyée avec succès" in line for line in output)
     assert any("3x ProdA" in line for line in output)
 
-@patch("src.main.display_inventory")
-@patch("src.main.display_main_inventory")
+@patch("src.store_functions.display_inventory")
+@patch("src.store_functions.display_main_inventory")
 def test_request_supplies_no_products(mock_main_inv, mock_store_inv):
     """Test pour la demande d'approvisionnement mais la demande est vide"""
     mock_store_inv.return_value = [
@@ -224,3 +313,58 @@ def test_request_supplies_no_products(mock_main_inv, mock_store_inv):
     request_supplies(1, input_func=lambda _: next(inputs), print_func=output.append)
 
     assert any("annulée" in line.lower() for line in output)
+
+def test_generate_sales_report_success(fake_product_data, fake_sales_data):
+    # Doit les passer en param, car c'est des fixtures
+    """Test pour générer un rapport de vente"""
+    output = []
+
+    def mock_print(s):
+        output.append(s)
+
+    def mock_get(url, *args, **kwargs):
+        response = MagicMock()
+        if "products" in url:
+            response.json.return_value = fake_product_data
+        elif "sales" in url:
+            response.json.return_value = fake_sales_data
+        response.raise_for_status.return_value = None
+        return response
+
+    with patch("requests.get", side_effect=mock_get):
+        generate_sales_report(print_func=mock_print)
+
+    assert "------------ RAPPORT ------------" in output
+    assert any("Produit(s) le(s) plus vendu(s)" in line for line in output)
+    assert any("Magasin #1" in line for line in output)
+    assert any("Produit: ProdA" in line for line in output)
+    assert any("Produit: ProdB" in line for line in output)
+
+def test_display_store_performance_success(fake_product_data, fake_sales, fake_stores):
+    # Doit les passer en param, car c'est des fixtures
+    """Test pour générer un rapport de performance des magasins"""
+    output = []
+
+    def mock_print(s):
+        output.append(s)
+
+    def mock_get(url, *args, **kwargs):
+        mock_resp = MagicMock()
+        if "products" in url:
+            mock_resp.json.return_value = fake_product_data
+        elif "sales" in url:
+            mock_resp.json.return_value = fake_sales
+        elif "admin/stores" in url:
+            mock_resp.json.return_value = fake_stores
+        mock_resp.raise_for_status.return_value = None
+        return mock_resp
+
+    with patch("requests.get", side_effect=mock_get):
+        display_store_performance(print_func=mock_print)
+
+    assert "------------ Tableau de bord ------------" in output
+    assert any("Profit total: 150$" in line for line in output)
+    assert any("rupture de stock" in line for line in output)
+    assert any("surstock" in line for line in output)
+    assert any("Semaine du" in line for line in output)
+    assert any("Magasin #1" in line for line in output)
