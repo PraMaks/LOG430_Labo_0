@@ -10,6 +10,7 @@ from src.store_functions import (
     register_sale,
     request_supplies,
     search_product,
+    update_product_details
 )
 
 def main_loop(store_number, input_func=input, print_func=print):
@@ -65,6 +66,7 @@ def main_loop_admin(input_func=input, print_func=print):
         print_func("   'e': Consulter état de stock du magasin mère")
         print_func("   'f': Générer un rapport consolidé des ventes")
         print_func("   'g': Visualiser les performances des magasins")
+        print_func("   'h': Mettre à jour les données d'un produit")
         print_func("   'q': Quitter")
 
         choice = input_func("Entrez votre choix: ")
@@ -106,6 +108,9 @@ def main_loop_admin(input_func=input, print_func=print):
 
         elif choice == 'g':
             display_store_performance(print_func=print_func)
+
+        elif choice == 'h':
+            update_product_details(print_func=print_func)
 
         elif choice == 'q':
             print_func("Fin du programme...")

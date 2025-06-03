@@ -146,7 +146,8 @@ def display_inventory(store_number, print_func=print):
         data = response.json()
         print_func(f"Inventaire du Magasin {store_number} :")
         for item in data:
-            print_func(f"Produit: {item['name']}, Quantité: {item['qty']}, " +
+            print_func(f"Produit: {item['name']}, Description: {item['description']}, " +
+                       f"Quantité: {item['qty']}, " +
                         f" Quantité Max: {item['max_qty']},  Prix: {item['price']}")
         return data
     except requests.exceptions.RequestException as e:
@@ -162,8 +163,9 @@ def display_main_inventory(print_func=print):
         data = response.json()
         print_func("Inventaire du Magasin Mère :")
         for item in data:
-            print_func(f"Produit: {item['name']}, Quantité: {item['qty']}, "+
-                        f"Quantité Max: {item['max_qty']},  Prix: {item['price']}")
+            print_func(f"Produit: {item['name']}, Description: {item['description']}, " +
+                       f"Quantité: {item['qty']}, " +
+                        f" Quantité Max: {item['max_qty']},  Prix: {item['price']}")
         return data
     except requests.exceptions.RequestException as e:
         print_func(f"Erreur lors de la requête : {e}")
@@ -400,3 +402,67 @@ def display_store_performance(print_func=print):
             monday = datetime.fromisocalendar(year, week, 1).date()
             sunday = monday + timedelta(days=6)
             print_func(f"            Semaine du {monday} au {sunday} : {total}$")
+
+def update_product_details(print_func=print, input_func=input):
+    """Mise à jour des informations d'un produit dans tous les magasins."""
+    url = "http://127.0.0.1:3000/mainStore/products"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+
+        if not data:
+            print_func("Aucun produit trouvé.")
+            return
+
+        print_func("Inventaire du Magasin Mère :")
+        for idx, item in enumerate(data, start=1):
+            print_func(f"{idx}. Produit: {item['name']}, Quantité: {item['qty']}, " +
+                       f"Quantité Max: {item['max_qty']}, Prix: {item['price']}")
+
+        while True:
+            try:
+                choice = int(input_func("Entrez le numéro du produit à modifier : "))
+                if 1 <= choice <= len(data):
+                    break
+                print_func(f"Veuillez entrer un numéro entre 1 et {len(data)}.")
+
+            except ValueError:
+                print_func("Veuillez entrer un nombre entier valide.")
+
+        selected_product = data[choice - 1]
+        product_name = selected_product['name']
+
+        print_func("Laissez vide pour ne pas modifier la valeur.")
+
+        new_name = input_func(f"Nouveau nom (actuel: {selected_product['name']}): ")
+        new_description = input_func(
+            f"Nouvelle description (actuelle: {selected_product['description']}): "
+        ) # ligne trop longue
+        new_price = input_func(f"Nouveau prix (actuel: {selected_product['price']}): ")
+
+        # Préparer le payload en n'incluant que les champs modifiés
+        update_data = {}
+        if new_name.strip():
+            update_data['name'] = new_name.strip()
+        if new_description.strip():
+            update_data['description'] = new_description.strip()
+        if new_price.strip():
+            try:
+                update_data['price'] = float(new_price)
+            except ValueError:
+                print_func("Prix invalide, la valeur ne sera pas modifiée.")
+
+        if not update_data:
+            print_func("Aucune modification apportée.")
+            return
+
+        update_url = f"http://127.0.0.1:3000/admin/product/update/{product_name}"
+        put_response = requests.put(update_url, json=update_data)
+        put_response.raise_for_status()
+
+        result = put_response.json()
+        print_func(f"Succès : {result.get('message', 'Produit mis à jour.')}")
+    except requests.exceptions.RequestException as e:
+        print_func(f"Erreur lors de la requête HTTP : {e}")

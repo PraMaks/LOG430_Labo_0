@@ -14,6 +14,7 @@ from src.store_functions import (
     register_sale,
     handle_return,
     request_supplies,
+    update_product_details,
 )
 
 @pytest.fixture
@@ -105,8 +106,8 @@ def test_display_inventory_success(mock_get):
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.json.return_value = [
-        {"name": "Prod1", "qty": 5, "max_qty": 10, "price": 20},
-        {"name": "Prod2", "qty": 3, "max_qty": 8, "price": 15}
+        {"name": "Prod1", "description": "Desc1", "qty": 5, "max_qty": 10, "price": 20},
+        {"name": "Prod2", "description": "Desc2", "qty": 3, "max_qty": 8, "price": 15}
     ]
     mock_get.return_value = mock_response
 
@@ -126,13 +127,13 @@ def test_display_inventory_fail(mock_get): # pylint: disable=unused-argument
     assert any("Erreur lors de la requête" in line for line in output)
 
 @patch("requests.get")
-def test_display_mina_inventory_success(mock_get):
+def test_display_main_inventory_success(mock_get):
     """Test pour afficher l'inventaire d'un magasin mère"""
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.json.return_value = [
-        {"name": "Prod1", "qty": 5, "max_qty": 10, "price": 20},
-        {"name": "Prod2", "qty": 3, "max_qty": 8, "price": 15}
+        {"name": "Prod1", "description": "Desc1", "qty": 5, "max_qty": 10, "price": 20},
+        {"name": "Prod2", "description": "Desc2", "qty": 3, "max_qty": 8, "price": 15}
     ]
     mock_get.return_value = mock_response
 
@@ -314,15 +315,11 @@ def test_request_supplies_no_products(mock_main_inv, mock_store_inv):
 
     assert any("annulée" in line.lower() for line in output)
 
-def test_generate_sales_report_success(fake_product_data, fake_sales_data):
-    # Doit les passer en param, car c'est des fixtures
-    """Test pour générer un rapport de vente"""
-    output = []
+@patch("requests.get")
+def test_generate_sales_report_success(mock_get, fake_product_data, fake_sales_data):
+    """Test pour générer un rapport de vente avec succès."""
 
-    def mock_print(s):
-        output.append(s)
-
-    def mock_get(url, *args, **kwargs):
+    def mock_get_side_effect(url, *args, **kwargs):
         response = MagicMock()
         if "products" in url:
             response.json.return_value = fake_product_data
@@ -331,24 +328,22 @@ def test_generate_sales_report_success(fake_product_data, fake_sales_data):
         response.raise_for_status.return_value = None
         return response
 
-    with patch("requests.get", side_effect=mock_get):
-        generate_sales_report(print_func=mock_print)
+    mock_get.side_effect = mock_get_side_effect
 
-    assert "------------ RAPPORT ------------" in output
+    output = []
+    generate_sales_report(print_func=output.append)
+
+    assert any("------------ RAPPORT ------------" in line for line in output)
     assert any("Produit(s) le(s) plus vendu(s)" in line for line in output)
     assert any("Magasin #1" in line for line in output)
     assert any("Produit: ProdA" in line for line in output)
     assert any("Produit: ProdB" in line for line in output)
 
-def test_display_store_performance_success(fake_product_data, fake_sales, fake_stores):
-    # Doit les passer en param, car c'est des fixtures
-    """Test pour générer un rapport de performance des magasins"""
-    output = []
+@patch("requests.get")
+def test_display_store_performance_success(mock_get, fake_product_data, fake_sales, fake_stores):
+    """Test pour générer un rapport de performance des magasins avec succès."""
 
-    def mock_print(s):
-        output.append(s)
-
-    def mock_get(url, *args, **kwargs):
+    def mock_get_side_effect(url, *args, **kwargs):
         mock_resp = MagicMock()
         if "products" in url:
             mock_resp.json.return_value = fake_product_data
@@ -359,12 +354,59 @@ def test_display_store_performance_success(fake_product_data, fake_sales, fake_s
         mock_resp.raise_for_status.return_value = None
         return mock_resp
 
-    with patch("requests.get", side_effect=mock_get):
-        display_store_performance(print_func=mock_print)
+    mock_get.side_effect = mock_get_side_effect
 
-    assert "------------ Tableau de bord ------------" in output
+    output = []
+    display_store_performance(print_func=output.append)
+
+    assert any("------------ Tableau de bord ------------" in line for line in output)
     assert any("Profit total: 150$" in line for line in output)
     assert any("rupture de stock" in line for line in output)
     assert any("surstock" in line for line in output)
     assert any("Semaine du" in line for line in output)
     assert any("Magasin #1" in line for line in output)
+
+
+@patch("requests.put")
+@patch("requests.get")
+def test_update_product_details_success(mock_get, mock_put):
+    """Test pour la mise à jour réussie d'un produit dans le magasin mère."""
+    mock_get.return_value = MagicMock()
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.raise_for_status.return_value = None
+    mock_get.return_value.json.return_value = [
+        {
+            "name": "ProdA",
+            "description": "DescA",
+            "qty": 10,
+            "max_qty": 100,
+            "price": 5.0
+        }
+    ]
+
+    mock_put.return_value = MagicMock()
+    mock_put.return_value.status_code = 200
+    mock_put.return_value.raise_for_status.return_value = None
+    mock_put.return_value.json.return_value = {
+        "message": "Produit mis à jour avec succès."
+    }
+
+    inputs = iter([
+        "1",            # Choisir le ProdA
+        "NewProdA",     # Nouveau nom
+        "NewDescA",     # Nouvelle description
+        "7"             # Nouveau prix
+    ])
+    output = []
+
+    update_product_details(input_func=lambda _: next(inputs), print_func=output.append)
+
+    assert any("Produit mis à jour" in line for line in output)
+    mock_put.assert_called_once_with(
+        "http://127.0.0.1:3000/admin/product/update/ProdA",
+        json={
+            "name": "NewProdA",
+            "description": "NewDescA",
+            "price": 7
+        }
+    )
