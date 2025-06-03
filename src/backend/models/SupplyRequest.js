@@ -13,7 +13,7 @@ const supplyRequestSchema = new mongoose.Schema({
         enum: ['pending', 'approved', 'rejected', 'fulfilled'], 
         default: 'pending' 
     },
-    requestDate: { type: Date, default: () => new Date() }
+    request_date: { type: Date, default: () => new Date() }
 }, {
     collection: 'demandesApprovisionnement'
 });
