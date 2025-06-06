@@ -62,7 +62,7 @@ Pour créer l'image Docker (à partir du root de l'application) : lancer "docker
 
 Pour verifier que l'image Docker s'est correctement crée (à partir du root de l'application) : lancer "docker images"
 
-Pour rouler l'image de manière interactive : lancer "docker compose run --rm -it app"
+Pour lancer et build le tout avec Docker Compose : "docker compose up --build"
 
 ## Réussite des jobs sur le pipeline CI/CD
 
