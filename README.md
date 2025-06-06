@@ -45,6 +45,8 @@ Cette image lance le côté backend de l'application
 Avec git d'installé sur le poste, lancer "git clone https://github.com/PraMaks/LOG430_Labo_0.git" dans une ligne de commandes (Git Bash recommandé)
 
 Il faut installer les dépendances du projet : pip install -r requirements.txt
+ 
+Il faut installer les dépendances de Express.js : npm install
 
 Pour lancer l'application frontend: À partir de la racine de ce projet lancer : "python3 -m src.main {1,2,3,4,5 ou admin}"
 
