@@ -1,0 +1,38 @@
+{% extends "magasins/base.html" %}
+{% load bootstrap5 %}
+
+{% block title %}Recherche de produit{% endblock %}
+
+{% block content %}
+<h1>Rechercher un produit</h1>
+
+<form method="post" class="mb-3">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label for="nom_produit" class="form-label">Nom du produit</label>
+    <input type="text" name="nom_produit" id="nom_produit" class="form-control" value="{{ query }}">
+  </div>
+  <button type="submit" class="btn btn-primary">Rechercher</button>
+</form>
+
+{% if produit %}
+  <h2 class="mt-4">Résultat :</h2>
+  <div class="card mt-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ produit.name }}</h5>
+      <h6 class="card-subtitle mb-2 text-muted">{{ produit.descriptiom }}</h6>
+      <p class="card-text">
+        <strong>Prix :</strong> {{ produit.price }} €<br>
+        <strong>Quantité en stock :</strong> {{ produit.qty }}<br>
+        <strong>Quantité maximale :</strong> {{ produit.max_qty }}
+      </p>
+    </div>
+  </div>
+{% elif query %}
+  <div class="alert alert-warning mt-4" role="alert">
+    Aucun produit trouvé avec ce nom.
+  </div>
+{% endif %}
+
+
+{% endblock %}

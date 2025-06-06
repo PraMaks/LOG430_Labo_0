@@ -1,0 +1,13 @@
+{% extends "magasins/base.html" %}
+{% load bootstrap5 %}
+
+{% block title %}Liste des produits mère{% endblock %}
+
+{% block content %}
+    <h1>Liste des Produits</h1>
+    <ul>
+      {% for p in produits %}
+        <li>{{ p.name }} - {{ p.qty }} unités</li>
+      {% endfor %}
+    </ul>
+{% endblock %}
