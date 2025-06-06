@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 import requests
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
 def magasin_standard(request):
     return render(request, 'magasins/magasin_standard.html')
@@ -70,8 +71,36 @@ def enregistrer_vente(request):
         produits = response.json()
         return render(request, "magasins/enregistrer_vente.html", {"produits": produits})
 
-def gestion_retours(request):
-    return HttpResponse("Page 3")
+def retour_vente(request):
+    store_number = 1 
+    url = f"http://127.0.0.1:3000/{store_number}/sales"
+    ventes = []
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        ventes = response.json()
+        for vente in ventes:
+            if '_id' in vente:
+                vente['id'] = vente['_id']
+    except requests.exceptions.RequestException as e:
+        messages.error(request, f"Erreur de communication avec le serveur : {e}")
+        return render(request, "magasins/retour_vente.html", {"ventes": [], "store_number": store_number})
+
+    if request.method == "POST":
+        sale_id = request.POST.get("sale_id")
+        if sale_id:
+            delete_url = f"http://127.0.0.1:3000/{store_number}/returnSale/{sale_id}"
+            try:
+                delete_response = requests.delete(delete_url)
+                delete_response.raise_for_status()
+                result = delete_response.json()
+                messages.success(request, result.get("message", "Vente retournée avec succès."))
+                return redirect("retour_vente")
+            except requests.exceptions.RequestException as e:
+                messages.error(request, f"Erreur lors de la suppression : {e}")
+
+    return render(request, "magasins/retour_vente.html", {"ventes": ventes, "store_number": store_number})
 
 def liste_produits(request):
     response = requests.get("http://localhost:3000/1/products")
