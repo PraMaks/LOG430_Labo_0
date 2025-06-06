@@ -1,0 +1,51 @@
+{% extends "magasins/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Demande de réapprovisionnement</h2>
+
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Produit</th>
+            <th>Quantité disponible (magasin)</th>
+            <th>Quantité disponible (mère)</th>
+            <th>Quantité à demander</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in stock_magasin %}
+            <tr>
+              <td>{{ product.name }}</td>
+              <td>{{ product.qty }}</td>
+              <td>
+                {% for pm in stock_mere %}
+                  {% if pm.name == product.name %}
+                    {{ pm.qty }}
+                  {% endif %}
+                {% endfor %}
+              </td>
+              <td>
+                <input type="number" name="qty_{{ product.name }}" min="0" class="form-control" placeholder="0">
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="text-end">
+      <button type="submit" class="btn btn-primary">Envoyer la demande</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

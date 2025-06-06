@@ -17,7 +17,7 @@ async function startServer() {
   try {
     const mongoHost = process.env.MONGO_HOST || 'localhost';
     const mongoPort = process.env.MONGO_PORT || '27017';
-    const mongoUrl = `mongodb://${mongoHost}:${mongoPort}/labo2`;
+    const mongoUrl = `mongodb://${mongoHost}:${mongoPort}/labo3`;
     await mongoose.connect(mongoUrl);
     console.log('Connecté à MongoDB');
 
