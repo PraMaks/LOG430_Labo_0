@@ -1,0 +1,59 @@
+{% extends "magasins/admin/navbar.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Tableau de bord des magasins</h2>
+
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+
+  {% for magasin in magasins %}
+    <div class="card mb-4 shadow">
+      <div class="card-header bg-dark text-white">
+        <h4>{{ magasin.name }}</h4>
+      </div>
+      <div class="card-body">
+        <p><strong>Adresse :</strong> {{ magasin.address }}</p>
+        <p><strong>Profit total :</strong> {{ magasin.total_profit }} $</p>
+        <p><strong>Alertes de rupture de stock :</strong> {{ magasin.ruptures }}</p>
+
+        <h5 class="mt-4">Produits en surstock</h5>
+        {% if magasin.surstocks %}
+          <table class="table table-bordered">
+            <thead><tr><th>Nom</th><th>Qté</th><th>Qté Max</th></tr></thead>
+            <tbody>
+              {% for product in magasin.surstocks %}
+                <tr>
+                  <td>{{ product.name }}</td>
+                  <td>{{ product.qty }}</td>
+                  <td>{{ product.max_qty }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>Aucun produit en surstock.</p>
+        {% endif %}
+
+        <h5 class="mt-4">Tendances hebdomadaires</h5>
+        {% if magasin.weekly_trends %}
+          <table class="table table-striped">
+            <thead><tr><th>Semaine</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for trend in magasin.weekly_trends %}
+                <tr>
+                  <td>{{ trend.week_range }}</td>
+                  <td>{{ trend.total }} $</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>Pas de données de vente hebdomadaire.</p>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

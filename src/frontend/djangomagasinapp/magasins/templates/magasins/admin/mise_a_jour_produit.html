@@ -1,0 +1,80 @@
+{% extends "magasins/admin/navbar.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Modifier un produit du stock central</h2>
+
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+
+  {% if products %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="product_index" class="form-label">Choisissez un produit :</label>
+      <select name="product_index" id="product_index" class="form-select" required>
+        {% for product in products %}
+          <option value="{{ forloop.counter0 }}">
+            {{ forloop.counter }}. {{ product.name }} — {{ product.description }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <p>Laissez un champ vide pour ne pas le modifier.</p>
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Nouveau nom :</label>
+      <input type="text" class="form-control" name="name" id="name">
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label">Nouvelle description :</label>
+      <input type="text" class="form-control" name="description" id="description">
+    </div>
+
+    <div class="mb-3">
+      <label for="price" class="form-label">Nouveau prix :</label>
+      <input type="text" class="form-control" name="price" id="price">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Mettre à jour</button>
+  </form>
+
+  <hr>
+  <h4>Inventaire actuel du stock central :</h4>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped mt-3">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Quantité</th>
+          <th>Quantité max</th>
+          <th>Prix ($)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.description }}</td>
+          <td>{{ product.qty }}</td>
+          <td>{{ product.max_qty }}</td>
+          <td>{{ product.price }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+    <p>Aucun produit trouvé.</p>
+  {% endif %}
+</div>
+{% endblock %}
