@@ -171,3 +171,59 @@ def liste_produits_central(request):
     response = requests.get("http://localhost:3000/mainStore/products")
     produits = response.json()
     return render(request, 'magasins/admin/liste_produits_central.html', {'produits': produits})
+
+def demande_reappro(request):
+    selected_store = request.POST.get("store", "1")
+
+    store_param = selected_store if selected_store == "Central" else int(selected_store)
+
+    # URLs dynamiques selon magasin choisi
+    url_stock_magasin = f"http://127.0.0.1:3000/{store_param}/products"
+    url_stock_mere = "http://127.0.0.1:3000/mainStore/products"
+
+    try:
+        stock_magasin = requests.get(url_stock_magasin).json()
+        stock_mere = requests.get(url_stock_mere).json()
+    except requests.exceptions.RequestException as e:
+        messages.error(request, f"Erreur de communication avec le serveur : {e}")
+        return render(request, "magasins/admin/demande_reappro.html", {
+            "stock_magasin": [],
+            "stock_mere": [],
+            "selected_store": selected_store,
+        })
+
+    if request.method == "POST":
+        produits_demandes = []
+        for product in stock_magasin:
+            qty_str = request.POST.get(f"qty_{product['name']}")
+            if qty_str:
+                try:
+                    qty = int(qty_str)
+                    if qty > 0:
+                        stock_mere_item = next((item for item in stock_mere if item['name'] == product['name']), None)
+                        if stock_mere_item and qty <= stock_mere_item['qty']:
+                            produits_demandes.append({
+                                "name": product['name'],
+                                "qty": qty
+                            })
+                        else:
+                            messages.warning(request, f"Stock insuffisant pour {product['name']} dans le stock mère.")
+                except ValueError:
+                    messages.warning(request, f"Quantité invalide pour {product['name']}.")
+
+        if produits_demandes:
+            url_post = f"http://127.0.0.1:3000/{store_param}/requestSupplies"
+            try:
+                response = requests.post(url_post, json=produits_demandes)
+                response.raise_for_status()
+                messages.success(request, "Demande d'approvisionnement envoyée avec succès.")
+                # Rediriger en passant la sélection pour garder le magasin sélectionné affiché
+                return redirect("admin_demande_reappro")  
+            except requests.exceptions.RequestException as e:
+                messages.error(request, f"Erreur lors de l'envoi de la demande : {e}")
+
+    return render(request, "magasins/admin/demande_reappro.html", {
+        "stock_magasin": stock_magasin,
+        "stock_mere": stock_mere,
+        "selected_store": selected_store,
+    })

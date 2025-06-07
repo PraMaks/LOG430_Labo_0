@@ -8,4 +8,5 @@ urlpatterns = [
     path('retours/', admin_views.retour_vente, name='admin_retour_vente'),
     path('stock-magasin/', admin_views.liste_produits, name='admin_liste_produits'),
     path('stock-central/', admin_views.liste_produits_central, name='admin_liste_produits_central'),
+    path('reapprovisionnement/', admin_views.demande_reappro, name='admin_demande_reappro'),
 ]
