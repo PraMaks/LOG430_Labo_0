@@ -4,7 +4,7 @@ const productController = require('../controllers/storeController');
 
 router.get('/:storeNumber/productSearch/:productName', productController.getProductByStoreByName);
 
-router.get('/mainStore/products', productController.getProductsFromMainStore);
+router.get('/mainStore/products', productController.getProductsFromWarehouse);
 
 router.get('/:storeNumber/products', productController.getProductsByStore);
 

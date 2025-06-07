@@ -214,7 +214,7 @@ exports.deleteSaleByStore = async (req, res) => {
   }
 };
 
-exports.getProductsFromMainStore = async (req, res) => {
+exports.getProductsFromWarehouse = async (req, res) => {
   const storeName = `Stock Central`; 
 
   try {
