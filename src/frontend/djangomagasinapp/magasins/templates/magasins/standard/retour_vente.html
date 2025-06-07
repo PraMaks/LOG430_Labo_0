@@ -1,0 +1,51 @@
+{% extends "magasins/standard/navbar.html" %}
+{% load static %}
+
+{% block title %}Retour de Vente – Magasin #{{ store_number }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+    <h1 class="mb-4">Retour de Vente – Magasin #{{ store_number }}</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if ventes %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for vente in ventes %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Date : {{ vente.date }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Total : {{ vente.total_price }} $</h6>
+                        <ul class="list-group list-group-flush mb-3">
+                            {% for produit in vente.contents %}
+                            <li class="list-group-item">
+                                {{ produit.name }} — {{ produit.qty }} x {{ produit.price }} $
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                        <form method="post" onsubmit="return confirm('Confirmer le retour de cette vente ?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="sale_id" value="{{ vente.id }}">
+                            <button type="submit" class="btn btn-danger w-100">Retourner cette vente</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Aucune vente trouvée pour ce magasin.</div>
+    {% endif %}
+
+</div>
+{% endblock %}
