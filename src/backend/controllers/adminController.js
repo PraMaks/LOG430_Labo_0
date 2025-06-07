@@ -10,6 +10,7 @@ exports.getStores = async (req, res) => {
         name: store.name,
         address: store.address,
         nb_requests: store.nb_requests,
+        is_store: store.is_store,
     }));
     res.json(stores);
 

@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const storeSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     address: { type: String, required: true },
-    nb_requests: { type: Number, required: true }
+    nb_requests: { type: Number, required: true },
+    is_store: {type: Boolean, required: true}
 }, {
     collection: 'magasins'
 });

@@ -1,4 +1,5 @@
 # pylint: disable=missing-timeout
+# pylint: disable=too-many-nested-blocks
 """Module de gestion d'inventaire et de ventes pour un magasin."""
 from datetime import timedelta, datetime
 import requests
@@ -155,13 +156,13 @@ def display_inventory(store_number, print_func=print):
         return None
 
 def display_main_inventory(print_func=print):
-    """Affiche l'état actuel de l'inventaire du magasin mère."""
+    """Affiche l'état actuel de l'inventaire du stock central."""
     url = "http://127.0.0.1:3000/mainStore/products"
     try:
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
-        print_func("Inventaire du Magasin Mère :")
+        print_func("Inventaire du Stock Central :")
         for item in data:
             print_func(f"Produit: {item['name']}, Description: {item['description']}, " +
                        f"Quantité: {item['qty']}, " +
@@ -172,7 +173,7 @@ def display_main_inventory(print_func=print):
         return None
 
 def request_supplies(store_number, input_func=input, print_func=print):
-    """Affiche l'état actuel de l'inventaire du magasin mère."""
+    """Affiche l'état actuel de l'inventaire du stock central."""
     print_func("--- État du stock actuel ---")
     data_store = display_inventory(store_number, print_func=print)
     print_func("----------------------------")
@@ -246,6 +247,7 @@ def generate_sales_report(print_func=print):
         3: [],
         4: [],
         5: [],
+        6: [],
     }
     report_products_dict = { }
     for i in range(1, 6):
@@ -258,6 +260,16 @@ def generate_sales_report(print_func=print):
         except requests.exceptions.RequestException as e:
             print_func(f"Erreur lors de la requête : {e}")
             return
+
+    url = "http://127.0.0.1:3000/Central/products"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        report_products_dict[6] = data
+    except requests.exceptions.RequestException as e:
+        print_func(f"Erreur lors de la requête : {e}")
+        return
 
     for i in range(1, 6):
         url = f"http://127.0.0.1:3000/{i}/sales"
@@ -273,18 +285,35 @@ def generate_sales_report(print_func=print):
             print_func(f"Erreur lors de la requête : {e}")
             return
 
+    url = "http://127.0.0.1:3000/Central/sales"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        sales = response.json()
+        report_sales_dict[6] = sales
+    except requests.exceptions.RequestException as e:
+        print_func(f"Erreur lors de la requête : {e}")
+        return
+
     print_func("------------ RAPPORT ------------")
-    for i in range(1, 6):
+    for i in range(1, 7):
         product_sold_dict = {}
 
-        print_func(f"Magasin #{i} :")
-        print_func(f"   Stock restant du Magasin #{i} :")
+        if i == 6 :
+            print_func("Magasin Central :")
+            print_func("   Stock restant du Magasin Central :")
+        else:
+            print_func(f"Magasin #{i} :")
+            print_func(f"   Stock restant du Magasin #{i} :")
         for item in report_products_dict[i]:
             print_func(f"       Produit: {item['name']}, Description: {item['description']}," +
                         f" Quantité: {item['qty']}, Quantité Max: {item['max_qty']}," +
                         f" Prix: {item['price']}")
 
-        print_func(f"   Ventes du Magasin #{i} :")
+        if i == 6 :
+            print_func("   Ventes du Magasin Central :")
+        else:
+            print_func(f"   Ventes du Magasin #{i} :")
         if not report_sales_dict[i]:
             print_func("        Aucune vente enregistrée pour ce magasin.")
             print_func("        Impossible de determiner quel produit est le plus vendu")
@@ -310,6 +339,7 @@ def display_store_performance(print_func=print):
         3: [],
         4: [],
         5: [],
+        6: [],
     }
     report_products_dict = { }
     for i in range(1, 6):
@@ -322,6 +352,16 @@ def display_store_performance(print_func=print):
         except requests.exceptions.RequestException as e:
             print_func(f"Erreur lors de la requête : {e}")
             return
+
+    url = "http://127.0.0.1:3000/Central/products"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        report_products_dict[6] = data
+    except requests.exceptions.RequestException as e:
+        print_func(f"Erreur lors de la requête : {e}")
+        return
 
     for i in range(1, 6):
         url = f"http://127.0.0.1:3000/{i}/sales"
@@ -337,6 +377,17 @@ def display_store_performance(print_func=print):
             print_func(f"Erreur lors de la requête : {e}")
             return
 
+    url = "http://127.0.0.1:3000/Central/sales"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        sales = response.json()
+
+        report_sales_dict[6] = sales
+    except requests.exceptions.RequestException as e:
+        print_func(f"Erreur lors de la requête : {e}")
+        return
+
     report_stores_dict = { }
     url = "http://127.0.0.1:3000/admin/stores"
     try:
@@ -347,13 +398,22 @@ def display_store_performance(print_func=print):
         for store in data:
             if store['name'].startswith('Magasin '):
                 try:
-                    number = int(store['name'].split()[1])
-                    if 1 <= number <= 5:
-                        report_stores_dict[number] = {
+                    store_name = store['name'].split()[1]
+                    if store_name.isdigit():
+                        store_number = int(store_name)
+                        if 1 <= store_number <= 5:
+                            report_stores_dict[store_number] = {
+                                'name': store['name'],
+                                'address': store['address'],
+                                'nb_requests': store['nb_requests']
+                            }
+                    elif store_name == 'Central':
+                        report_stores_dict[6] = {
                             'name': store['name'],
                             'address': store['address'],
                             'nb_requests': store['nb_requests']
                         }
+
                 except ValueError:
                     continue  # Workaround pour sauter Magasin Central
 
@@ -362,7 +422,8 @@ def display_store_performance(print_func=print):
         return
 
     print_func("------------ Tableau de bord ------------")
-    for i in range(1, 6):
+    print_func("PS: Magasin #6 = Magasin Central")
+    for i in range(1, 7):
         total_profit = 0
 
         print_func(f"Magasin #{i} :")
@@ -416,7 +477,7 @@ def update_product_details(print_func=print, input_func=input):
             print_func("Aucun produit trouvé.")
             return
 
-        print_func("Inventaire du Magasin Mère :")
+        print_func("Inventaire du Stock Central :")
         for idx, item in enumerate(data, start=1):
             print_func(f"{idx}. Produit: {item['name']}, Quantité: {item['qty']}, " +
                        f"Quantité Max: {item['max_qty']}, Prix: {item['price']}")

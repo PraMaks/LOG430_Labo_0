@@ -21,7 +21,7 @@ def main_loop(store_number, input_func=input, print_func=print):
         print_func("   'b': Enregistrer une vente")
         print_func("   'c': Gestion des retours")
         print_func("   'd': Consulter état de stock du magasin")
-        print_func("   'e': Consulter état de stock du magasin mère")
+        print_func("   'e': Consulter état de stock du Stock Central")
         print_func("   'f': Déclencher un réapprovisionnement")
         print_func("   'q': Quitter")
 
@@ -63,41 +63,70 @@ def main_loop_admin(input_func=input, print_func=print):
         print_func("   'b': Enregistrer une vente")
         print_func("   'c': Gestion des retours")
         print_func("   'd': Consulter état de stock")
-        print_func("   'e': Consulter état de stock du magasin mère")
+        print_func("   'e': Consulter état de stock du Stock Central")
         print_func("   'f': Générer un rapport consolidé des ventes")
         print_func("   'g': Visualiser les performances des magasins")
         print_func("   'h': Mettre à jour les données d'un produit")
+        print_func("   'i': Déclencher un réapprovisionnement")
         print_func("   'q': Quitter")
 
         choice = input_func("Entrez votre choix: ")
 
         if choice == 'a':
-            store_number = int(input_func("Entrez le numéro de magasin (1 à 5) : "))
-            if 1 <= store_number <= 5:
+            store_name = input_func("Entrez le numéro de magasin (1 à 5) ou 'Central' : ")
+
+            if store_name.isdigit():
+                store_number = int(store_name)
+                if 1 <= store_number <= 5:
+                    product_name = input_func("Entrez le nom du produit recherché : ")
+                    search_product(store_number, product_name)
+                else:
+                    print_func("Numéro de magasin invalide")
+            elif store_name == 'Central':
                 product_name = input_func("Entrez le nom du produit recherché : ")
-                search_product(store_number, product_name)
-            else :
+                search_product(store_name, product_name)
+            else:
                 print_func("Numéro de magasin invalide")
 
         elif choice == 'b':
-            store_number = int(input_func("Entrez le numéro de magasin (1 à 5) : "))
-            if 1 <= store_number <= 5:
-                register_sale(store_number, input_func=input_func, print_func=print_func)
-            else :
+            store_name = input_func("Entrez le numéro de magasin (1 à 5) ou 'Central' : ")
+
+            if store_name.isdigit():
+                store_number = int(store_name)
+                if 1 <= store_number <= 5:
+                    register_sale(store_number, input_func=input_func, print_func=print_func)
+                else:
+                    print_func("Numéro de magasin invalide")
+            elif store_name == 'Central':
+                register_sale(store_name, input_func=input_func, print_func=print_func)
+            else:
                 print_func("Numéro de magasin invalide")
 
         elif choice == 'c':
-            store_number = int(input_func("Entrez le numéro de magasin (1 à 5) : "))
-            if 1 <= store_number <= 5:
-                handle_return(store_number, input_func=input_func, print_func=print_func)
-            else :
+            store_name = input_func("Entrez le numéro de magasin (1 à 5) ou 'Central' : ")
+
+            if store_name.isdigit():
+                store_number = int(store_name)
+                if 1 <= store_number <= 5:
+                    handle_return(store_number, input_func=input_func, print_func=print_func)
+                else:
+                    print_func("Numéro de magasin invalide")
+            elif store_name == 'Central':
+                handle_return(store_name, input_func=input_func, print_func=print_func)
+            else:
                 print_func("Numéro de magasin invalide")
 
         elif choice == 'd':
-            store_number = int(input_func("Entrez le numéro de magasin (1 à 5) : "))
-            if 1 <= store_number <= 5:
-                display_inventory(store_number, print_func=print_func)
-            else :
+            store_name = input_func("Entrez le numéro de magasin (1 à 5) ou 'Central' : ")
+            if store_name.isdigit():
+                store_number = int(store_name)
+                if 1 <= store_number <= 5:
+                    display_inventory(store_number, print_func=print_func)
+                else:
+                    print_func("Numéro de magasin invalide")
+            elif store_name == 'Central':
+                display_inventory(store_name, print_func=print_func)
+            else:
                 print_func("Numéro de magasin invalide")
 
         elif choice == 'e':
@@ -111,6 +140,20 @@ def main_loop_admin(input_func=input, print_func=print):
 
         elif choice == 'h':
             update_product_details(print_func=print_func)
+
+        elif choice == 'i':
+            store_name = input_func("Entrez le numéro de magasin (1 à 5) ou 'Central' : ")
+
+            if store_name.isdigit():
+                store_number = int(store_name)
+                if 1 <= store_number <= 5:
+                    request_supplies(store_number, print_func=print_func)
+                else:
+                    print_func("Numéro de magasin invalide")
+            elif store_name == 'Central':
+                request_supplies(store_name, print_func=print_func)
+            else:
+                print_func("Numéro de magasin invalide")
 
         elif choice == 'q':
             print_func("Fin du programme...")

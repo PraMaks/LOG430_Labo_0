@@ -4,13 +4,16 @@ const StoreSale = require('../models/StoreSale');
 const SupplyRequest = require('../models/SupplyRequest');
 
 exports.getProductsByStore = async (req, res) => {
-  const storeNumber = parseInt(req.params.storeNumber);
+  const storeParam = req.params.storeNumber;
 
-  if (isNaN(storeNumber) || storeNumber < 1 || storeNumber > 5) {
-    return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
+  const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
+  const isCentral = storeParam === 'Central';
+
+  if (!isNumber && !isCentral) {
+    return res.status(400).json({ error: "Numéro de magasin invalide (1-5) ou 'Central'" });
   }
 
-  const storeName = `Magasin ${storeNumber}`; 
+  const storeName = `Magasin ${storeParam}`; 
 
   try {
     const store = await Store.findOne({ name: storeName });
@@ -38,14 +41,17 @@ exports.getProductsByStore = async (req, res) => {
 };
 
 exports.getProductByStoreByName = async (req, res) => {
-  const storeNumber = parseInt(req.params.storeNumber);
   const productName = req.params.productName;
+  const storeParam = req.params.storeNumber;
 
-  if (isNaN(storeNumber) || storeNumber < 1 || storeNumber > 5) {
-    return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
+  const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
+  const isCentral = storeParam === 'Central';
+
+  if (!isNumber && !isCentral) {
+    return res.status(400).json({ error: "Numéro de magasin invalide (1-5) ou 'Central'" });
   }
 
-  const storeName = `Magasin ${storeNumber}`;
+  const storeName = `Magasin ${storeParam}`;
 
   try {
     const store = await Store.findOne({ name: storeName });
@@ -62,7 +68,7 @@ exports.getProductByStoreByName = async (req, res) => {
     // Retour des infos filtrées du produit
     res.json({
       name: product.name,
-      descriptiom: product.description,
+      description: product.description,
       price: product.price,
       qty: product.qty,
       max_qty: product.max_qty
@@ -75,20 +81,19 @@ exports.getProductByStoreByName = async (req, res) => {
 };
 
 exports.postNewSale = async (req, res) => {
-  const storeNumber = req.params.storeNumber;
   const soldProducts = req.body;
+  const storeParam = req.params.storeNumber;
 
-  if (!Array.isArray(soldProducts) || soldProducts.length === 0) {
-    return res.status(400).json({ error: 'Données de vente invalides ou vides.' });
+  const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
+  const isCentral = storeParam === 'Central';
+
+  if (!isNumber && !isCentral) {
+    return res.status(400).json({ error: "Numéro de magasin invalide (1-5) ou 'Central'" });
   }
 
-  try {
-    if (isNaN(storeNumber) || storeNumber < 1 || storeNumber > 5) {
-        return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
-    }
-
+  try { 
     // On cherche le magasin
-    const storeName = `Magasin ${storeNumber}`; 
+    const storeName = `Magasin ${storeParam}`; 
     const store = await Store.findOne({ name: storeName });
     if (!store) {
       return res.status(404).json({ error: `Magasin '${storeName}' introuvable` });
@@ -100,7 +105,7 @@ exports.postNewSale = async (req, res) => {
       const product = await StoreInventory.findOne({ store: store._id, name: item.name });
 
       if (!product) {
-        return res.status(404).json({ error: `Produit '${item.name}' introuvable dans le magasin ${storeNumber}` });
+        return res.status(404).json({ error: `Produit '${item.name}' introuvable dans le magasin ${storeParam}` });
       }
 
       if (product.qty < item.qty) {
@@ -128,13 +133,16 @@ exports.postNewSale = async (req, res) => {
 };
 
 exports.getSalesByStore = async (req, res) => {
-  const storeNumber = parseInt(req.params.storeNumber);
+  const storeParam = req.params.storeNumber;
 
-  if (isNaN(storeNumber) || storeNumber < 1 || storeNumber > 5) {
-    return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
+  const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
+  const isCentral = storeParam === 'Central';
+
+  if (!isNumber && !isCentral) {
+    return res.status(400).json({ error: "Numéro de magasin invalide (1-5) ou 'Central'" });
   }
 
-  const storeName = `Magasin ${storeNumber}`; 
+  const storeName = `Magasin ${storeParam}`; 
 
   try {
     const store = await Store.findOne({ name: storeName });
@@ -162,14 +170,17 @@ exports.getSalesByStore = async (req, res) => {
 };
 
 exports.deleteSaleByStore = async (req, res) => {
-  const storeNumber = parseInt(req.params.storeNumber);
   const saleId = req.params.saleId;
+  const storeParam = req.params.storeNumber;
 
-  if (isNaN(storeNumber) || storeNumber < 1 || storeNumber > 5) {
-    return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
+  const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
+  const isCentral = storeParam === 'Central';
+
+  if (!isNumber && !isCentral) {
+    return res.status(400).json({ error: "Numéro de magasin invalide (1-5) ou 'Central'" });
   }
 
-  const storeName = `Magasin ${storeNumber}`; 
+  const storeName = `Magasin ${storeParam}`; 
 
   try {
     const store = await Store.findOne({ name: storeName });
@@ -204,7 +215,7 @@ exports.deleteSaleByStore = async (req, res) => {
 };
 
 exports.getProductsFromMainStore = async (req, res) => {
-  const storeName = `Magasin Central`; 
+  const storeName = `Stock Central`; 
 
   try {
     const store = await Store.findOne({ name: storeName });
@@ -232,20 +243,19 @@ exports.getProductsFromMainStore = async (req, res) => {
 };
 
 exports.postNewSupplyRequestFromStore = async (req, res) => {
-  const storeNumber = req.params.storeNumber;
   const requestedSupplies = req.body;
+  const storeParam = req.params.storeNumber;
 
-  if (!Array.isArray(requestedSupplies) || requestedSupplies.length === 0) {
-    return res.status(400).json({ error: 'Données de vente invalides ou vides.' });
+  const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
+  const isCentral = storeParam === 'Central';
+
+  if (!isNumber && !isCentral) {
+    return res.status(400).json({ error: "Numéro de magasin invalide (1-5) ou 'Central'" });
   }
 
   try {
-    if (isNaN(storeNumber) || storeNumber < 1 || storeNumber > 5) {
-        return res.status(400).json({ error: "Numéro de magasin invalide (1-5)" });
-    }
-
     // On cherche le magasin
-    const storeName = `Magasin ${storeNumber}`; 
+    const storeName = `Magasin ${storeParam}`; 
     const store = await Store.findOne({ name: storeName });
     if (!store) {
       return res.status(404).json({ error: `Magasin '${storeName}' introuvable` });
@@ -256,7 +266,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
       const product = await StoreInventory.findOne({ store: store._id, name: item.name });
 
       if (!product) {
-        return res.status(404).json({ error: `Produit '${item.name}' introuvable dans le magasin ${storeNumber}` });
+        return res.status(404).json({ error: `Produit '${item.name}' introuvable dans le magasin ${storeParam}` });
       }
     }
 

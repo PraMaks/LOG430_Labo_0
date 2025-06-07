@@ -140,7 +140,7 @@ def test_display_main_inventory_success(mock_get):
     output = []
     data = display_main_inventory(print_func=output.append)
     assert isinstance(data, list)
-    assert any("Inventaire du Magasin" in line for line in output)
+    assert any("Inventaire du Stock" in line for line in output)
     assert any("Prod1" in line for line in output)
     assert any("Prod2" in line for line in output)
 
