@@ -1,0 +1,33 @@
+{% extends "magasins/admin/navbar.html" %}
+{% load bootstrap5 %}
+
+{% block title %}Vente enregistrée{% endblock %}
+
+{% block content %}
+<h2>Vente enregistrée</h2>
+
+<p><strong>Magasin </strong>
+  {% if selected_store == "Central" %}
+    Mère
+  {% else %}
+    #{{ selected_store }}
+  {% endif %}
+</p>
+
+<ul class="list-group mt-3">
+  {% for p in produits %}
+    <li class="list-group-item">
+      {{ p.qty }}x {{ p.name }} à {{ p.price }}$ – Total : {{ p.total_price }}$
+    </li>
+  {% endfor %}
+</ul>
+
+<p class="mt-3"><strong>Montant total :</strong> {{ total }}$</p>
+
+<form method="post" action="{% url 'admin_enregistrer_vente' %}">
+  {% csrf_token %}
+  <input type="hidden" name="store" value="{{ selected_store|default:'1' }}">
+  <input type="hidden" name="action" value="change_store">
+  <button type="submit" class="btn btn-primary mt-3">Faire une nouvelle vente</button>
+</form>
+{% endblock %}

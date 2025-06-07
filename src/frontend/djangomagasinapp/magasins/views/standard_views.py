@@ -107,10 +107,10 @@ def liste_produits(request):
     produits = response.json()
     return render(request, 'magasins/standard/liste_produits.html', {'produits': produits})
 
-def liste_produits_mere(request):
+def liste_produits_central(request):
     response = requests.get("http://localhost:3000/mainStore/products")
     produits = response.json()
-    return render(request, 'magasins/standard/liste_produits_mere.html', {'produits': produits})
+    return render(request, 'magasins/standard/liste_produits_central.html', {'produits': produits})
 
 def demande_reappro(request):
     store_number = 1

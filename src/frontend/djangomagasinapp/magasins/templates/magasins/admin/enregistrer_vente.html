@@ -1,0 +1,61 @@
+{% extends "magasins/admin/navbar.html" %}
+{% load bootstrap5 %}
+
+{% block title %}Enregistrer une vente{% endblock %}
+
+{% block content %}
+<h2>Enregistrer une vente</h2>
+
+{% if message %}
+  <div class="alert alert-warning">{{ message }}</div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+
+  <input type="hidden" id="action" name="action" value="submit">
+
+  <div class="col-md-4">
+    <label for="store" class="form-label">Choisir un magasin</label>
+    <select name="store" id="store" class="form-select"
+        onchange="document.getElementById('action').value='change_store'; this.form.submit()">
+      <option value="1" {% if selected_store == "1" %}selected{% endif %}>Magasin #1</option>
+      <option value="2" {% if selected_store == "2" %}selected{% endif %}>Magasin #2</option>
+      <option value="3" {% if selected_store == "3" %}selected{% endif %}>Magasin #3</option>
+      <option value="4" {% if selected_store == "4" %}selected{% endif %}>Magasin #4</option>
+      <option value="5" {% if selected_store == "5" %}selected{% endif %}>Magasin #5</option>
+      <option value="Central" {% if selected_store == "Central" %}selected{% endif %}>Magasin Mère</option>
+    </select>
+  </div>
+
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Produit</th>
+        <th>Description</th>
+        <th>Prix ($)</th>
+        <th>Quantité en stock</th>
+        <th>Quantité à vendre</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for produit in produits %}
+      <tr>
+        <td>{{ produit.name }}</td>
+        <td>{{ produit.description }}</td>
+        <td>{{ produit.price }}</td>
+        <td>{{ produit.qty }}</td>
+        <td>
+          <input type="number" name="produit_{{ produit.name }}" class="form-control" min="0" max="{{ produit.qty }}" value="0">
+          <input type="hidden" name="description_{{ produit.name }}" value="{{ produit.description }}">
+          <input type="hidden" name="price_{{ produit.name }}" value="{{ produit.price }}">
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <button type="submit" class="btn btn-success">Valider la vente</button>
+</form>
+{% endblock %}

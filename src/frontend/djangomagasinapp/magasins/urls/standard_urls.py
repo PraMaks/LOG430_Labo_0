@@ -7,6 +7,6 @@ urlpatterns = [
     path('vente/', standard_views.enregistrer_vente, name='enregistrer_vente'),
     path('retours/', standard_views.retour_vente, name='retour_vente'),
     path('stock-magasin/', standard_views.liste_produits, name='liste_produits'),
-    path('stock-mere/', standard_views.liste_produits_mere, name='liste_produits_mere'),
+    path('stock-central/', standard_views.liste_produits_central, name='liste_produits_central'),
     path('reapprovisionnement/', standard_views.demande_reappro, name='demande_reappro'),
 ]
