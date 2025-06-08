@@ -14,6 +14,9 @@ def magasin_standard(request):
 def rechercher_produit(request):
     produit = None
     query = None
+    headers = {
+                'Authorization': request.session.get('token')
+            }
     stores = request.session.get('stores', [])
     numero = None
     if stores:
@@ -27,7 +30,7 @@ def rechercher_produit(request):
     
     if request.method == "POST":
         query = request.POST.get("nom_produit")
-        response = requests.get(f"http://localhost:3000/{numero}/productSearch/{query}") 
+        response = requests.get(f"http://localhost:3000/{numero}/productSearch/{query}", headers=headers) 
         if response.status_code == 200:
             produit = response.json()
 
@@ -39,6 +42,9 @@ def rechercher_produit(request):
 @login_required
 @standard_required
 def enregistrer_vente(request):
+    headers = {
+                'Authorization': request.session.get('token')
+            }
     numero = None
     stores = request.session.get('stores', [])
     if stores:
@@ -72,13 +78,13 @@ def enregistrer_vente(request):
 
         if not produits:
             return render(request, "magasins/standard/enregistrer_vente.html", {
-                "produits": requests.get(url_stock).json(),
+                "produits": requests.get(url_stock, headers=headers).json(),
                 "message": "Aucun produit sélectionné."
             })
 
         url_vente = f"http://127.0.0.1:3000/{numero}/registerSale"
         try:
-            response = requests.post(url_vente, json=produits)
+            response = requests.post(url_vente, json=produits, headers=headers)
             response.raise_for_status()
             return render(request, "magasins/standard/vente_success.html", {
                 "produits": produits,
@@ -86,18 +92,21 @@ def enregistrer_vente(request):
             })
         except requests.exceptions.RequestException as e:
             return render(request, "magasins/standard/enregistrer_vente.html", {
-                "produits": requests.get(url_stock).json(),
+                "produits": requests.get(url_stock, headers=headers).json(),
                 "message": f"Erreur lors de l'envoi de la vente : {e}"
             })
 
     else:  
-        response = requests.get(url_stock)
+        response = requests.get(url_stock, headers=headers)
         produits = response.json()
         return render(request, "magasins/standard/enregistrer_vente.html", {"produits": produits})
 
 @login_required
 @standard_required
 def retour_vente(request): 
+    headers = {
+                'Authorization': request.session.get('token')
+            }
     numero = None
     stores = request.session.get('stores', [])
     if stores:
@@ -111,7 +120,7 @@ def retour_vente(request):
     ventes = []
 
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         ventes = response.json()
         for vente in ventes:
@@ -126,7 +135,7 @@ def retour_vente(request):
         if sale_id:
             delete_url = f"http://127.0.0.1:3000/{numero}/returnSale/{sale_id}"
             try:
-                delete_response = requests.delete(delete_url)
+                delete_response = requests.delete(delete_url, headers=headers)
                 delete_response.raise_for_status()
                 result = delete_response.json()
                 messages.success(request, result.get("message", "Vente retournée avec succès."))
@@ -139,6 +148,9 @@ def retour_vente(request):
 @login_required
 @standard_required
 def liste_produits(request):
+    headers = {
+                'Authorization': request.session.get('token')
+            }
     numero = None
     stores = request.session.get('stores', [])
     if stores:
@@ -148,20 +160,26 @@ def liste_produits(request):
             numero = '?'
     else:
         numero = '?'
-    response = requests.get(f"http://localhost:3000/{numero}/products")
+    response = requests.get(f"http://localhost:3000/{numero}/products", headers=headers)
     produits = response.json()
     return render(request, 'magasins/standard/liste_produits.html', {'produits': produits})
 
 @login_required
 @standard_required
 def liste_produits_central(request):
-    response = requests.get("http://localhost:3000/mainStore/products")
+    headers = {
+                'Authorization': request.session.get('token')
+            }
+    response = requests.get("http://localhost:3000/mainStore/products", headers=headers)
     produits = response.json()
     return render(request, 'magasins/standard/liste_produits_central.html', {'produits': produits})
 
 @login_required
 @standard_required
 def demande_reappro(request):
+    headers = {
+                'Authorization': request.session.get('token')
+            }
     numero = None
     stores = request.session.get('stores', [])
     if stores:
@@ -176,8 +194,8 @@ def demande_reappro(request):
     url_stock_mere = "http://127.0.0.1:3000/mainStore/products"
 
     try:
-        stock_magasin = requests.get(url_stock_magasin).json()
-        stock_mere = requests.get(url_stock_mere).json()
+        stock_magasin = requests.get(url_stock_magasin, headers=headers).json()
+        stock_mere = requests.get(url_stock_mere, headers=headers).json()
     except requests.exceptions.RequestException as e:
         messages.error(request, f"Erreur de communication avec le serveur : {e}")
         return render(request, "magasins/standard/demande_reappro.html", {
@@ -207,7 +225,7 @@ def demande_reappro(request):
         if produits_demandes:
             url_post = f"http://127.0.0.1:3000/{numero}/requestSupplies"
             try:
-                response = requests.post(url_post, json=produits_demandes)
+                response = requests.post(url_post, json=produits_demandes, headers=headers)
                 response.raise_for_status()
                 messages.success(request, "Demande d'approvisionnement envoyée avec succès.")
                 return redirect("demande_reappro")
