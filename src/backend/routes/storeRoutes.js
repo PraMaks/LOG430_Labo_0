@@ -3,6 +3,15 @@ const router = express.Router();
 const productController = require('../controllers/storeController');
 const { authenticate } = require('../controllers/loginController');
 
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Liste tous les produits
+ *     responses:
+ *       200:
+ *         description: Succès
+ */
 router.get('/:storeNumber/productSearch/:productName', authenticate, productController.getProductByStoreByName);
 
 router.get('/mainStore/products', authenticate, productController.getProductsFromWarehouse);

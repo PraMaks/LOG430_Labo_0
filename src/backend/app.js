@@ -1,6 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const initDb = require('./initDb'); 
+const cors = require('cors');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
 const port = 3000;
@@ -8,10 +11,36 @@ const port = 3000;
 // Middleware pour parser le JSON
 app.use(express.json());
 
+app.use(cors({
+  origin: 'http://localhost:8000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // Routes
 const storeRoutes = require('./routes/storeRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const loginRoutes = require('./routes/loginRoutes');
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Magasin',
+      version: '1.0.0',
+      description: 'Documentation de l\'API de gestion de magasins',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+      },
+    ],
+  },
+  apis: [__dirname + '/routes/*.js'], // Pour inclure tout les fichiers de route
+};
+
+const swaggerSpec = swaggerJsdoc(options);
+
 
 // Fonction de démarrage
 async function startServer() {
@@ -24,9 +53,11 @@ async function startServer() {
 
     await initDb(); 
 
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     app.use('/', storeRoutes);
     app.use('/admin', adminRoutes);
     app.use('/login', loginRoutes);
+    
 
     app.listen(port, () => {
       console.log(`Serveur lancé sur http://localhost:${port}`);
