@@ -3,10 +3,15 @@ import requests
 from datetime import datetime, timedelta
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from ..utils.decorators import login_required, admin_required
 
+@login_required
+@admin_required
 def magasin_admin(request):
     return render(request, 'magasins/admin/magasin_admin.html')
 
+@login_required
+@admin_required
 def rechercher_produit(request):
     produit = None
     query = None
@@ -28,6 +33,8 @@ def rechercher_produit(request):
         'selected_store': selected_store
     })
 
+@login_required
+@admin_required
 def enregistrer_vente(request):
     selected_store = request.POST.get("store", "1")  # Valeur par défaut : magasin 1
     store_param = selected_store if selected_store == "Central" else int(selected_store)
@@ -93,7 +100,9 @@ def enregistrer_vente(request):
             "produits": produits,
             "selected_store": selected_store
         })
-    
+
+@login_required
+@admin_required 
 def retour_vente(request):
     # Récupérer le magasin choisi, par défaut 1
     selected_store = request.POST.get("store", "1")
@@ -147,7 +156,8 @@ def retour_vente(request):
         "selected_store": selected_store,
     })
 
-
+@login_required
+@admin_required
 def liste_produits(request):
     selected_store = "1"  # Valeur par défaut : magasin 1
     produits = []
@@ -167,11 +177,15 @@ def liste_produits(request):
         'selected_store': selected_store,
     })
 
+@login_required
+@admin_required
 def liste_produits_central(request):
     response = requests.get("http://localhost:3000/mainStore/products")
     produits = response.json()
     return render(request, 'magasins/admin/liste_produits_central.html', {'produits': produits})
 
+@login_required
+@admin_required
 def demande_reappro(request):
     selected_store = request.POST.get("store", "1")
 
@@ -228,6 +242,8 @@ def demande_reappro(request):
         "selected_store": selected_store,
     })
 
+@login_required
+@admin_required
 def rapport_ventes(request):
     report_sales_dict = {i: [] for i in range(1,7)}
     report_products_dict = {}
@@ -303,6 +319,8 @@ def rapport_ventes(request):
         'magasins': magasins,
     })
 
+@login_required
+@admin_required
 def tableau_de_bord(request):
     magasins = []
 
@@ -401,6 +419,8 @@ def tableau_de_bord(request):
 
     return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": magasins})
 
+@login_required
+@admin_required
 def mise_a_jour_produit(request):
     products_url = "http://127.0.0.1:3000/mainStore/products"
     try:

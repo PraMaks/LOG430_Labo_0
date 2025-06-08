@@ -1,5 +1,5 @@
 from django.urls import path
-from magasins.views import admin_views
+from magasins.views import admin_views, login_views
 
 urlpatterns = [
     path('', admin_views.magasin_admin, name='magasin_admin'),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('rapport-ventes/', admin_views.rapport_ventes, name='admin_rapport_ventes'),
     path('tableau-de-bord/', admin_views.tableau_de_bord, name='admin_tableau_de_bord'),
     path('mise-a-jour-produit/', admin_views.mise_a_jour_produit, name='admin_mise_a_jour_produit'),
+    path('logout/', login_views.logout, name='admin_deconnexion'),
 ]

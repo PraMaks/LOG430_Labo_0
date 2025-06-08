@@ -2,17 +2,32 @@ from django.http import HttpResponse
 import requests
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from ..utils.decorators import login_required, standard_required
 
+@login_required
+@standard_required
 def magasin_standard(request):
     return render(request, 'magasins/standard/magasin_standard.html')
 
+@login_required
+@standard_required
 def rechercher_produit(request):
     produit = None
     query = None
+    stores = request.session.get('stores', [])
+    numero = None
+    if stores:
+        try:
+            numero = stores[0].split()[-1] # retourne le chiffre du magasin
+        except Exception:
+            numero = '?'
+    else:
+        numero = '?'
 
+    
     if request.method == "POST":
         query = request.POST.get("nom_produit")
-        response = requests.get(f"http://localhost:3000/1/productSearch/{query}") 
+        response = requests.get(f"http://localhost:3000/{numero}/productSearch/{query}") 
         if response.status_code == 200:
             produit = response.json()
 
@@ -21,10 +36,19 @@ def rechercher_produit(request):
         'query': query,
     })
 
-
+@login_required
+@standard_required
 def enregistrer_vente(request):
-    store_number = 1  
-    url_stock = f"http://127.0.0.1:3000/{store_number}/products"
+    numero = None
+    stores = request.session.get('stores', [])
+    if stores:
+        try:
+            numero = stores[0].split()[-1] # retourne le chiffre du magasin
+        except Exception:
+            numero = '?'
+    else:
+        numero = '?' 
+    url_stock = f"http://127.0.0.1:3000/{numero}/products"
 
     if request.method == "POST":
         produits = []
@@ -52,7 +76,7 @@ def enregistrer_vente(request):
                 "message": "Aucun produit sélectionné."
             })
 
-        url_vente = f"http://127.0.0.1:3000/{store_number}/registerSale"
+        url_vente = f"http://127.0.0.1:3000/{numero}/registerSale"
         try:
             response = requests.post(url_vente, json=produits)
             response.raise_for_status()
@@ -71,9 +95,19 @@ def enregistrer_vente(request):
         produits = response.json()
         return render(request, "magasins/standard/enregistrer_vente.html", {"produits": produits})
 
-def retour_vente(request):
-    store_number = 1 
-    url = f"http://127.0.0.1:3000/{store_number}/sales"
+@login_required
+@standard_required
+def retour_vente(request): 
+    numero = None
+    stores = request.session.get('stores', [])
+    if stores:
+        try:
+            numero = stores[0].split()[-1] # retourne le chiffre du magasin
+        except Exception:
+            numero = '?'
+    else:
+        numero = '?'
+    url = f"http://127.0.0.1:3000/{numero}/sales"
     ventes = []
 
     try:
@@ -85,12 +119,12 @@ def retour_vente(request):
                 vente['id'] = vente['_id']
     except requests.exceptions.RequestException as e:
         messages.error(request, f"Erreur de communication avec le serveur : {e}")
-        return render(request, "magasins/standard/retour_vente.html", {"ventes": [], "store_number": store_number})
+        return render(request, "magasins/standard/retour_vente.html", {"ventes": [], "store_number": numero})
 
     if request.method == "POST":
         sale_id = request.POST.get("sale_id")
         if sale_id:
-            delete_url = f"http://127.0.0.1:3000/{store_number}/returnSale/{sale_id}"
+            delete_url = f"http://127.0.0.1:3000/{numero}/returnSale/{sale_id}"
             try:
                 delete_response = requests.delete(delete_url)
                 delete_response.raise_for_status()
@@ -100,22 +134,45 @@ def retour_vente(request):
             except requests.exceptions.RequestException as e:
                 messages.error(request, f"Erreur lors de la suppression : {e}")
 
-    return render(request, "magasins/standard/retour_vente.html", {"ventes": ventes, "store_number": store_number})
+    return render(request, "magasins/standard/retour_vente.html", {"ventes": ventes, "store_number": numero})
 
+@login_required
+@standard_required
 def liste_produits(request):
-    response = requests.get("http://localhost:3000/1/products")
+    numero = None
+    stores = request.session.get('stores', [])
+    if stores:
+        try:
+            numero = stores[0].split()[-1] # retourne le chiffre du magasin
+        except Exception:
+            numero = '?'
+    else:
+        numero = '?'
+    response = requests.get(f"http://localhost:3000/{numero}/products")
     produits = response.json()
     return render(request, 'magasins/standard/liste_produits.html', {'produits': produits})
 
+@login_required
+@standard_required
 def liste_produits_central(request):
     response = requests.get("http://localhost:3000/mainStore/products")
     produits = response.json()
     return render(request, 'magasins/standard/liste_produits_central.html', {'produits': produits})
 
+@login_required
+@standard_required
 def demande_reappro(request):
-    store_number = 1
+    numero = None
+    stores = request.session.get('stores', [])
+    if stores:
+        try:
+            numero = stores[0].split()[-1] # retourne le chiffre du magasin
+        except Exception:
+            numero = '?'
+    else:
+        numero = '?'
 
-    url_stock_magasin = f"http://127.0.0.1:3000/{store_number}/products"
+    url_stock_magasin = f"http://127.0.0.1:3000/{numero}/products"
     url_stock_mere = "http://127.0.0.1:3000/mainStore/products"
 
     try:
@@ -148,7 +205,7 @@ def demande_reappro(request):
                     messages.warning(request, f"Quantité invalide pour {product['name']}.")
 
         if produits_demandes:
-            url_post = f"http://127.0.0.1:3000/{store_number}/requestSupplies"
+            url_post = f"http://127.0.0.1:3000/{numero}/requestSupplies"
             try:
                 response = requests.post(url_post, json=produits_demandes)
                 response.raise_for_status()
@@ -161,3 +218,4 @@ def demande_reappro(request):
         "stock_magasin": stock_magasin,
         "stock_mere": stock_mere
     })
+

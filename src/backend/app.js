@@ -11,6 +11,7 @@ app.use(express.json());
 // Routes
 const storeRoutes = require('./routes/storeRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const loginRoutes = require('./routes/loginRoutes');
 
 // Fonction de démarrage
 async function startServer() {
@@ -25,6 +26,7 @@ async function startServer() {
 
     app.use('/', storeRoutes);
     app.use('/admin', adminRoutes);
+    app.use('/login', loginRoutes);
 
     app.listen(port, () => {
       console.log(`Serveur lancé sur http://localhost:${port}`);
