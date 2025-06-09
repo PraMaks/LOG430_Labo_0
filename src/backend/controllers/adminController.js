@@ -16,7 +16,15 @@ exports.getStores = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/admin/stores/all`
+      }
+    );
   }
 };
 
@@ -36,7 +44,15 @@ exports.updateProductInfo = async (req, res) => {
     );
 
     if (result.matchedCount === 0) {
-      return res.status(404).json({ error: 'Aucun produit trouvé avec ce nom' });
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: `Aucun produit trouvé avec ce nom`,
+          path: `/api/v1/admin/stores/all/stock/${productName}`
+        }
+      );
     }
 
     res.status(200).json({
@@ -45,7 +61,15 @@ exports.updateProductInfo = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur lors de la mise à jour du produit dans tous les magasins:', error);
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/admin/stores/all/stock/${productName}`
+      }
+    );
   }
 };
 

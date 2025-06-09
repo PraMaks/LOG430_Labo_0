@@ -211,19 +211,51 @@ def enregistrer_vente(request):
     })
 
 @login_required
-@admin_required 
+@admin_required
 def retour_vente(request):
-    # Récupérer le magasin choisi (par défaut : 1)
-    selected_store = request.POST.get("store", "1")
     headers = {
         'Authorization': request.session.get('token')
     }
 
+    # Gestion sélection magasin
+    if request.method == "POST" and request.POST.get("store"):
+        selected_store = request.POST["store"]
+        request.session["selected_store"] = selected_store  # on le garde en session
+    else:
+        selected_store = request.session.get("selected_store", "1")
+
     store_param = selected_store if selected_store == "Central" else int(selected_store)
     url = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_SALES}"
-    ventes = []
 
-    # Récupération des ventes
+    # Suppression d'une vente 
+    if request.method == "POST" and request.POST.get("sale_id"):
+        sale_id = request.POST["sale_id"]
+        delete_url = f"{url}/{sale_id}"
+        try:
+            delete_response = requests.delete(delete_url, headers=headers, timeout=3)
+            if delete_response.status_code == 200:
+                result = delete_response.json()
+                messages.success(request, result.get("message", "Vente retournée avec succès."))
+            else:
+                try:
+                    json_data = delete_response.json()
+                    timestamp = json_data['timestamp']
+                    status = json_data['status']
+                    error = json_data['error']
+                    message = json_data['message']
+                    path = json_data['path']
+                    error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+                    messages.warning(request, error_message)
+                except Exception:
+                    messages.error(request, f"Erreur inattendue : {delete_response.text}")
+        except ConnectionError:
+            messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+        except RequestException as e:
+            messages.error(request, f"Erreur lors de la suppression : {e}")
+        return redirect("admin_retour_vente")
+
+    # Récupération des ventes 
+    ventes = []
     try:
         response = requests.get(url, headers=headers, timeout=3)
         if response.status_code == 200:
@@ -247,22 +279,34 @@ def retour_vente(request):
         messages.error(request, "Connexion refusée au serveur distant (port 3000).")
     except RequestException as e:
         messages.error(request, f"Erreur de communication avec le serveur : {e}")
-        return render(request, "magasins/admin/retour_vente.html", {
-            "ventes": [], 
-            "store_number": selected_store,
-            "selected_store": selected_store,
-        })
 
-    # Traitement POST : suppression d'une vente
+    return render(request, "magasins/admin/retour_vente.html", {
+        "ventes": ventes,
+        "store_number": selected_store,
+        "selected_store": selected_store,
+    })
+
+@login_required
+@admin_required
+def liste_produits(request):
+    selected_store = "1"  # Valeur par défaut
+    headers = {
+        'Authorization': request.session.get('token')
+    }
+    produits = []
+
     if request.method == "POST":
-        sale_id = request.POST.get("sale_id")
-        if sale_id:
-            delete_url = f"{url}/{sale_id}"
+        selected_store = request.POST.get("store", "1")
+        action = request.POST.get("action", "submit")
+
+        if action == "change_store":
+            store_param = selected_store if selected_store == "Central" else int(selected_store)
+            url = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_STOCK}"
+
             try:
-                delete_response = requests.delete(delete_url, headers=headers, timeout=3)
-                if delete_response.status_code == 200:
-                    result = delete_response.json()
-                    messages.success(request, result.get("message", "Vente retournée avec succès."))
+                response = requests.get(url, headers=headers, timeout=3)
+                if response.status_code == 200:
+                    produits = response.json()
                 else:
                     try:
                         json_data = response.json()
@@ -274,53 +318,41 @@ def retour_vente(request):
                         error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
                         messages.warning(request, error_message)
                     except Exception:
-                        messages.error(request, f"Erreur inattendue : {delete_response.text}")
-                return redirect("admin_retour_vente")
+                        messages.error(request, f"Erreur inattendue : {response.text}")
             except ConnectionError:
                 messages.error(request, "Connexion refusée au serveur distant (port 3000).")
             except RequestException as e:
-                messages.error(request, f"Erreur lors de la suppression : {e}")
-
-    return render(request, "magasins/admin/retour_vente.html", {
-        "ventes": ventes,
-        "store_number": selected_store,
-        "selected_store": selected_store,
-    })
-
-@login_required
-@admin_required
-def liste_produits(request):
-    selected_store = "1"  # Valeur par défaut : magasin 1
-    produits = []
-    headers = {
-        'Authorization': request.session.get('token')
-    }
-
-    if request.method == "POST":
-        selected_store = request.POST.get("store", "1")
-        action = request.POST.get("action", "submit")
-
-        if action == "change_store":
-            # L'utilisateur a changé de magasin — on met simplement à jour les produits
-            store_param = selected_store if selected_store == "Central" else int(selected_store)
-            url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_STOCK
-            response = requests.get(url, headers=headers)
-
-            if response.status_code == 200:
-                produits = response.json()
+                messages.error(request, f"Erreur lors de la récupération des produits : {e}")
 
             return render(request, 'magasins/admin/liste_produits.html', {
                 'produits': produits,
                 'selected_store': selected_store,
             })
 
-    # Si GET ou action == "submit" ou autre cas par défaut
+    # Cas GET ou soumission standard
     store_param = selected_store if selected_store == "Central" else int(selected_store)
-    url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_STOCK
-    response = requests.get(url, headers=headers)
+    url = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_STOCK}"
 
-    if response.status_code == 200:
-        produits = response.json()
+    try:
+        response = requests.get(url, headers=headers, timeout=3)
+        if response.status_code == 200:
+            produits = response.json()
+        else:
+            try:
+                json_data = response.json()
+                timestamp = json_data['timestamp']
+                status = json_data['status']
+                error = json_data['error']
+                message = json_data['message']
+                path = json_data['path']
+                error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+                messages.warning(request, error_message)
+            except Exception:
+                messages.error(request, f"Erreur inattendue : {response.text}")
+    except ConnectionError:
+        messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+    except RequestException as e:
+        messages.error(request, f"Erreur lors du chargement des produits : {e}")
 
     return render(request, 'magasins/admin/liste_produits.html', {
         'produits': produits,
@@ -331,12 +363,35 @@ def liste_produits(request):
 @admin_required
 def liste_produits_central(request):
     headers = {
-                'Authorization': request.session.get('token')
-            }
-    url = EXPRESS_STANDARD_API_URL_STORES + '/warehouse' + EXPRESS_STANDARD_API_URL_STOCK
-    response = requests.get(url, headers=headers)
-    produits = response.json()
-    return render(request, 'magasins/admin/liste_produits_central.html', {'produits': produits})
+        'Authorization': request.session.get('token')
+    }
+    url = f"{EXPRESS_STANDARD_API_URL_STORES}/warehouse{EXPRESS_STANDARD_API_URL_STOCK}"
+    produits = []
+
+    try:
+        response = requests.get(url, headers=headers, timeout=3)
+        if response.status_code == 200:
+            produits = response.json()
+        else:
+            try:
+                json_data = response.json()
+                timestamp = json_data['timestamp']
+                status = json_data['status']
+                error = json_data['error']
+                message = json_data['message']
+                path = json_data['path']
+                error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+                messages.warning(request, error_message)
+            except Exception:
+                messages.error(request, f"Erreur inattendue : {response.text}")
+    except ConnectionError:
+        messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+    except RequestException as e:
+        messages.error(request, f"Erreur lors du chargement des produits : {e}")
+
+    return render(request, 'magasins/admin/liste_produits_central.html', {
+        'produits': produits
+    })
 
 @login_required
 @admin_required

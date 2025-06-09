@@ -50,7 +50,7 @@ def login(request):
 
 def logout(request):
     token = request.session.get('token')
-
+    request.session.flush()
     if token:
         try:
             headers = {'Authorization': token}

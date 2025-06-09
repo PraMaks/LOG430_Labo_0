@@ -268,32 +268,76 @@ def retour_vente(request):
 @standard_required
 def liste_produits(request):
     headers = {
-                'Authorization': request.session.get('token')
-            }
-    numero = None
+        'Authorization': request.session.get('token')
+    }
+
     stores = request.session.get('stores', [])
-    if stores:
-        try:
-            numero = stores[0].split()[-1] # retourne le chiffre du magasin
-        except Exception:
-            numero = '?'
-    else:
+    try:
+        numero = stores[0].split()[-1] if stores else '?'
+    except Exception:
         numero = '?'
-    url = EXPRESS_STANDARD_API_URL_STORES + '/' + numero + EXPRESS_STANDARD_API_URL_STOCK
-    response = requests.get(url, headers=headers)
-    produits = response.json()
-    return render(request, 'magasins/standard/liste_produits.html', {'produits': produits})
+
+    url = f"{EXPRESS_STANDARD_API_URL_STORES}/{numero}{EXPRESS_STANDARD_API_URL_STOCK}"
+    produits = []
+
+    try:
+        response = requests.get(url, headers=headers, timeout=3)
+        if response.status_code == 200:
+            produits = response.json()
+        else:
+            try:
+                json_data = response.json()
+                timestamp = json_data['timestamp']
+                status = json_data['status']
+                error = json_data['error']
+                message = json_data['message']
+                path = json_data['path']
+                error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+                messages.warning(request, error_message)
+            except Exception:
+                messages.error(request, f"Erreur inattendue : {response.text}")
+    except ConnectionError:
+        messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+    except RequestException as e:
+        messages.error(request, f"Erreur lors de la récupération des produits : {e}")
+
+    return render(request, 'magasins/standard/liste_produits.html', {
+        'produits': produits
+    })
 
 @login_required
 @standard_required
 def liste_produits_central(request):
     headers = {
-                'Authorization': request.session.get('token')
-            }
-    url = EXPRESS_STANDARD_API_URL_STORES + '/warehouse' + EXPRESS_STANDARD_API_URL_STOCK
-    response = requests.get(url, headers=headers)
-    produits = response.json()
-    return render(request, 'magasins/standard/liste_produits_central.html', {'produits': produits})
+        'Authorization': request.session.get('token')
+    }
+    url = f"{EXPRESS_STANDARD_API_URL_STORES}/warehouse{EXPRESS_STANDARD_API_URL_STOCK}"
+    produits = []
+
+    try:
+        response = requests.get(url, headers=headers, timeout=3)
+        if response.status_code == 200:
+            produits = response.json()
+        else:
+            try:
+                json_data = response.json()
+                timestamp = json_data['timestamp']
+                status = json_data['status']
+                error = json_data['error']
+                message = json_data['message']
+                path = json_data['path']
+                error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+                messages.warning(request, error_message)
+            except Exception:
+                messages.error(request, f"Erreur inattendue : {response.text}")
+    except ConnectionError:
+        messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+    except RequestException as e:
+        messages.error(request, f"Erreur lors du chargement des produits : {e}")
+
+    return render(request, 'magasins/standard/liste_produits_central.html', {
+        'produits': produits
+    })
 
 @login_required
 @standard_required
