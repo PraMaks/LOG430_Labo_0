@@ -1,3 +1,4 @@
+"""Contient les URLs de la vue administrative"""
 from django.urls import path
 from magasins.views import admin_views, login_views
 

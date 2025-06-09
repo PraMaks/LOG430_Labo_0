@@ -1,9 +1,14 @@
-from django.http import HttpResponse
+# pylint: disable=line-too-long
+# pylint: disable=missing-timeout
+# pylint: disable=no-else-return
+# pylint: disable=redefined-builtin
+# pylint: disable=too-many-nested-blocks
+"""Classe qui contient le logique des vues sans les besoins administratifs"""
 import requests
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from ..utils.decorators import login_required, standard_required
 from requests.exceptions import RequestException, ConnectionError
+from ..utils.decorators import login_required, standard_required
 
 EXPRESS_STANDARD_API_URL = 'http://localhost:3000/api/v1/standard'
 EXPRESS_STANDARD_API_URL_STORES = EXPRESS_STANDARD_API_URL + '/stores'
@@ -14,11 +19,13 @@ EXPRESS_STANDARD_API_URL_SUPPLIES = '/supplies'
 @login_required
 @standard_required
 def magasin_standard(request):
+    """Page Home"""
     return render(request, 'magasins/standard/magasin_standard.html')
 
 @login_required
 @standard_required
 def rechercher_produit(request):
+    """Page de recherche de produit"""
     produit = None
     name = None
     headers = {
@@ -44,7 +51,7 @@ def rechercher_produit(request):
                 'query': name,
             })
         url_search = EXPRESS_STANDARD_API_URL_STORES + '/' + numero + EXPRESS_STANDARD_API_URL_STOCK + '/' + name
-        response = requests.get(url_search, headers=headers) 
+        response = requests.get(url_search, headers=headers)
         if response.status_code == 200:
             produit = response.json()
         else:
@@ -65,6 +72,7 @@ def rechercher_produit(request):
 @login_required
 @standard_required
 def enregistrer_vente(request):
+    """Page d'enregistrement d'une vente"""
     headers = {
         'Authorization': request.session.get('token')
     }
@@ -188,7 +196,8 @@ def enregistrer_vente(request):
 
 @login_required
 @standard_required
-def retour_vente(request): 
+def retour_vente(request):
+    """Page de retour de vente"""
     headers = {
         'Authorization': request.session.get('token')
     }
@@ -267,6 +276,7 @@ def retour_vente(request):
 @login_required
 @standard_required
 def liste_produits(request):
+    """Page pour lister l'inventaire"""
     headers = {
         'Authorization': request.session.get('token')
     }
@@ -308,6 +318,7 @@ def liste_produits(request):
 @login_required
 @standard_required
 def liste_produits_central(request):
+    """Page pour lister l'inventaire du stock central"""
     headers = {
         'Authorization': request.session.get('token')
     }
@@ -342,6 +353,7 @@ def liste_produits_central(request):
 @login_required
 @standard_required
 def demande_reappro(request):
+    """Page de demande de reapprovisionnement"""
     headers = {
                 'Authorization': request.session.get('token')
             }
@@ -401,4 +413,3 @@ def demande_reappro(request):
         "stock_magasin": stock_magasin,
         "stock_mere": stock_mere
     })
-

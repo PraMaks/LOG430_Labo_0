@@ -1,10 +1,16 @@
-from django.http import HttpResponse
-import requests
+# pylint: disable=line-too-long
+# pylint: disable=missing-timeout
+# pylint: disable=no-else-return
+# pylint: disable=redefined-builtin
+# pylint: disable=too-many-nested-blocks
+"""Classe qui contient le logique des vues administratives"""
 from datetime import datetime, timedelta
+import requests
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from ..utils.decorators import login_required, admin_required
 from requests.exceptions import ConnectionError, RequestException
+from ..utils.decorators import login_required, admin_required
+
 
 EXPRESS_STANDARD_API_URL = 'http://localhost:3000/api/v1/standard'
 EXPRESS_STANDARD_API_URL_STORES = EXPRESS_STANDARD_API_URL + '/stores'
@@ -20,11 +26,13 @@ EXPRESS_ADMIN_API_URL_UPDATE = EXPRESS_ADMIN_API_URL_STORES + '/stock'
 @login_required
 @admin_required
 def magasin_admin(request):
+    """Page Home"""
     return render(request, 'magasins/admin/magasin_admin.html')
 
 @login_required
 @admin_required
 def rechercher_produit(request):
+    """Page de recherche d'un produit"""
     produit = None
     query = None
     selected_store = None
@@ -61,6 +69,7 @@ def rechercher_produit(request):
 @login_required
 @admin_required
 def enregistrer_vente(request):
+    """Page d'enregistrement d'une vente"""
     selected_store = request.POST.get("store", "1")
     store_param = selected_store if selected_store == "Central" else int(selected_store)
 
@@ -213,6 +222,7 @@ def enregistrer_vente(request):
 @login_required
 @admin_required
 def retour_vente(request):
+    """Page de retour de vente"""
     headers = {
         'Authorization': request.session.get('token')
     }
@@ -227,7 +237,7 @@ def retour_vente(request):
     store_param = selected_store if selected_store == "Central" else int(selected_store)
     url = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_SALES}"
 
-    # Suppression d'une vente 
+    # Suppression d'une vente
     if request.method == "POST" and request.POST.get("sale_id"):
         sale_id = request.POST["sale_id"]
         delete_url = f"{url}/{sale_id}"
@@ -254,7 +264,7 @@ def retour_vente(request):
             messages.error(request, f"Erreur lors de la suppression : {e}")
         return redirect("admin_retour_vente")
 
-    # Récupération des ventes 
+    # Récupération des ventes
     ventes = []
     try:
         response = requests.get(url, headers=headers, timeout=3)
@@ -289,6 +299,7 @@ def retour_vente(request):
 @login_required
 @admin_required
 def liste_produits(request):
+    """Page pour lister tous les produits"""
     selected_store = "1"  # Valeur par défaut
     headers = {
         'Authorization': request.session.get('token')
@@ -362,6 +373,7 @@ def liste_produits(request):
 @login_required
 @admin_required
 def liste_produits_central(request):
+    """Page pour lister tous les produits du stock central"""
     headers = {
         'Authorization': request.session.get('token')
     }
@@ -396,6 +408,7 @@ def liste_produits_central(request):
 @login_required
 @admin_required
 def demande_reappro(request):
+    """Page pour de demande de reappovisionnement"""
     selected_store = request.POST.get("store", "1")
 
     store_param = selected_store if selected_store == "Central" else int(selected_store)
@@ -444,7 +457,7 @@ def demande_reappro(request):
                 response.raise_for_status()
                 messages.success(request, "Demande d'approvisionnement envoyée avec succès.")
                 # Rediriger en passant la sélection pour garder le magasin sélectionné affiché
-                return redirect("admin_demande_reappro")  
+                return redirect("admin_demande_reappro")
             except requests.exceptions.RequestException as e:
                 messages.error(request, f"Erreur lors de l'envoi de la demande : {e}")
 
@@ -457,6 +470,7 @@ def demande_reappro(request):
 @login_required
 @admin_required
 def rapport_ventes(request):
+    """Page de rapport de ventes"""
     report_sales_dict = {i: [] for i in range(1,7)}
     report_products_dict = {}
     headers = {
@@ -539,6 +553,7 @@ def rapport_ventes(request):
 @login_required
 @admin_required
 def tableau_de_bord(request):
+    """Page avec le tableau de bord"""
     magasins = []
 
     report_sales_dict = {}
@@ -647,6 +662,7 @@ def tableau_de_bord(request):
 @login_required
 @admin_required
 def mise_a_jour_produit(request):
+    """Page de mise à jour de produits"""
     products_url = EXPRESS_STANDARD_API_URL_STORES + '/warehouse' + EXPRESS_STANDARD_API_URL_STOCK
     headers = {
                 'Authorization': request.session.get('token')

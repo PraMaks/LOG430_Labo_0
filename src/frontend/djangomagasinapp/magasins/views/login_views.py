@@ -1,3 +1,8 @@
+# pylint: disable=line-too-long
+# pylint: disable=missing-timeout
+# pylint: disable=no-else-return
+# pylint: disable=redefined-builtin
+"""Classe qui contient le logique des vues pour la connection"""
 import requests
 from django import forms
 from django.shortcuts import render, redirect
@@ -8,8 +13,10 @@ EXPRESS_AUTH_API_URL_LOGIN = EXPRESS_AUTH_API_URL + '/users/login'
 EXPRESS_AUTH_API_URL_LOGOUT = EXPRESS_AUTH_API_URL + '/users/logout'
 
 def login(request):
+    """Page login"""
     request.session.flush()
     class CustomLoginForm(forms.Form):
+        """Pour faire un fichier de connexion"""
         username = forms.CharField(label="Nom d'utilisateur", max_length=150)
         password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)
 
@@ -43,12 +50,13 @@ def login(request):
                     error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
                     messages.error(request, error_message)
             except Exception as e:
-                messages.error(request, "Erreur de connexion au serveur.")
+                messages.error(request, f"Erreur de connexion au serveur: {e}")
     else:
         form = CustomLoginForm()
     return render(request, 'magasins/login/login.html', {'form': form})
 
 def logout(request):
+    """Pour se deconncter"""
     token = request.session.get('token')
     request.session.flush()
     if token:

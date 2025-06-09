@@ -1,3 +1,4 @@
+"""Contient les URLs de la vue de connection"""
 from django.urls import path
 from magasins.views import login_views
 

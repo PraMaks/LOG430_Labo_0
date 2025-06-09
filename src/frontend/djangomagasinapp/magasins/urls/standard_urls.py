@@ -1,3 +1,5 @@
+"""Contient les URLs de la vue 'standard'"""
+
 from django.urls import path
 from magasins.views import standard_views, login_views
 
