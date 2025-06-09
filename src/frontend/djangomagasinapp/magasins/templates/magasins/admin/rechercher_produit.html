@@ -23,7 +23,7 @@
 
   <div class="mb-3">
     <label for="nom_produit" class="form-label">Nom du produit</label>
-    <input type="text" name="nom_produit" id="nom_produit" class="form-control" value="{{ query }}">
+    <input type="text" name="nom_produit" id="nom_produit" class="form-control" value="{{ query }}" required>
   </div>
 
   <button type="submit" class="btn btn-primary">Rechercher</button>
@@ -46,6 +46,15 @@
   <div class="alert alert-warning mt-4" role="alert">
     Aucun produit trouvé avec ce nom dans le magasin sélectionné.
   </div>
+
+  {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+  {% endif %}
 {% endif %}
 
 {% endblock %}

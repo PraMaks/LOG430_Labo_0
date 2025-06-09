@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const productController = require('../controllers/storeController');
-const { authenticate } = require('../controllers/loginController');
+const standardController = require('../controllers/standardController');
+const { authenticate } = require('../controllers/authController');
 
 /**
  * @swagger
@@ -12,18 +12,18 @@ const { authenticate } = require('../controllers/loginController');
  *       200:
  *         description: Succès
  */
-router.get('/stores/:storeNumber/stock/:productName', authenticate, productController.getProductByStoreByName);
+router.get('/stores/:storeNumber/stock/:productName', authenticate, standardController.getProductByStoreByName);
 
-router.get('/stores/warehouse/stock', authenticate, productController.getProductsFromWarehouse);
+router.get('/stores/warehouse/stock', authenticate, standardController.getProductsFromWarehouse);
 
-router.get('/stores/:storeNumber/stock', authenticate, productController.getProductsByStore);
+router.get('/stores/:storeNumber/stock', authenticate, standardController.getProductsByStore);
 
-router.post('/stores/:storeNumber/sales', authenticate, productController.postNewSaleInStore);
+router.post('/stores/:storeNumber/sales', authenticate, standardController.postNewSaleInStore);
 
-router.get('/stores/:storeNumber/sales', authenticate, productController.getSalesByStore);
+router.get('/stores/:storeNumber/sales', authenticate, standardController.getSalesByStore);
 
-router.delete('/stores/:storeNumber/sales/:saleId', authenticate, productController.deleteSaleByStore);
+router.delete('/stores/:storeNumber/sales/:saleId', authenticate, standardController.deleteSaleByStore);
 
-router.post('/stores/:storeNumber/supplies', authenticate, productController.postNewSupplyRequestFromStore)
+router.post('/stores/:storeNumber/supplies', authenticate, standardController.postNewSupplyRequestFromStore)
 
 module.exports = router;

@@ -1,6 +1,8 @@
 from django.shortcuts import redirect
+from functools import wraps
 
 def login_required(view_func):
+    @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         token = request.session.get('token')
         if not token:
@@ -9,10 +11,11 @@ def login_required(view_func):
     return wrapper
 
 def admin_required(view_func):
+    @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         token = request.session.get('token')
         is_admin = request.session.get('is_admin', False)
-        if not token :
+        if not token:
             return redirect('login')
         elif not is_admin:
             return redirect('magasin_standard')
@@ -20,10 +23,11 @@ def admin_required(view_func):
     return wrapper
 
 def standard_required(view_func):
+    @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         token = request.session.get('token')
-        is_admin = request.session.get('is_admin', True)
-        if not token :
+        is_admin = request.session.get('is_admin', False)
+        if not token:
             return redirect('login')
         elif is_admin:
             return redirect('magasin_admin')

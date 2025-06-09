@@ -1,12 +1,12 @@
 {% extends "magasins/standard/navbar.html" %}
 {% load static %}
 
-{% block title %}Retour de Vente – Magasin #{{ store_number }}{% endblock %}
+{% block title %}Retour de Vente – Magasin {{ store_number }}{% endblock %}
 
 {% block content %}
 <div class="container my-4">
 
-    <h1 class="mb-4">Retour de Vente – Magasin #{{ store_number }}</h1>
+    <h1 class="mb-4">Retour de Vente – Magasin {{ store_number }}</h1>
 
     {% if messages %}
         {% for message in messages %}

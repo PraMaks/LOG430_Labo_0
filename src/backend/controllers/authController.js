@@ -14,13 +14,29 @@ async function login(req, res) {
 
     const user = await User.findOne({ username }).populate('stores');
     if (!user) {
-      return res.status(401).json({ error: 'Nom d’utilisateur ou mot de passe invalide' });
+      return res.status(401).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 401,
+          error: "Unauthorized",
+          message: "Nom d’utilisateur ou mot de passe invalide",
+          path: "/api/v1/auth/users/login"
+        }
+      );
     }
 
     const passwordClean = password.trim();
     const passwordMatch = await bcrypt.compare(passwordClean, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Nom d’utilisateur ou mot de passe invalide' });
+      return res.status(401).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 401,
+          error: "Unauthorized",
+          message: "Nom d’utilisateur ou mot de passe invalide",
+          path: "/api/v1/auth/users/login"
+        }
+      );
     }
 
     const token = generateStaticToken(username);
@@ -33,8 +49,15 @@ async function login(req, res) {
       stores: user.stores.map(s => s.name),
     });
   } catch (error) {
-    console.error('Erreur login:', error);
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: "/api/v1/auth/users/login"
+      }
+    );
   }
 }
 
@@ -42,7 +65,15 @@ function authenticate(req, res, next) {
   const token = req.headers['authorization'];
 
   if (!token || !tokenStore.has(token)) {
-    return res.status(403).json({ error: 'Token invalide ou manquant' });
+    return res.status(403).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 403,
+        error: "Forbidden",
+        message: "Token invalide ou manquant",
+        path: "/api/v1/"
+      }
+    );
   }
 
   req.user = tokenStore.get(token);
@@ -56,7 +87,15 @@ function logout(req, res) {
     tokenStore.delete(token);
     return res.json({ message: 'Déconnexion réussie' });
   } else {
-    return res.status(400).json({ error: 'Token introuvable' });
+    return res.status(400).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 400,
+        error: "Bad Request",
+        message: "Token invalide",
+        path: "/api/v1/auth/users/logout"
+      }
+    );
   }
 }
 

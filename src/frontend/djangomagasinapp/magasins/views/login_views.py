@@ -8,6 +8,7 @@ EXPRESS_AUTH_API_URL_LOGIN = EXPRESS_AUTH_API_URL + '/users/login'
 EXPRESS_AUTH_API_URL_LOGOUT = EXPRESS_AUTH_API_URL + '/users/logout'
 
 def login(request):
+    request.session.flush()
     class CustomLoginForm(forms.Form):
         username = forms.CharField(label="Nom d'utilisateur", max_length=150)
         password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)
@@ -33,13 +34,18 @@ def login(request):
                     else:
                         return redirect('magasin_standard')
                 else:
-                    messages.error(request, "Nom d’utilisateur ou mot de passe invalide.")
+                    json_data = response.json()
+                    timestamp = json_data['timestamp']
+                    status = json_data['status']
+                    error = json_data['error']
+                    message = json_data['message']
+                    path = json_data['path']
+                    error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+                    messages.error(request, error_message)
             except Exception as e:
-                print("Erreur lors de la connexion au backend :", e)
                 messages.error(request, "Erreur de connexion au serveur.")
     else:
         form = CustomLoginForm()
-
     return render(request, 'magasins/login/login.html', {'form': form})
 
 def logout(request):
@@ -53,7 +59,14 @@ def logout(request):
             if response.status_code == 200:
                 messages.success(request, "Déconnexion réussie.")
             else:
-                messages.warning(request, "Erreur lors de la déconnexion côté serveur.")
+                json_data = response.json()
+                timestamp = json_data['timestamp']
+                status = json_data['status']
+                error = json_data['error']
+                message = json_data['message']
+                path = json_data['path']
+                error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+                messages.warning(request, error_message)
         except Exception as e:
             print("Erreur Express logout:", e)
             messages.error(request, "Impossible de contacter le serveur Express.")

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const { authenticate } = require('../controllers/loginController');
+const { authenticate } = require('../controllers/authController');
 
 router.get('/stores/all', authenticate, adminController.getStores);
 
