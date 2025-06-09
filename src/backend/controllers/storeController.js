@@ -80,7 +80,7 @@ exports.getProductByStoreByName = async (req, res) => {
   }
 };
 
-exports.postNewSale = async (req, res) => {
+exports.postNewSaleInStore = async (req, res) => {
   const soldProducts = req.body;
   const storeParam = req.params.storeNumber;
 

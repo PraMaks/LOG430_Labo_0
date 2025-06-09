@@ -5,6 +5,17 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from ..utils.decorators import login_required, admin_required
 
+EXPRESS_STANDARD_API_URL = 'http://localhost:3000/api/v1/standard'
+EXPRESS_STANDARD_API_URL_STORES = EXPRESS_STANDARD_API_URL + '/stores'
+EXPRESS_STANDARD_API_URL_STOCK = '/stock'
+EXPRESS_STANDARD_API_URL_SALES = '/sales'
+EXPRESS_STANDARD_API_URL_SUPPLIES = '/supplies'
+
+EXPRESS_ADMIN_API_URL = 'http://localhost:3000/api/v1/admin'
+EXPRESS_ADMIN_API_URL_STORES = EXPRESS_ADMIN_API_URL + '/stores/all'
+EXPRESS_ADMIN_API_URL_UPDATE = EXPRESS_ADMIN_API_URL_STORES + '/stock'
+
+
 @login_required
 @admin_required
 def magasin_admin(request):
@@ -26,7 +37,8 @@ def rechercher_produit(request):
 
         if query and selected_store:
             store_param = selected_store if selected_store == "Central" else int(selected_store)
-            response = requests.get(f"http://localhost:3000/{store_param}/productSearch/{query}", headers=headers)
+            url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_STOCK + '/' + query
+            response = requests.get(url, headers=headers)
             if response.status_code == 200:
                 produit = response.json()
 
@@ -41,8 +53,8 @@ def rechercher_produit(request):
 def enregistrer_vente(request):
     selected_store = request.POST.get("store", "1")  # Valeur par défaut : magasin 1
     store_param = selected_store if selected_store == "Central" else int(selected_store)
-    url_stock = f"http://127.0.0.1:3000/{store_param}/products"
-    url_vente = f"http://127.0.0.1:3000/{store_param}/registerSale"
+    url_stock = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_STOCK
+    url_vente = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_SALES
     headers = {
                 'Authorization': request.session.get('token')
             }
@@ -118,7 +130,7 @@ def retour_vente(request):
 
     store_param = selected_store if selected_store == "Central" else int(selected_store)
 
-    url = f"http://127.0.0.1:3000/{store_param}/sales"
+    url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_SALES
     ventes = []
 
     try:
@@ -140,7 +152,7 @@ def retour_vente(request):
         # Si on traite un retour de vente (bouton retour)
         sale_id = request.POST.get("sale_id")
         if sale_id:
-            delete_url = f"http://127.0.0.1:3000/{store_param}/returnSale/{sale_id}"
+            delete_url = url + '/' + sale_id
             try:
                 delete_response = requests.delete(delete_url, headers=headers)
                 delete_response.raise_for_status()
@@ -179,7 +191,8 @@ def liste_produits(request):
 
     # Prépare l’URL pour le magasin sélectionné
     store_param = selected_store if selected_store == "Central" else int(selected_store)
-    response = requests.get(f"http://localhost:3000/{store_param}/products", headers=headers)
+    url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_STOCK
+    response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
         produits = response.json()
@@ -195,7 +208,8 @@ def liste_produits_central(request):
     headers = {
                 'Authorization': request.session.get('token')
             }
-    response = requests.get("http://localhost:3000/mainStore/products", headers=headers)
+    url = EXPRESS_STANDARD_API_URL_STORES + '/warehouse' + EXPRESS_STANDARD_API_URL_STOCK
+    response = requests.get(url, headers=headers)
     produits = response.json()
     return render(request, 'magasins/admin/liste_produits_central.html', {'produits': produits})
 
@@ -210,12 +224,12 @@ def demande_reappro(request):
             }
 
     # URLs dynamiques selon magasin choisi
-    url_stock_magasin = f"http://127.0.0.1:3000/{store_param}/products"
-    url_stock_mere = "http://127.0.0.1:3000/mainStore/products"
+    url_stock_magasin = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_STOCK
+    url_stock_central = EXPRESS_STANDARD_API_URL_STORES + '/warehouse' + EXPRESS_STANDARD_API_URL_STOCK
 
     try:
         stock_magasin = requests.get(url_stock_magasin, headers=headers).json()
-        stock_mere = requests.get(url_stock_mere, headers=headers).json()
+        stock_mere = requests.get(url_stock_central, headers=headers).json()
     except requests.exceptions.RequestException as e:
         messages.error(request, f"Erreur de communication avec le serveur : {e}")
         return render(request, "magasins/admin/demande_reappro.html", {
@@ -244,7 +258,7 @@ def demande_reappro(request):
                     messages.warning(request, f"Quantité invalide pour {product['name']}.")
 
         if produits_demandes:
-            url_post = f"http://127.0.0.1:3000/{store_param}/requestSupplies"
+            url_post = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_SUPPLIES
             try:
                 response = requests.post(url_post, json=produits_demandes, headers=headers)
                 response.raise_for_status()
@@ -271,7 +285,7 @@ def rapport_ventes(request):
 
     # Récupérer les produits pour magasins 1 à 5
     for i in range(1, 6):
-        url = f"http://127.0.0.1:3000/{i}/products"
+        url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(i) + EXPRESS_STANDARD_API_URL_STOCK
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
@@ -282,7 +296,8 @@ def rapport_ventes(request):
 
     # Récupérer les produits du magasin Central (6)
     try:
-        response = requests.get("http://127.0.0.1:3000/Central/products", headers=headers)
+        url = EXPRESS_STANDARD_API_URL_STORES + '/Central' + EXPRESS_STANDARD_API_URL_STOCK
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[6] = response.json()
     except requests.exceptions.RequestException as e:
@@ -291,7 +306,7 @@ def rapport_ventes(request):
 
     # Récupérer les ventes pour magasins 1 à 5
     for i in range(1, 6):
-        url = f"http://127.0.0.1:3000/{i}/sales"
+        url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(i) + EXPRESS_STANDARD_API_URL_SALES
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
@@ -303,7 +318,8 @@ def rapport_ventes(request):
 
     # Récupérer les ventes du magasin Central (6)
     try:
-        response = requests.get("http://127.0.0.1:3000/Central/sales", headers=headers)
+        url = EXPRESS_STANDARD_API_URL_STORES + '/Central' + EXPRESS_STANDARD_API_URL_SALES
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         sales = response.json()
         report_sales_dict[6] = sales if sales else []
@@ -355,7 +371,8 @@ def tableau_de_bord(request):
 
     for i in range(1, 6):
         try:
-            response = requests.get(f"http://127.0.0.1:3000/{i}/products", headers=headers)
+            url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(i) + EXPRESS_STANDARD_API_URL_STOCK
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
             report_products_dict[i] = response.json()
         except requests.exceptions.RequestException as e:
@@ -363,7 +380,8 @@ def tableau_de_bord(request):
             return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        response = requests.get("http://127.0.0.1:3000/Central/products", headers=headers)
+        url = EXPRESS_STANDARD_API_URL_STORES + '/Central' + EXPRESS_STANDARD_API_URL_STOCK
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[6] = response.json()
     except requests.exceptions.RequestException as e:
@@ -372,7 +390,8 @@ def tableau_de_bord(request):
 
     for i in range(1, 6):
         try:
-            response = requests.get(f"http://127.0.0.1:3000/{i}/sales", headers=headers)
+            url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(i) + EXPRESS_STANDARD_API_URL_SALES
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
             report_sales_dict[i] = response.json()
         except requests.exceptions.RequestException as e:
@@ -380,7 +399,8 @@ def tableau_de_bord(request):
             return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        response = requests.get("http://127.0.0.1:3000/Central/sales", headers=headers)
+        url = EXPRESS_STANDARD_API_URL_STORES + '/Central' + EXPRESS_STANDARD_API_URL_SALES
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_sales_dict[6] = response.json()
     except requests.exceptions.RequestException as e:
@@ -388,7 +408,7 @@ def tableau_de_bord(request):
         return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        response = requests.get("http://127.0.0.1:3000/admin/stores", headers=headers)
+        response = requests.get(EXPRESS_ADMIN_API_URL_STORES, headers=headers)
         response.raise_for_status()
         for store in response.json():
             if store['name'].startswith("Magasin "):
@@ -405,7 +425,7 @@ def tableau_de_bord(request):
         ventes = report_sales_dict.get(i, [])
         produits = report_products_dict.get(i, [])
         magasin = report_stores_dict.get(i, {
-            "name": f"Magasin #{i}",
+            "name": f"Magasin {i}",
             "address": "N/A",
             "nb_requests": 0
         })
@@ -447,7 +467,7 @@ def tableau_de_bord(request):
 @login_required
 @admin_required
 def mise_a_jour_produit(request):
-    products_url = "http://127.0.0.1:3000/mainStore/products"
+    products_url = EXPRESS_STANDARD_API_URL_STORES + '/warehouse' + EXPRESS_STANDARD_API_URL_STOCK
     headers = {
                 'Authorization': request.session.get('token')
             }
@@ -482,7 +502,7 @@ def mise_a_jour_produit(request):
 
         if update_data:
             try:
-                update_url = f"http://127.0.0.1:3000/admin/product/update/{product_name}"
+                update_url = EXPRESS_ADMIN_API_URL_UPDATE + '/' + product_name
                 update_response = requests.put(update_url, json=update_data, headers=headers)
                 update_response.raise_for_status()
                 result = update_response.json()

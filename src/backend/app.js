@@ -18,9 +18,9 @@ app.use(cors({
 }));
 
 // Routes
-const storeRoutes = require('./routes/storeRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const loginRoutes = require('./routes/loginRoutes');
+const standardRouter = require('./routes/standardRouter');
+const adminRouter = require('./routes/adminRouter');
+const authRouter = require('./routes/authRouter');
 
 const options = {
   definition: {
@@ -53,10 +53,10 @@ async function startServer() {
 
     await initDb(); 
 
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    app.use('/', storeRoutes);
-    app.use('/admin', adminRoutes);
-    app.use('/login', loginRoutes);
+    app.use('/api/v1/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.use('/api/v1/standard', standardRouter);
+    app.use('/api/v1/admin', adminRouter);
+    app.use('/api/v1/auth', authRouter);
     
 
     app.listen(port, () => {

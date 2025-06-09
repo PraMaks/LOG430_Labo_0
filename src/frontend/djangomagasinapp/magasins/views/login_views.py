@@ -3,7 +3,9 @@ from django import forms
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
-EXPRESS_LOGIN_URL = 'http://localhost:3000/login/login'
+EXPRESS_AUTH_API_URL = 'http://localhost:3000/api/v1/auth'
+EXPRESS_AUTH_API_URL_LOGIN = EXPRESS_AUTH_API_URL + '/users/login'
+EXPRESS_AUTH_API_URL_LOGOUT = EXPRESS_AUTH_API_URL + '/users/logout'
 
 def login(request):
     class CustomLoginForm(forms.Form):
@@ -19,7 +21,7 @@ def login(request):
             }
 
             try:
-                response = requests.post(EXPRESS_LOGIN_URL, json=data)
+                response = requests.post(EXPRESS_AUTH_API_URL_LOGIN, json=data)
                 if response.status_code == 200:
                     json_data = response.json()
                     request.session['token'] = json_data['token']
@@ -40,15 +42,13 @@ def login(request):
 
     return render(request, 'magasins/login/login.html', {'form': form})
 
-EXPRESS_LOGOUT_URL = 'http://localhost:3000/login/logout'
-
 def logout(request):
     token = request.session.get('token')
 
     if token:
         try:
             headers = {'Authorization': token}
-            response = requests.post(EXPRESS_LOGOUT_URL, headers=headers)
+            response = requests.delete(EXPRESS_AUTH_API_URL_LOGOUT, headers=headers)
 
             if response.status_code == 200:
                 messages.success(request, "Déconnexion réussie.")

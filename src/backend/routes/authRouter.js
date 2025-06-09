@@ -28,7 +28,7 @@ const router = express.Router();
  *       401:
  *         description: Identifiants invalides
  */
-router.post('/login', login);
-router.post('/logout', authenticate, logout);
+router.post('/users/login', login);
+router.delete('/users/logout', authenticate, logout);
 
 module.exports = router;
