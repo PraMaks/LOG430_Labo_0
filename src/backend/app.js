@@ -55,6 +55,10 @@ const options = {
 
 const swaggerSpec = swaggerJsdoc(options);
 
+app.use('/api/v1/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/v1/standard', standardRouter);
+app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/auth', authRouter);
 
 // Fonction de démarrage
 async function startServer() {
@@ -65,20 +69,23 @@ async function startServer() {
     await mongoose.connect(mongoUrl);
     console.log('Connecté à MongoDB');
 
-    await initDb(); 
+    if (process.env.NODE_ENV !== 'test') {
+      await initDb();
+    }
 
-    app.use('/api/v1/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    app.use('/api/v1/standard', standardRouter);
-    app.use('/api/v1/admin', adminRouter);
-    app.use('/api/v1/auth', authRouter);
-    
+    if (process.env.NODE_ENV !== 'test') {
+      app.listen(port, () => {
+        console.log(`Serveur lancé sur http://localhost:${port}`);
+      });
+    }
 
-    app.listen(port, () => {
-      console.log(`Serveur lancé sur http://localhost:${port}`);
-    });
   } catch (err) {
     console.error('Erreur de démarrage du serveur :', err);
   }
 }
 
-startServer();
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+module.exports = { app, startServer };
