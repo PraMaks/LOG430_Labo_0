@@ -4,6 +4,7 @@ const initDb = require('./initDb');
 const cors = require('cors');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const logger = require('./utils/logger');
 
 const app = express();
 const port = 3000;
@@ -16,6 +17,11 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.use((req, res, next) => {
+  logger.info(`→ ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // Routes
 const standardRouter = require('./routes/standardRouter');
