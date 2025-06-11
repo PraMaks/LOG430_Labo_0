@@ -1,5 +1,6 @@
 const Store = require('../models/Store');
 const StoreInventory = require('../models/StoreInventory');
+const logger = require('../utils/logger');
 
 exports.getStores = async (req, res) => { 
   try {
@@ -12,10 +13,11 @@ exports.getStores = async (req, res) => {
         nb_requests: store.nb_requests,
         is_store: store.is_store,
     }));
+    logger.info(`Magasins envoyés`);
     res.json(stores);
 
   } catch (err) {
-    console.error(err);
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -44,6 +46,7 @@ exports.updateProductInfo = async (req, res) => {
     );
 
     if (result.matchedCount === 0) {
+      logger.warn(`Aucun produit trouvé avec ce nom`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -55,12 +58,13 @@ exports.updateProductInfo = async (req, res) => {
       );
     }
 
+    logger.info(`Produit '${productName}' mis à jour dans ${result.modifiedCount} magasin(s)`);
     res.status(200).json({
       message: `Produit '${productName}' mis à jour dans ${result.modifiedCount} magasin(s)`,
       result,
     });
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du produit dans tous les magasins:', error);
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),

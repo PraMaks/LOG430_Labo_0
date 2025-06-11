@@ -2,6 +2,7 @@ const StoreInventory = require('../models/StoreInventory');
 const Store = require('../models/Store');
 const StoreSale = require('../models/StoreSale');
 const SupplyRequest = require('../models/SupplyRequest');
+const logger = require('../utils/logger');
 
 exports.getProductsByStore = async (req, res) => {
   const storeParam = req.params.storeNumber;
@@ -10,6 +11,7 @@ exports.getProductsByStore = async (req, res) => {
   const isCentral = storeParam === 'Central';
 
   if (!isNumber && !isCentral) {
+    logger.warn(`Numéro de magasin invalide (1-5) ou 'Central'`);
     return res.status(400).json(
       {
         timestamp: new Date().toISOString(),
@@ -26,6 +28,7 @@ exports.getProductsByStore = async (req, res) => {
   try {
     const store = await Store.findOne({ name: storeName });
     if (!store) {
+      logger.warn(`Magasin '${storeName}' introuvable`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -48,10 +51,11 @@ exports.getProductsByStore = async (req, res) => {
         qty: product.qty,
         max_qty: product.max_qty
     }));
+    logger.info(`Produits trouvés`);
     res.status(200).json(products);
 
   } catch (err) {
-    console.error(err);
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -72,6 +76,7 @@ exports.getProductByStoreByName = async (req, res) => {
   const isCentral = storeParam === 'Central';
 
   if (!isNumber && !isCentral) {
+    logger.warn(`Numéro de magasin invalide (1-5) ou 'Central'`);
     return res.status(400).json(
       {
         timestamp: new Date().toISOString(),
@@ -88,6 +93,7 @@ exports.getProductByStoreByName = async (req, res) => {
   try {
     const store = await Store.findOne({ name: storeName });
     if (!store) {
+      logger.warn(`Magasin '${storeName}' introuvable`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -102,6 +108,7 @@ exports.getProductByStoreByName = async (req, res) => {
     // Recherche du produit dans ce magasin
     const product = await StoreInventory.findOne({ store: store._id, name: productName });
     if (!product) {
+      logger.warn(`Produit '${productName}' introuvable dans le magasin '${storeName}'`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -114,6 +121,7 @@ exports.getProductByStoreByName = async (req, res) => {
     }
 
     // Retour des infos filtrées du produit
+    logger.info(`Produit trouvé`);
     res.status(200).json({
       name: product.name,
       description: product.description,
@@ -123,7 +131,7 @@ exports.getProductByStoreByName = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -144,6 +152,7 @@ exports.postNewSaleInStore = async (req, res) => {
   const isCentral = storeParam === 'Central';
 
   if (!isNumber && !isCentral) {
+    logger.warn(`Numéro de magasin invalide (1-5) ou 'Central'`);
     return res.status(400).json(
       {
         timestamp: new Date().toISOString(),
@@ -160,6 +169,7 @@ exports.postNewSaleInStore = async (req, res) => {
     const storeName = `Magasin ${storeParam}`; 
     const store = await Store.findOne({ name: storeName });
     if (!store) {
+      logger.warn(`Magasin '${storeName}' introuvable`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -177,6 +187,7 @@ exports.postNewSaleInStore = async (req, res) => {
       const product = await StoreInventory.findOne({ store: store._id, name: item.name });
 
       if (!product) {
+        logger.warn(`Produit '${productName}' introuvable dans le magasin '${storeName}'`);
         return res.status(404).json(
           {
             timestamp: new Date().toISOString(),
@@ -189,6 +200,7 @@ exports.postNewSaleInStore = async (req, res) => {
       }
 
       if (product.qty < item.qty) {
+        logger.warn(`Stock insuffisant pour '${item.name}'. Disponible : ${product.qty}`);
         return res.status(400).json(
           {
             timestamp: new Date().toISOString(),
@@ -212,10 +224,11 @@ exports.postNewSaleInStore = async (req, res) => {
       contents: soldProducts
     });
     await sale.save();
+    logger.info(`Vente enregistrée avec succès.`);
     res.status(201).json({ message: "Vente enregistrée avec succès." });
 
   } catch (err) {
-    console.error(err);
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -235,6 +248,7 @@ exports.getSalesByStore = async (req, res) => {
   const isCentral = storeParam === 'Central';
 
   if (!isNumber && !isCentral) {
+    logger.warn(`Numéro de magasin invalide (1-5) ou 'Central'`);
     return res.status(400).json(
       {
         timestamp: new Date().toISOString(),
@@ -251,6 +265,7 @@ exports.getSalesByStore = async (req, res) => {
   try {
     const store = await Store.findOne({ name: storeName });
     if (!store) {
+      logger.warn(`Magasin '${storeName}' introuvable`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -273,10 +288,11 @@ exports.getSalesByStore = async (req, res) => {
         contents: sale.contents,
         date: sale.date,
     }));
+    logger.info(`Ventes trouvées`);
     res.status(200).json(sales);
 
   } catch (err) {
-    console.error(err);
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -297,6 +313,7 @@ exports.deleteSaleByStore = async (req, res) => {
   const isCentral = storeParam === 'Central';
 
   if (!isNumber && !isCentral) {
+    logger.warn(`Numéro de magasin invalide (1-5) ou 'Central'`);
     return res.status(400).json(
       {
         timestamp: new Date().toISOString(),
@@ -313,6 +330,7 @@ exports.deleteSaleByStore = async (req, res) => {
   try {
     const store = await Store.findOne({ name: storeName });
     if (!store) {
+      logger.warn(`Magasin '${storeName}' introuvable`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -326,6 +344,7 @@ exports.deleteSaleByStore = async (req, res) => {
 
     const sale = await StoreSale.findOne({ _id: saleId, store: store._id });
     if (!sale) {
+      logger.warn(`Vente introuvable dans ce magasin.`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -345,15 +364,15 @@ exports.deleteSaleByStore = async (req, res) => {
         inventoryItem.qty += item.qty;
         await inventoryItem.save();
       } else {
-        console.warn(`Produit '${item.name}' non trouvé dans l'inventaire. Impossible de remettre en stock.`);
+        logger.warn(`Produit '${item.name}' non trouvé dans l'inventaire. Impossible de remettre en stock.`);
       }
     }
 
     await StoreSale.deleteOne({ _id: saleId });
-
+    logger.info(`Vente supprimée et stock mis à jour.`);
     res.status(200).json({ message: "Vente supprimée et stock mis à jour." });
   } catch (err) {
-    console.error(err);
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -372,6 +391,7 @@ exports.getProductsFromWarehouse = async (req, res) => {
   try {
     const store = await Store.findOne({ name: storeName });
     if (!store) {
+      logger.warn(`Magasin '${storeName}' introuvable`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -394,10 +414,11 @@ exports.getProductsFromWarehouse = async (req, res) => {
         qty: product.qty,
         max_qty: product.max_qty
     }));
+    logger.info(`Produits recupérées dans le centre de stock`);
     res.status(200).json(products);
 
   } catch (err) {
-    console.error(err);
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -418,6 +439,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
   const isCentral = storeParam === 'Central';
 
   if (!isNumber && !isCentral) {
+    logger.warn(`Numéro de magasin invalide (1-5) ou 'Central'`);
     return res.status(400).json(
       {
         timestamp: new Date().toISOString(),
@@ -434,6 +456,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
     const storeName = `Magasin ${storeParam}`; 
     const store = await Store.findOne({ name: storeName });
     if (!store) {
+      logger.warn(`Magasin '${storeName}' introuvable`);
       return res.status(404).json(
         {
           timestamp: new Date().toISOString(),
@@ -450,6 +473,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
       const product = await StoreInventory.findOne({ store: store._id, name: item.name });
 
       if (!product) {
+        logger.warn(`Produit '${productName}' introuvable dans le magasin '${storeName}'`);
         return res.status(404).json(
           {
             timestamp: new Date().toISOString(),
@@ -472,10 +496,11 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
       { _id: store._id },
       { $inc: { nb_requests: 1 } }
     );
+    logger.info(`Requete enregistrée avec succès.`);
     res.status(201).json({ message: "Requete enregistrée avec succès." });
 
   } catch (err) {
-    console.error(err);
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),

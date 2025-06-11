@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const logger = require('../utils/logger');
 
 // Simple table de tokens en mémoire (clé: token, valeur: user)
 const tokenStore = new Map();
@@ -14,6 +15,7 @@ async function login(req, res) {
 
     const user = await User.findOne({ username }).populate('stores');
     if (!user) {
+      logger.warn(`Nom d’utilisateur ou mot de passe invalide`);
       return res.status(401).json(
         {
           timestamp: new Date().toISOString(),
@@ -28,6 +30,7 @@ async function login(req, res) {
     const passwordClean = password.trim();
     const passwordMatch = await bcrypt.compare(passwordClean, user.password);
     if (!passwordMatch) {
+      logger.warn(`Nom d’utilisateur ou mot de passe invalide`);
       return res.status(401).json(
         {
           timestamp: new Date().toISOString(),
@@ -42,6 +45,7 @@ async function login(req, res) {
     const token = generateStaticToken(username);
     tokenStore.set(token, user);
 
+    logger.info(`Login reussi`);
     res.json({
       token,
       username: user.username,
@@ -49,6 +53,7 @@ async function login(req, res) {
       stores: user.stores.map(s => s.name),
     });
   } catch (error) {
+    logger.err(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -65,6 +70,7 @@ function authenticate(req, res, next) {
   const token = req.headers['authorization'];
 
   if (!token || !tokenStore.has(token)) {
+    logger.warn(`Token invalide ou manquant`);
     return res.status(403).json(
       {
         timestamp: new Date().toISOString(),
@@ -85,8 +91,10 @@ function logout(req, res) {
 
   if (tokenStore.has(token)) {
     tokenStore.delete(token);
+    logger.info(`Déconnexion réussie`);
     return res.json({ message: 'Déconnexion réussie' });
   } else {
+    logger.warn(`Token invalide`);
     return res.status(400).json(
       {
         timestamp: new Date().toISOString(),
