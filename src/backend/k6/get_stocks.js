@@ -8,7 +8,7 @@ export let options = {
 
 // Cette fonction est exécutée UNE FOIS au début pour chaque VU (virtual user)
 export function setup() {
-  const loginRes = http.post('http://localhost:3000/api/v1/auth/users/login', JSON.stringify({
+  const loginRes = http.post('http://localhost:3001/api/v1/auth/users/login', JSON.stringify({
     username: 'admin',    
     password: 'admin123'
   }), {
@@ -25,7 +25,7 @@ export function setup() {
 }
 
 export default function (data) {
-  const res = http.get('http://localhost:3000/api/v1/standard/stores/1/stock', {
+  const res = http.get('http://localhost:3001/api/v1/standard/stores/1/stock', {
     headers: {
       Authorization: data.token,
     },
@@ -35,7 +35,7 @@ export default function (data) {
     'stock fetch succeeded': (r) => r.status === 200,
   });
 
-  const res2 = http.get('http://localhost:3000/api/v1/standard/stores/2/stock', {
+  const res2 = http.get('http://localhost:3001/api/v1/standard/stores/2/stock', {
     headers: {
       Authorization: data.token,
     },

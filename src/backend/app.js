@@ -5,9 +5,10 @@ const cors = require('cors');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const logger = require('./utils/logger');
+const promBundle = require('express-prom-bundle');
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 // Middleware pour parser le JSON
 app.use(express.json());
@@ -17,6 +18,17 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true,
+  includeStatusCode: true,
+  promClient: {
+    collectDefaultMetrics: {},
+  }
+});
+
+app.use(metricsMiddleware);
 
 app.use((req, res, next) => {
   logger.info(`→ ${req.method} ${req.originalUrl}`);
@@ -38,7 +50,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://localhost:3001',
       },
     ],
     components: {
@@ -71,7 +83,7 @@ async function startServer() {
   try {
     const mongoHost = process.env.MONGO_HOST || 'localhost';
     const mongoPort = process.env.MONGO_PORT || '27017';
-    const mongoUrl = `mongodb://${mongoHost}:${mongoPort}/labo3`;
+    const mongoUrl = `mongodb://${mongoHost}:${mongoPort}/labo4`;
     await mongoose.connect(mongoUrl);
     console.log('Connecté à MongoDB');
 

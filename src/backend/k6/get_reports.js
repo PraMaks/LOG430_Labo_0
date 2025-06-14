@@ -8,7 +8,7 @@ export let options = {
 
 // Cette fonction est exécutée UNE FOIS au début pour chaque VU (virtual user)
 export function setup() {
-  const loginRes = http.post('http://localhost:3000/api/v1/auth/users/login', JSON.stringify({
+  const loginRes = http.post('http://localhost:3001/api/v1/auth/users/login', JSON.stringify({
     username: 'admin',    
     password: 'admin123'
   }), {
@@ -25,7 +25,7 @@ export function setup() {
 }
 
 export default function (data) {
-  const res = http.get('http://localhost:3000/api/v1/standard/stores/1/stock', {
+  const res = http.get('http://localhost:3001/api/v1/standard/stores/1/stock', {
     headers: {
       Authorization: data.token,
     },
@@ -35,7 +35,7 @@ export default function (data) {
     'stock fetch succeeded': (r) => r.status === 200,
   });
 
-  const res2 = http.get('http://localhost:3000/api/v1/standard/stores/2/stock', {
+  const res2 = http.get('http://localhost:3001/api/v1/standard/stores/2/stock', {
     headers: {
       Authorization: data.token,
     },
@@ -45,7 +45,7 @@ export default function (data) {
     'stock fetch succeeded': (r) => r.status === 200,
   });
 
-  const res3 = http.get('http://localhost:3000/api/v1/standard/stores/3/stock', {
+  const res3 = http.get('http://localhost:3001/api/v1/standard/stores/3/stock', {
     headers: {
       Authorization: data.token,
     },
@@ -55,7 +55,7 @@ export default function (data) {
     'stock fetch succeeded': (r) => r.status === 200,
   });
 
-  const res4 = http.get('http://localhost:3000/api/v1/standard/stores/4/stock', {
+  const res4 = http.get('http://localhost:3001/api/v1/standard/stores/4/stock', {
     headers: {
       Authorization: data.token,
     },
@@ -65,7 +65,7 @@ export default function (data) {
     'stock fetch succeeded': (r) => r.status === 200,
   });
 
-  const res5 = http.get('http://localhost:3000/api/v1/standard/stores/5/stock', {
+  const res5 = http.get('http://localhost:3001/api/v1/standard/stores/5/stock', {
     headers: {
       Authorization: data.token,
     },
@@ -75,7 +75,7 @@ export default function (data) {
     'stock fetch succeeded': (r) => r.status === 200,
   });
 
-  const res6 = http.get('http://localhost:3000/api/v1/standard/stores/Central/stock', {
+  const res6 = http.get('http://localhost:3001/api/v1/standard/stores/Central/stock', {
     headers: {
       Authorization: data.token,
     },
@@ -85,7 +85,7 @@ export default function (data) {
     'stock fetch succeeded': (r) => r.status === 200,
   });
 
-  const res7 = http.get('http://localhost:3000/api/v1/standard/stores/1/sales', {
+  const res7 = http.get('http://localhost:3001/api/v1/standard/stores/1/sales', {
     headers: {
       Authorization: data.token,
     },
@@ -95,7 +95,7 @@ export default function (data) {
     'sales fetch succeeded': (r) => r.status === 200,
   });
 
-  const res8 = http.get('http://localhost:3000/api/v1/standard/stores/2/sales', {
+  const res8 = http.get('http://localhost:3001/api/v1/standard/stores/2/sales', {
     headers: {
       Authorization: data.token,
     },
@@ -105,7 +105,7 @@ export default function (data) {
     'sales fetch succeeded': (r) => r.status === 200,
   });
 
-  const res9 = http.get('http://localhost:3000/api/v1/standard/stores/3/sales', {
+  const res9 = http.get('http://localhost:3001/api/v1/standard/stores/3/sales', {
     headers: {
       Authorization: data.token,
     },
@@ -115,7 +115,7 @@ export default function (data) {
     'sales fetch succeeded': (r) => r.status === 200,
   });
 
-  const res10 = http.get('http://localhost:3000/api/v1/standard/stores/4/sales', {
+  const res10 = http.get('http://localhost:3001/api/v1/standard/stores/4/sales', {
     headers: {
       Authorization: data.token,
     },
@@ -125,7 +125,7 @@ export default function (data) {
     'sales fetch succeeded': (r) => r.status === 200,
   });
 
-  const res11 = http.get('http://localhost:3000/api/v1/standard/stores/5/sales', {
+  const res11 = http.get('http://localhost:3001/api/v1/standard/stores/5/sales', {
     headers: {
       Authorization: data.token,
     },
@@ -135,7 +135,7 @@ export default function (data) {
     'sales fetch succeeded': (r) => r.status === 200,
   });
 
-  const res12 = http.get('http://localhost:3000/api/v1/standard/stores/Central/sales', {
+  const res12 = http.get('http://localhost:3001/api/v1/standard/stores/Central/sales', {
     headers: {
       Authorization: data.token,
     },

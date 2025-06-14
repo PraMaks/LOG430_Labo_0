@@ -10,7 +10,7 @@ from django.contrib import messages
 from requests.exceptions import RequestException, ConnectionError
 from ..utils.decorators import login_required, standard_required
 
-EXPRESS_STANDARD_API_URL = 'http://localhost:3000/api/v1/standard'
+EXPRESS_STANDARD_API_URL = 'http://localhost:3001/api/v1/standard'
 EXPRESS_STANDARD_API_URL_STORES = EXPRESS_STANDARD_API_URL + '/stores'
 EXPRESS_STANDARD_API_URL_STOCK = '/stock'
 EXPRESS_STANDARD_API_URL_SALES = '/sales'
@@ -124,7 +124,7 @@ def enregistrer_vente(request):
                     messages.warning(request, error_message)
             except ConnectionError:
                 produits_disponibles = []
-                messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+                messages.error(request, "Connexion refusée au serveur distant (port 3001).")
             except RequestException as e:
                 produits_disponibles = []
                 messages.error(request, f"Erreur lors de la récupération des stocks : {e}")
@@ -156,7 +156,7 @@ def enregistrer_vente(request):
                 except Exception:
                     error_message = f"Erreur inattendue : {response.text}"
         except ConnectionError:
-            error_message = "Connexion refusée au serveur distant (port 3000)."
+            error_message = "Connexion refusée au serveur distant (port 3001)."
         except RequestException as e:
             error_message = f"Erreur lors de l'envoi de la vente : {e}"
 
@@ -186,7 +186,7 @@ def enregistrer_vente(request):
             messages.warning(request, error_message)
     except ConnectionError:
         produits = []
-        messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+        messages.error(request, "Connexion refusée au serveur distant (port 3001).")
     except RequestException as e:
         produits = []
         messages.error(request, f"Erreur lors du chargement des produits : {e}")
@@ -232,7 +232,7 @@ def retour_vente(request):
             except Exception:
                 messages.error(request, f"Erreur inattendue : {response.text}")
     except ConnectionError:
-        messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+        messages.error(request, "Connexion refusée au serveur distant (port 3001).")
     except RequestException as e:
         messages.error(request, f"Erreur de communication avec le serveur : {e}")
         return render(request, "magasins/standard/retour_vente.html", {
@@ -264,7 +264,7 @@ def retour_vente(request):
                         messages.error(request, f"Erreur inattendue : {delete_response.text}")
                 return redirect("retour_vente")
             except ConnectionError:
-                messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+                messages.error(request, "Connexion refusée au serveur distant (port 3001).")
             except RequestException as e:
                 messages.error(request, f"Erreur lors de la suppression : {e}")
 
@@ -307,7 +307,7 @@ def liste_produits(request):
             except Exception:
                 messages.error(request, f"Erreur inattendue : {response.text}")
     except ConnectionError:
-        messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+        messages.error(request, "Connexion refusée au serveur distant (port 3001).")
     except RequestException as e:
         messages.error(request, f"Erreur lors de la récupération des produits : {e}")
 
@@ -342,7 +342,7 @@ def liste_produits_central(request):
             except Exception:
                 messages.error(request, f"Erreur inattendue : {response.text}")
     except ConnectionError:
-        messages.error(request, "Connexion refusée au serveur distant (port 3000).")
+        messages.error(request, "Connexion refusée au serveur distant (port 3001).")
     except RequestException as e:
         messages.error(request, f"Erreur lors du chargement des produits : {e}")
 
