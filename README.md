@@ -26,6 +26,14 @@ Technologie utilisée pour les tests unitaires : Jest et Supertest pour Express.
 
 Frontend: Serveur Django qui utilise Python comme langue de programmation
 
+Load Balancing: Serveur NGINX entre le frontend et le backend pour distribuer la charge du trafic.
+
+Mise en cache: Serveur Redis pour stocker la cache comme les tokens des utilisateurs parmi plusieurs instances Express.js
+
+Collecte des métriques: Serveur Prometheus qui ramasse les métriques du backend 
+
+Affichage des métriques sous forme de diagrammes dans un dashboard: Serveur Grafana utilise les métriques de Prometheus pour afficher sous forme de Dashboard, si le dashboard est absent sur le container, importer le dashboard "grafana_dashboard.json"
+
 Backend: Serveur Express.js sera utilisé comme intérmédiaire entre le frontend Python et la base de données MongoDB. Utilise REST API pour gérer les requêtes.
 
 Base de données : MongoDB. C'est une base de données NoSQL, les données sont stockées sous forme de documents (comme des objets JSON). Pas besoin de schéma rigide, donc parfait pour les laboratoires à venir où la structure peut évoluer. Permet la persistance des données.
@@ -37,7 +45,7 @@ Docker Compose est utilisée pour lancer l'image Docker générée. Docker est u
 Ce projet utilise un pipeline CI/CD avec GitHub Actions après chaque push sur la branche principale (main) pour tester le code poussé. Le pipeline contient 4 jobs:
 
     1) PyLint pour verifier le format des fichiers .py
-    2) Pytest pour lancer les tests unitaires et verifier qu'il n'y a pas d'erreurs de logique
+    2) Jest pour lancer les tests unitaires et verifier qu'il n'y a pas d'erreurs de logique
     3) Création et sauvegarde (comme un artifact) d'une image Docker de l'application 
     4) Utilisation de l'image Docker stoquée comme un artifact et push de celle-ci sur Docker Hub
 
@@ -50,10 +58,6 @@ Cette image lance le côté backend de l'application (Express.js)
 Version de Docker utilisée: version 28.1.1, build 4eba377
 
 Version de Docker Compose utilisée : version 2.35.1
-
-Pour créer l'image Docker (à partir du root de l'application) : lancer "docker compose up --builddocker build -t express-addition-app ."
-
-Pour verifier que l'image Docker s'est correctement crée (à partir du root de l'application) : lancer "docker images"
 
 Pour lancer et build le tout avec Docker Compose : "docker compose up --build"
 
