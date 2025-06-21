@@ -1,6 +1,7 @@
 const Store = require('./models/Store');
 const StoreInventory = require('./models/StoreInventory');
 const User = require('./models/User');
+const logger = require('./utils/logger');
 
 const DEFAULT_STORES = [
   { name: 'Magasin 1', address: '123 rue Principale', nb_requests: 0, is_store: true },
@@ -28,7 +29,7 @@ const DEFAULT_USERS = [
 ];
 
 async function initDb() {
-  console.log('Initialisation de la base de données...');
+  logger.info('Initialisation de la base de données...');
   let counter = 1;
   let centralStock = null;
 
@@ -40,9 +41,9 @@ async function initDb() {
     if (!store) {
       store = new Store(storeData);
       await store.save();
-      console.log(`'${store.name}' créé.`);
+      logger.info(`'${store.name}' créé.`);
     } else {
-      console.log(`'${store.name}' déjà existant.`);
+      logger.info(`'${store.name}' déjà existant.`);
     }
 
     storesByName[store.name] = store;
@@ -65,7 +66,7 @@ async function initDb() {
           max_qty: product.max_qty
         });
         await inventoryItem.save();
-        console.log(`Ajout de '${productName}' au magasin '${store.name}'`);
+        logger.info(`Ajout de '${productName}' au magasin '${store.name}'`);
       }
     }
 
@@ -97,9 +98,9 @@ async function initDb() {
         stores: linkedStores
       });
       await user.save();
-      console.log(`Utilisateur '${user.username}' créé.`);
+      logger.info(`Utilisateur '${user.username}' créé.`);
     } else {
-      console.log(`Utilisateur '${user.username}' déjà existant.`);
+      logger.info(`Utilisateur '${user.username}' déjà existant.`);
     }
   }
 
@@ -119,12 +120,12 @@ async function initDb() {
           max_qty: product.max_qty * 10
         });
         await copiedProduct.save();
-        console.log(`Ajout de '${product.name}' dans 'Stock Central'`);
+        logger.info(`Ajout de '${product.name}' dans 'Stock Central'`);
       }
     }
   }
 
-  console.log('Initialisation terminée.');
+  logger.info('Initialisation terminée.');
 }
 
 module.exports = initDb;

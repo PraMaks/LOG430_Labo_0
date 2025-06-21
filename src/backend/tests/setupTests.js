@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
+const logger = require('./../utils/logger')
+
+jest.mock('redis', () => require('redis-mock'));
+process.env.NODE_ENV = 'test';
 
 let mongoServer;
 
-console.log('setuptests est lancé')
+logger.info('setuptests est lancé')
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();

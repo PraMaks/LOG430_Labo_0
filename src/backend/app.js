@@ -85,7 +85,7 @@ async function startServer() {
     const mongoPort = process.env.MONGO_PORT || '27017';
     const mongoUrl = `mongodb://${mongoHost}:${mongoPort}/labo4`;
     await mongoose.connect(mongoUrl);
-    console.log('Connecté à MongoDB');
+    logger.info('Connecté à MongoDB');
 
     if (process.env.NODE_ENV !== 'test') {
       await initDb();
@@ -93,12 +93,12 @@ async function startServer() {
 
     if (process.env.NODE_ENV !== 'test') {
       app.listen(port, () => {
-        console.log(`Serveur lancé sur http://localhost:${port}`);
+        logger.info(`Serveur lancé sur http://localhost:${port}`);
       });
     }
 
   } catch (err) {
-    console.error('Erreur de démarrage du serveur :', err);
+    logger.error('Erreur de démarrage du serveur :', err);
   }
 }
 

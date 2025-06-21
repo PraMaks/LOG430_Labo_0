@@ -2,18 +2,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 const redis = require('redis');
-
-// Créer un client Redis (assure-toi d'utiliser les bonnes variables d'environnement si besoin)
-const redisClient = redis.createClient({
-  socket: {
-    host: process.env.REDIS_HOST || 'redis',
-    port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
-  }
-});
-
-redisClient.connect()
-  .then(() => logger.info('Connecté à Redis'))
-  .catch((err) => logger.err('Erreur de connexion à Redis:', err));
+const redisClient = require('../utils/redisClient');
 
 function generateStaticToken(username) {
   return `token-${username}-${Date.now()}`;
@@ -69,7 +58,7 @@ async function login(req, res) {
       stores: user.stores.map(s => s.name),
     });
   } catch (error) {
-    logger.err(`Erreur de communication avec le serveur`, error);
+    logger.error(`Erreur de communication avec le serveur`, error);
     res.status(500).json({
       timestamp: new Date().toISOString(),
       status: 500,
@@ -111,7 +100,7 @@ async function authenticate(req, res, next) {
     next();
 
   } catch (err) {
-    logger.err('Erreur Redis lors de l’authentification', err);
+    logger.error('Erreur Redis lors de l’authentification', err);
     return res.status(500).json({
       timestamp: new Date().toISOString(),
       status: 500,
@@ -151,7 +140,7 @@ async function logout(req, res) {
       });
     }
   } catch (err) {
-    logger.err('Erreur Redis lors de la déconnexion', err);
+    logger.error('Erreur Redis lors de la déconnexion', err);
     return res.status(500).json({
       timestamp: new Date().toISOString(),
       status: 500,

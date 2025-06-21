@@ -10,7 +10,7 @@ from django.contrib import messages
 from requests.exceptions import RequestException, ConnectionError
 from ..utils.decorators import login_required, standard_required
 
-EXPRESS_STANDARD_API_URL = 'http://localhost:3001/api/v1/standard'
+EXPRESS_STANDARD_API_URL = 'http://localhost:80/api/v1/standard'
 EXPRESS_STANDARD_API_URL_STORES = EXPRESS_STANDARD_API_URL + '/stores'
 EXPRESS_STANDARD_API_URL_STOCK = '/stock'
 EXPRESS_STANDARD_API_URL_SALES = '/sales'

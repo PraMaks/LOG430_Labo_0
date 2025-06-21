@@ -55,7 +55,7 @@ exports.getProductsByStore = async (req, res) => {
     res.status(200).json(products);
 
   } catch (err) {
-    logger.err(`Erreur de communication avec le serveur`);
+    logger.error(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -131,7 +131,7 @@ exports.getProductByStoreByName = async (req, res) => {
     });
 
   } catch (err) {
-    logger.err(`Erreur de communication avec le serveur`);
+    logger.error(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -228,7 +228,7 @@ exports.postNewSaleInStore = async (req, res) => {
     res.status(201).json({ message: "Vente enregistrée avec succès." });
 
   } catch (err) {
-    logger.err(`Erreur de communication avec le serveur`);
+    logger.error(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -292,7 +292,7 @@ exports.getSalesByStore = async (req, res) => {
     res.status(200).json(sales);
 
   } catch (err) {
-    logger.err(`Erreur de communication avec le serveur`);
+    logger.error(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -372,7 +372,7 @@ exports.deleteSaleByStore = async (req, res) => {
     logger.info(`Vente supprimée et stock mis à jour.`);
     res.status(200).json({ message: "Vente supprimée et stock mis à jour." });
   } catch (err) {
-    logger.err(`Erreur de communication avec le serveur`);
+    logger.error(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -418,7 +418,7 @@ exports.getProductsFromWarehouse = async (req, res) => {
     res.status(200).json(products);
 
   } catch (err) {
-    logger.err(`Erreur de communication avec le serveur`);
+    logger.error(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -500,7 +500,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
     res.status(201).json({ message: "Requete enregistrée avec succès." });
 
   } catch (err) {
-    logger.err(`Erreur de communication avec le serveur`);
+    logger.error(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),

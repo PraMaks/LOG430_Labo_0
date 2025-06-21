@@ -7,7 +7,7 @@ export let options = {
 };
 
 export function setup() {
-  const loginRes = http.post('http://localhost:3001/api/v1/auth/users/login', JSON.stringify({
+  const loginRes = http.post('http://localhost:80/api/v1/auth/users/login', JSON.stringify({
     username: 'admin',
     password: 'admin123'
   }), {
@@ -25,7 +25,7 @@ export function setup() {
 
 export default function (data) {
   const res = http.put(
-    'http://localhost:3001/api/v1/admin/stores/all/stock/Bread1',
+    'http://localhost:80/api/v1/admin/stores/all/stock/Bread1',
     JSON.stringify({
       price: Math.floor(Math.random() * 10),
     }),

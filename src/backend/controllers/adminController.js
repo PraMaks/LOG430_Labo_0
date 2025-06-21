@@ -17,7 +17,7 @@ exports.getStores = async (req, res) => {
     res.json(stores);
 
   } catch (err) {
-    logger.err(`Erreur de communication avec le serveur`);
+    logger.error(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -64,7 +64,7 @@ exports.updateProductInfo = async (req, res) => {
       result,
     });
   } catch (error) {
-    logger.err(`Erreur de communication avec le serveur`);
+    logger.error(`Erreur de communication avec le serveur`);
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),

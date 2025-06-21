@@ -8,7 +8,7 @@ from django import forms
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
-EXPRESS_AUTH_API_URL = 'http://localhost:3001/api/v1/auth'
+EXPRESS_AUTH_API_URL = 'http://localhost:80/api/v1/auth'
 EXPRESS_AUTH_API_URL_LOGIN = EXPRESS_AUTH_API_URL + '/users/login'
 EXPRESS_AUTH_API_URL_LOGOUT = EXPRESS_AUTH_API_URL + '/users/logout'
 

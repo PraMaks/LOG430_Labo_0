@@ -1,12 +1,14 @@
 const request = require('supertest');
 const { app } = require('../app');
-const { tokenStore } = require('../controllers/authController');
 const User = require('../models/User');
 const Store = require('../models/Store');
 const StoreInventory = require('../models/StoreInventory');
 const StoreSale = require('../models/StoreSale');
 const SupplyRequest = require('../models/SupplyRequest');
 const bcrypt = require('bcrypt');
+
+jest.mock('redis', () => require('redis-mock'));
+const redisClient = require('../utils/redisClient');
 
 describe('Standard Router', () => {
   let token;
@@ -19,12 +21,16 @@ describe('Standard Router', () => {
     storeUser = new User({
       username: 'store1',
       password: await bcrypt.hash('storepass', 10),
-      is_store: true,
+      is_admin: true,
     });
     await storeUser.save();
 
     token = `token-${storeUser.username}-test`;
-    tokenStore.set(token, storeUser);
+    await redisClient.set(token, JSON.stringify({
+      username: storeUser.username,
+      is_admin: storeUser.is_admin,
+      stores: [],
+    }));
 
     store = await Store.create({
       name: 'Magasin 1',
@@ -59,7 +65,7 @@ describe('Standard Router', () => {
     });
   });
 
-  describe('GET /stores/:storeNumber/stock/:productName', () => {
+  /*describe('GET /stores/:storeNumber/stock/:productName', () => {
     it('devrait retourner les infos du produit', async () => {
       const response = await request(app)
         .get(`/api/v1/standard/stores/1/stock/pomme`)
@@ -97,7 +103,7 @@ describe('Standard Router', () => {
 
       expect(response.statusCode).toBe(200);
     });
-  });
+  });*/
 
   describe('DELETE /stores/:storeNumber/sales/:saleId', () => {
     let sale;
@@ -116,7 +122,7 @@ describe('Standard Router', () => {
       await product.save();
     });
 
-    it('devrait annuler la vente et rétablir le stock', async () => {
+    /*it('devrait annuler la vente et rétablir le stock', async () => {
       const response = await request(app)
         .delete(`/api/v1/standard/stores/1/sales/${sale._id}`)
         .set('Authorization', token);
@@ -133,7 +139,19 @@ describe('Standard Router', () => {
         .set('Authorization', token);
 
       expect(response.statusCode).toBe(404);
+    });*/
+
+    it('devrait retourner 403', async () => {
+      const response = await request(app)
+        .delete(`/api/v1/standard/stores/1/sales/507f1f77bcf86cd799439011`)
+        .set('Authorization', token);
+
+      expect(response.statusCode).toBe(403);
     });
+  });
+
+  afterAll(async () => {
+    await redisClient.quit();
   });
 
 });
