@@ -148,6 +148,9 @@ exports.postNewSaleInStore = async (req, res) => {
   const soldProducts = req.body;
   const storeParam = req.params.storeNumber;
 
+  logger.info("BODY")
+  logger.info(soldProducts);
+
   const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
   const isCentral = storeParam === 'Central';
 

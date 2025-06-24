@@ -12,7 +12,7 @@ RUN npm install
 COPY . .
 
 # Expose the port your Express app uses
-EXPOSE 3001
+EXPOSE 3030
 
 # Start your Express app (adjust path if needed)
-CMD ["node", "src/backend/app.js"]
+CMD ["node", "app.js"]

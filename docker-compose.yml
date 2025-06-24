@@ -1,9 +1,23 @@
 services:
-  mongo:
+  mongo-auth:
     image: mongo:5.0
-    container_name: mongo_db
+    container_name: mongo_auth_db
     ports:
       - "27018:27017" # port different pour docker-compose
+    restart: always
+
+  mongo-admin:
+    image: mongo:5.0
+    container_name: mongo_admin_db
+    ports:
+      - "27118:27017" # port different pour docker-compose
+    restart: always
+
+  mongo-standard:
+    image: mongo:5.0
+    container_name: mongo_standard_db
+    ports:
+      - "27218:27017" # port different pour docker-compose
     restart: always
 
   redis:
@@ -13,58 +27,57 @@ services:
       - "6379:6379"
     restart: always
 
-  api1:
-    build: .
-    container_name: api1
+  auth:
+    build: 
+      context: ./src/backend/services/auth
+      dockerfile: Dockerfile-Auth
+    container_name: auth-service
     depends_on:
-      - mongo
+      - mongo-auth
     environment:
-      - MONGO_HOST=mongo
+      - MONGO_HOST=mongo-auth
       - MONGO_PORT=27017
     ports:
-      - "3001:3001"
-    command: node src/backend/app.js
+      - "3010:3010"
+    command: node app.js 
 
-  api2:
-    build: .
-    container_name: api2
+  admin:
+    build: 
+      context: ./src/backend/services/admin
+      dockerfile: Dockerfile-Admin
+    container_name: admin-service
     depends_on:
-      - mongo
+      - mongo-admin
     environment:
-      - MONGO_HOST=mongo
+      - MONGO_HOST=mongo-admin
       - MONGO_PORT=27017
-    command: node src/backend/app.js
+    ports:
+      - "3020:3020"
+    command: node app.js
 
-  nginx:
-    image: nginx:alpine
-    container_name: nginx_lb
+  standard:
+    build: 
+      context: ./src/backend/services/standard
+      dockerfile: Dockerfile-Standard
+    container_name: standard-service
+    depends_on:
+      - mongo-standard
+    environment:
+      - MONGO_HOST=mongo-standard
+      - MONGO_PORT=27017
+    ports:
+      - "3030:3030"
+    command: node app.js
+
+  krakend:
+    image: devopsfaith/krakend:2.6
+    container_name: krakend-gateway
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./krakend:/etc/krakend
+    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
     depends_on:
-      - api1
-      - api2
-
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus_server
-    volumes:
-      - ./src/backend/prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-    ports:
-      - "9091:9090"
-
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    ports:
-      - "3002:3000"
-    depends_on:
-      - prometheus
-    volumes:
-      - grafana-storage:/var/lib/grafana
-
-volumes:
-  grafana-storage:
+      - auth
+      - admin
+      - standard
