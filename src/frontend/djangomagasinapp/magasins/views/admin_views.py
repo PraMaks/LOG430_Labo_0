@@ -17,10 +17,6 @@ EXPRESS_STANDARD_API_URL_STORES = EXPRESS_STANDARD_API_URL + '/stores'
 EXPRESS_STANDARD_API_URL_STOCK = '/stock'
 EXPRESS_STANDARD_API_URL_SALES = '/sales'
 
-EXPRESS_ADMIN_API_URL = 'http://localhost:80/api/v1/admin'
-EXPRESS_ADMIN_API_URL_STORES = EXPRESS_ADMIN_API_URL + '/stores/all'
-EXPRESS_ADMIN_API_URL_UPDATE = EXPRESS_ADMIN_API_URL_STORES + '/stock'
-
 
 @login_required
 @admin_required
@@ -45,7 +41,7 @@ def rechercher_produit(request):
 
         if query and selected_store:
             store_param = selected_store if selected_store == "Central" else int(selected_store)
-            url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_STOCK + '/' + query
+            url = 'http://localhost:80/api/v1/stocks/stores/' + str(store_param) + '/' + query
             response = requests.get(url, headers=headers)
             if response.status_code == 200:
                 produit = response.json()
@@ -72,7 +68,7 @@ def enregistrer_vente(request):
     selected_store = request.POST.get("store", "1")
     store_param = selected_store if selected_store == "Central" else int(selected_store)
 
-    url_stock = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_STOCK}"
+    url_stock = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
     url_vente = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_SALES}"
     headers = {
         'Authorization': request.session.get('token')
@@ -311,7 +307,7 @@ def liste_produits(request):
 
         if action == "change_store":
             store_param = selected_store if selected_store == "Central" else int(selected_store)
-            url = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_STOCK}"
+            url = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
 
             try:
                 response = requests.get(url, headers=headers, timeout=3)
@@ -341,7 +337,7 @@ def liste_produits(request):
 
     # Cas GET ou soumission standard
     store_param = selected_store if selected_store == "Central" else int(selected_store)
-    url = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_STOCK}"
+    url = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
 
     try:
         response = requests.get(url, headers=headers, timeout=3)
@@ -376,7 +372,7 @@ def liste_produits_central(request):
     headers = {
         'Authorization': request.session.get('token')
     }
-    url = f"{EXPRESS_STANDARD_API_URL_STORES}/warehouse{EXPRESS_STANDARD_API_URL_STOCK}"
+    url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
     produits = []
 
     try:
@@ -416,8 +412,8 @@ def demande_reappro(request):
             }
 
     # URLs dynamiques selon magasin choisi
-    url_stock_magasin = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_STOCK
-    url_stock_central = EXPRESS_STANDARD_API_URL_STORES + '/warehouse' + EXPRESS_STANDARD_API_URL_STOCK
+    url_stock_magasin = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
+    url_stock_central = f"http://localhost:80/api/v1/stocks/stores/warehouse"
 
     try:
         stock_magasin = requests.get(url_stock_magasin, headers=headers).json()
@@ -478,7 +474,7 @@ def rapport_ventes(request):
 
     # Récupérer les produits pour magasins 1 à 5
     for i in range(1, 6):
-        url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(i) + EXPRESS_STANDARD_API_URL_STOCK
+        url = f"http://localhost:80/api/v1/stocks/stores/{i}"
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
@@ -489,7 +485,7 @@ def rapport_ventes(request):
 
     # Récupérer les produits du magasin Central (6)
     try:
-        url = EXPRESS_STANDARD_API_URL_STORES + '/Central' + EXPRESS_STANDARD_API_URL_STOCK
+        url = f"http://localhost:80/api/v1/stocks/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[6] = response.json()
@@ -565,7 +561,7 @@ def tableau_de_bord(request):
 
     for i in range(1, 6):
         try:
-            url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(i) + EXPRESS_STANDARD_API_URL_STOCK
+            url = f"http://localhost:80/api/v1/stocks/stores/{i}"
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             report_products_dict[i] = response.json()
@@ -574,7 +570,7 @@ def tableau_de_bord(request):
             return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = EXPRESS_STANDARD_API_URL_STORES + '/Central' + EXPRESS_STANDARD_API_URL_STOCK
+        url = f"http://localhost:80/api/v1/stocks/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[6] = response.json()
@@ -602,7 +598,7 @@ def tableau_de_bord(request):
         return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        response = requests.get(EXPRESS_ADMIN_API_URL_STORES, headers=headers)
+        response = requests.get('http://localhost:80/api/v1/stocks/storesAll', headers=headers)
         response.raise_for_status()
         for store in response.json():
             if store['name'].startswith("Magasin "):
@@ -662,7 +658,7 @@ def tableau_de_bord(request):
 @admin_required
 def mise_a_jour_produit(request):
     """Page de mise à jour de produits"""
-    products_url = EXPRESS_STANDARD_API_URL_STORES + '/warehouse' + EXPRESS_STANDARD_API_URL_STOCK
+    products_url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
     headers = {
                 'Authorization': request.session.get('token')
             }
@@ -697,7 +693,7 @@ def mise_a_jour_produit(request):
 
         if update_data:
             try:
-                update_url = EXPRESS_ADMIN_API_URL_UPDATE + '/' + product_name
+                update_url = 'http://localhost:80/api/v1/stocks/storesAll/' + product_name
                 update_response = requests.put(update_url, json=update_data, headers=headers)
                 update_response.raise_for_status()
                 result = update_response.json()

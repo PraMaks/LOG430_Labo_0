@@ -49,7 +49,7 @@ def rechercher_produit(request):
                 'produit': produit,
                 'query': name,
             })
-        url_search = EXPRESS_STANDARD_API_URL_STORES + '/' + numero + EXPRESS_STANDARD_API_URL_STOCK + '/' + name
+        url_search = f"http://localhost:80/api/v1/stocks/stores/{numero}/{name}"
         response = requests.get(url_search, headers=headers)
         if response.status_code == 200:
             produit = response.json()
@@ -82,7 +82,7 @@ def enregistrer_vente(request):
     except Exception:
         numero = '?'
 
-    url_stock = f"{EXPRESS_STANDARD_API_URL_STORES}/{numero}{EXPRESS_STANDARD_API_URL_STOCK}"
+    url_stock = f"http://localhost:80/api/v1/stocks/stores/{numero}"
 
     if request.method == "POST":
         produits = []
@@ -286,7 +286,7 @@ def liste_produits(request):
     except Exception:
         numero = '?'
 
-    url = f"{EXPRESS_STANDARD_API_URL_STORES}/{numero}{EXPRESS_STANDARD_API_URL_STOCK}"
+    url = f"http://localhost:80/api/v1/stocks/stores/{numero}"
     produits = []
 
     try:
@@ -321,7 +321,7 @@ def liste_produits_central(request):
     headers = {
         'Authorization': request.session.get('token')
     }
-    url = f"{EXPRESS_STANDARD_API_URL_STORES}/warehouse{EXPRESS_STANDARD_API_URL_STOCK}"
+    url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
     produits = []
 
     try:
@@ -366,8 +366,8 @@ def demande_reappro(request):
     else:
         numero = '?'
 
-    url_stock_magasin = EXPRESS_STANDARD_API_URL_STORES + '/' + numero + EXPRESS_STANDARD_API_URL_STOCK
-    url_stock_central = EXPRESS_STANDARD_API_URL_STORES + '/warehouse' + EXPRESS_STANDARD_API_URL_STOCK
+    url_stock_magasin = f"http://localhost:80/api/v1/stocks/stores/{numero}"
+    url_stock_central = f"http://localhost:80/api/v1/stocks/stores/warehouse"
 
     try:
         stock_magasin = requests.get(url_stock_magasin, headers=headers).json()
@@ -399,7 +399,7 @@ def demande_reappro(request):
                     messages.warning(request, f"Quantité invalide pour {product['name']}.")
 
         if produits_demandes:
-            url_post = 'http://localhost:80/api/v1/supplies/stores/' + numero
+            url_post = 'http://localhost:80/api/v1/supplies/stores/' + str(numero)
             try:
                 response = requests.post(url_post, json=produits_demandes, headers=headers)
                 response.raise_for_status()

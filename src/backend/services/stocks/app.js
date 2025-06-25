@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-const adminRouter = require('./routes/adminRouter');
+const stocksRouter = require('./routes/stocksRouter');
 
 
 const options = {
@@ -73,7 +73,7 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 app.use('/api/v1/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/stocks', stocksRouter);
 
 
 // Fonction de démarrage
