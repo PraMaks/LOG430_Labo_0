@@ -6,18 +6,25 @@ services:
       - "27018:27017" # port different pour docker-compose
     restart: always
 
-  mongo-admin:
+  mongo-stocks:
     image: mongo:5.0
-    container_name: mongo_admin_db
+    container_name: mongo_stocks_db
     ports:
       - "27118:27017" # port different pour docker-compose
     restart: always
 
-  mongo-standard:
+  mongo-sales:
     image: mongo:5.0
-    container_name: mongo_standard_db
+    container_name: mongo_sales_db
     ports:
       - "27218:27017" # port different pour docker-compose
+    restart: always
+
+  mongo-supplies:
+    image: mongo:5.0
+    container_name: mongo_supplies_db
+    ports:
+      - "27318:27017" # port different pour docker-compose
     restart: always
 
   redis:
@@ -41,32 +48,46 @@ services:
       - "3010:3010"
     command: node app.js 
 
-  admin:
+  stocks:
     build: 
-      context: ./src/backend/services/admin
-      dockerfile: Dockerfile-Admin
-    container_name: admin-service
+      context: ./src/backend/services/stocks
+      dockerfile: Dockerfile-Stocks
+    container_name: stocks-service
     depends_on:
-      - mongo-admin
+      - mongo-stocks
     environment:
-      - MONGO_HOST=mongo-admin
+      - MONGO_HOST=mongo-stocks
       - MONGO_PORT=27017
     ports:
       - "3020:3020"
     command: node app.js
 
-  standard:
+  sales:
     build: 
-      context: ./src/backend/services/standard
-      dockerfile: Dockerfile-Standard
-    container_name: standard-service
+      context: ./src/backend/services/sales
+      dockerfile: Dockerfile-Sales
+    container_name: sales-service
     depends_on:
-      - mongo-standard
+      - mongo-sales
     environment:
-      - MONGO_HOST=mongo-standard
+      - MONGO_HOST=mongo-sales
       - MONGO_PORT=27017
     ports:
       - "3030:3030"
+    command: node app.js
+
+  supplies:
+    build: 
+      context: ./src/backend/services/supplies
+      dockerfile: Dockerfile-Supplies
+    container_name: supplies-service
+    depends_on:
+      - mongo-supplies
+    environment:
+      - MONGO_HOST=mongo-supplies
+      - MONGO_PORT=27017
+    ports:
+      - "3040:3040"
     command: node app.js
 
   krakend:
@@ -79,5 +100,6 @@ services:
     command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
     depends_on:
       - auth
-      - admin
-      - standard
+      - stocks
+      - sales
+      - supplies

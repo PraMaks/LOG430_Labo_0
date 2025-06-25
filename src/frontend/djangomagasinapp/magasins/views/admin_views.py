@@ -16,7 +16,6 @@ EXPRESS_STANDARD_API_URL = 'http://localhost:80/api/v1/standard'
 EXPRESS_STANDARD_API_URL_STORES = EXPRESS_STANDARD_API_URL + '/stores'
 EXPRESS_STANDARD_API_URL_STOCK = '/stock'
 EXPRESS_STANDARD_API_URL_SALES = '/sales'
-EXPRESS_STANDARD_API_URL_SUPPLIES = '/supplies'
 
 EXPRESS_ADMIN_API_URL = 'http://localhost:80/api/v1/admin'
 EXPRESS_ADMIN_API_URL_STORES = EXPRESS_ADMIN_API_URL + '/stores/all'
@@ -451,7 +450,7 @@ def demande_reappro(request):
                     messages.warning(request, f"Quantité invalide pour {product['name']}.")
 
         if produits_demandes:
-            url_post = EXPRESS_STANDARD_API_URL_STORES + '/' + str(store_param) + EXPRESS_STANDARD_API_URL_SUPPLIES
+            url_post = 'http://localhost:80/api/v1/supplies/stores/' + str(store_param)
             try:
                 response = requests.post(url_post, json=produits_demandes, headers=headers)
                 response.raise_for_status()

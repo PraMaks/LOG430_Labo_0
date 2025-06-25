@@ -44,7 +44,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/admin/stores/all",
-          "host": ["http://admin-service:3020"],
+          "host": ["http://stocks-service:3020"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -64,7 +64,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/admin/stores/all/stock/{productName}",
-          "host": ["http://admin-service:3020"],
+          "host": ["http://stocks-service:3020"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization", "Content-Type"]
@@ -87,7 +87,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/standard/stores/{storeNumber}/stock/{productName}",
-          "host": ["http://standard-service:3030"],
+          "host": ["http://sales-service:3030"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -107,7 +107,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/standard/stores/warehouse/stock",
-          "host": ["http://standard-service:3030"],
+          "host": ["http://sales-service:3030"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -127,7 +127,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/standard/stores/{storeNumber}/stock",
-          "host": ["http://standard-service:3030"],
+          "host": ["http://sales-service:3030"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -147,7 +147,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/standard/stores/{storeNumber}/sales",
-          "host": ["http://standard-service:3030"],
+          "host": ["http://sales-service:3030"],
           "input_body": "json",
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
@@ -171,7 +171,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/standard/stores/{storeNumber}/sales",
-          "host": ["http://standard-service:3030"],
+          "host": ["http://sales-service:3030"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -191,7 +191,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/standard/stores/{storeNumber}/sales/{saleId}",
-          "host": ["http://standard-service:3030"],
+          "host": ["http://sales-service:3030"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -204,14 +204,14 @@
       ]
     },
     {
-      "endpoint": "/api/v1/standard/stores/{storeNumber}/supplies",
+      "endpoint": "/api/v1/supplies/stores/{storeNumber}",
       "method": "POST",
       "output_encoding": "no-op",
       "input_headers": ["Authorization", "Content-Type"],
       "backend": [
         {
-          "url_pattern": "/api/v1/standard/stores/{storeNumber}/supplies",
-          "host": ["http://standard-service:3030"],
+          "url_pattern": "/api/v1/supplies/stores/{storeNumber}",
+          "host": ["http://supplies-service:3040"],
           "input_body": "json",
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
