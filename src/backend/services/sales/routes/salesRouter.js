@@ -8,7 +8,7 @@ const { authenticate } = require('../utils/authenticate');
  * @swagger
  * tags:
  *   name: Sales
- *   description: Endpoints pour la gestion des ventes'
+ *   description: Endpoints pour la gestion des ventes
  */
 
 /**
@@ -16,7 +16,7 @@ const { authenticate } = require('../utils/authenticate');
  * /api/v1/sales/stores/{storeNumber}:
  *   post:
  *     tags:
- *       - Standard
+ *       - Sales
  *     summary: Enregistrer une nouvelle vente dans un magasin
  *     description: Enregistre une vente en décrémentant les stocks correspondants et en sauvegardant la vente.
  *     security:
@@ -84,7 +84,7 @@ const { authenticate } = require('../utils/authenticate');
  *                   example: "Numéro de magasin invalide (1-5) ou 'Central'"
  *                 path:
  *                   type: string
- *                   example: "/api/v1/standard/stores/3/sales"
+ *                   example: "/api/v1/sales/stores/3"
  *       404:
  *         description: Magasin ou produit introuvable
  *         content:
@@ -106,7 +106,7 @@ const { authenticate } = require('../utils/authenticate');
  *                   example: "Produit 'Banane' introuvable dans le magasin '3'"
  *                 path:
  *                   type: string
- *                   example: "/api/v1/standard/stores/3/stock/Banane"
+ *                   example: "/api/v1/sales/stores/3/Banane"
  *       500:
  *         description: Erreur interne du serveur
  *         content:
@@ -128,7 +128,7 @@ const { authenticate } = require('../utils/authenticate');
  *                   example: "Erreur de communication avec le serveur"
  *                 path:
  *                   type: string
- *                   example: "/api/v1/standard/stores/3/stock/Banane"
+ *                   example: "/api/v1/sales/stores/3/Banane"
  */
 router.post('/stores/:storeNumber', authenticate, salesController.postNewSaleInStore);
 
@@ -137,7 +137,7 @@ router.post('/stores/:storeNumber', authenticate, salesController.postNewSaleInS
  * /api/v1/sales/stores/{storeNumber}:
  *   get:
  *     tags:
- *       - Standard
+ *       - Sales
  *     summary: Obtenir les ventes d’un magasin
  *     description: Retourne la liste des ventes réalisées par un magasin spécifique.
  *     security:
@@ -179,7 +179,7 @@ router.get('/stores/:storeNumber', authenticate, salesController.getSalesByStore
  * /api/v1/sales/stores/{storeNumber}/{saleId}:
  *   delete:
  *     tags:
- *       - Standard
+ *       - Sales
  *     summary: Supprimer une vente dans un magasin et remettre les produits en stock
  *     description: Supprime une vente identifiée par saleId dans un magasin donné, et remet les quantités vendues dans l'inventaire.
  *     security:
@@ -231,7 +231,7 @@ router.get('/stores/:storeNumber', authenticate, salesController.getSalesByStore
  *                   example: "Numéro de magasin invalide (1-5) ou 'Central'"
  *                 path:
  *                   type: string
- *                   example: "/api/v1/standard/stores/2/sales/642d9b1f4f1a4b1234567890"
+ *                   example: "/api/v1/sales/stores/2/642d9b1f4f1a4b1234567890"
  *       404:
  *         description: Magasin ou vente introuvable
  *         content:
@@ -253,7 +253,7 @@ router.get('/stores/:storeNumber', authenticate, salesController.getSalesByStore
  *                   example: "Vente introuvable dans ce magasin."
  *                 path:
  *                   type: string
- *                   example: "/api/v1/standard/stores/2/sales/642d9b1f4f1a4b1234567890"
+ *                   example: "/api/v1/sales/stores/2/642d9b1f4f1a4b1234567890"
  *       500:
  *         description: Erreur interne du serveur
  *         content:
@@ -275,7 +275,7 @@ router.get('/stores/:storeNumber', authenticate, salesController.getSalesByStore
  *                   example: "Erreur de communication avec le serveur"
  *                 path:
  *                   type: string
- *                   example: "/api/v1/standard/stores/2/sales/642d9b1f4f1a4b1234567890"
+ *                   example: "/api/v1/sales/stores/2/642d9b1f4f1a4b1234567890"
  */
 router.delete('/stores/:storeNumber/:saleId', authenticate, salesController.deleteSaleByStore);
 
