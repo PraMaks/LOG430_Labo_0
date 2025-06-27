@@ -15,7 +15,7 @@ const { authenticate } = require('../utils/authenticate');
  * /api/v1/stocks/storesAll:
  *   get:
  *     tags:
- *       - Administration
+ *       - Stocks
  *     summary: Récupérer la liste de tous les magasins
  *     description: Retourne une liste contenant les informations de tous les magasins (nom, adresse, nb_requests, is_store).
  *     security:
@@ -48,7 +48,7 @@ router.get('/storesAll', authenticate, stocksController.getStores);
  * /api/v1/stocks/storesAll/{productName}:
  *   put:
  *     tags:
- *       - Administration
+ *       - Stocks
  *     summary: Mettre à jour les informations d’un produit dans tous les magasins
  *     description: Met à jour le nom, la description et/ou le prix d’un produit dans tous les inventaires.
  *     security:
@@ -101,7 +101,7 @@ router.put('/storesAll/:productName', authenticate, stocksController.updateProdu
  * /api/v1/stocks/stores/{storeNumber}/{productName}:
  *   get:
  *     tags:
- *       - Standard
+ *       - Stocks
  *     summary: Obtenir un produit spécifique d’un magasin
  *     description: Retourne les informations d’un produit spécifique pour un magasin donné.
  *     security:
@@ -153,7 +153,7 @@ router.get('/stores/:storeNumber/:productName', authenticate, stocksController.g
  * /api/v1/stocks/stores/warehouse:
  *   get:
  *     tags:
- *       - Standard
+ *       - Stocks
  *     summary: Obtenir les produits de l'entrepôt central
  *     description: Retourne la liste complète des produits stockés dans l’entrepôt central.
  *     security:
@@ -188,7 +188,7 @@ router.get('/stores/warehouse', authenticate, stocksController.getProductsFromWa
  * /api/v1/stocks/stores/{storeNumber}:
  *   get:
  *     tags:
- *       - Standard
+ *       - Stocks
  *     summary: Obtenir les produits d’un magasin
  *     description: Retourne tous les produits disponibles dans l’inventaire d’un magasin spécifique.
  *     security:

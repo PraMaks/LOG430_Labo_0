@@ -1,6 +1,5 @@
 const Store = require('./models/Store');
 const StoreInventory = require('./models/StoreInventory');
-const User = require('./models/User');
 const logger = require('./utils/logger');
 
 const DEFAULT_STORES = [
@@ -17,15 +16,6 @@ const DEFAULT_PRODUCTS = [
   { name: 'Bread', description: 'Very Tasty Bread', price: 4, qty: 5, max_qty: 5 },
   { name: 'Soda', description: 'Very Refreshing', price: 3, qty: 10, max_qty: 10 },
   { name: 'Candy', description: 'Very Sugary', price: 2, qty: 15, max_qty: 15 }
-];
-
-const DEFAULT_USERS = [
-  { username: 'admin', password: 'admin123', is_admin: true },
-  { username: 'user1', password: 'password1' },
-  { username: 'user2', password: 'password2' },
-  { username: 'user3', password: 'password3' },
-  { username: 'user4', password: 'password4' },
-  { username: 'user5', password: 'password5' }
 ];
 
 async function initDb() {
@@ -71,37 +61,6 @@ async function initDb() {
     }
 
     counter++;
-  }
-
-  // Création des utilisateurs avec lien vers magasins
-  const userStoreMap = {
-    'admin': ['Magasin 1', 'Magasin 2', 'Magasin 3', 'Magasin 4', 'Magasin 5', 'Magasin Central'],
-    'user1': ['Magasin 1'],
-    'user2': ['Magasin 2'],
-    'user3': ['Magasin 3'],
-    'user4': ['Magasin 4'],
-    'user5': ['Magasin 5']
-  };
-
-  for (const userData of DEFAULT_USERS) {
-    let user = await User.findOne({ username: userData.username });
-
-    const linkedStores = (userStoreMap[userData.username] || [])
-      .map(name => storesByName[name]?._id)
-      .filter(Boolean);
-
-    if (!user) {
-      user = new User({
-        username: userData.username,
-        password: userData.password,
-        is_admin: userData.is_admin || false,
-        stores: linkedStores
-      });
-      await user.save();
-      logger.info(`Utilisateur '${user.username}' créé.`);
-    } else {
-      logger.info(`Utilisateur '${user.username}' déjà existant.`);
-    }
   }
 
   // Copie des produits dans le stock central
