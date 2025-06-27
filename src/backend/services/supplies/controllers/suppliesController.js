@@ -1,4 +1,3 @@
-const StoreInventory = require('../models/StoreInventory');
 const Store = require('../models/Store');
 const SupplyRequest = require('../models/SupplyRequest');
 const logger = require('../utils/logger');
@@ -6,6 +5,8 @@ const logger = require('../utils/logger');
 exports.postNewSupplyRequestFromStore = async (req, res) => {
   const requestedSupplies = req.body;
   const storeParam = req.params.storeNumber;
+
+  const token = req.headers['authorization'];
 
   const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
   const isCentral = storeParam === 'Central';
@@ -40,24 +41,6 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
       );
     }
 
-    // Gestion des produits
-    for (const item of requestedSupplies) {
-      const product = await StoreInventory.findOne({ store: store._id, name: item.name });
-
-      if (!product) {
-        logger.warn(`Produit '${productName}' introuvable dans le magasin '${storeName}'`);
-        return res.status(404).json(
-          {
-            timestamp: new Date().toISOString(),
-            status: 404,
-            error: "Not Found",
-            message: `Produit '${item.name}' introuvable dans le magasin ${storeParam}`,
-            path: `/api/v1/standard/stores/${storeParam}/supplies`
-          }
-        );
-      }
-    }
-
     // Gestion de la requete
     const supplyRequest = new SupplyRequest({
       store: store._id,
@@ -68,6 +51,22 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
       { _id: store._id },
       { $inc: { nb_requests: 1 } }
     );
+
+    const response = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeParam}/supply`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(supplyRequest)
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      logger.error(`Erreur retour du stock-service: ${response.status} → ${data.message || JSON.stringify(data)}`);
+      throw new Error(`Stock service responded with ${response.status}: ${data.message}`);
+    }
+
     logger.info(`Requete enregistrée avec succès.`);
     res.status(201).json({ message: "Requete enregistrée avec succès." });
 

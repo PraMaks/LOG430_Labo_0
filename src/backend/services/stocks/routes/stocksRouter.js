@@ -226,6 +226,9 @@ router.get('/stores/warehouse', authenticate, stocksController.getProductsFromWa
  */
 router.get('/stores/:storeNumber', authenticate, stocksController.getProductsByStore);
 
+router.patch('/stores/:storeNumber/supply', authenticate, stocksController.updateSupplyNbRequest);
+
 router.patch('/stores/:storeNumber/:isSale', authenticate, stocksController.updateProductsAfterSale);
+
 
 module.exports = router;

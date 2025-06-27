@@ -355,3 +355,62 @@ exports.updateProductsAfterSale = async (req, res) => {
   }
 };
 
+
+exports.updateSupplyNbRequest = async (req, res) => {
+  const storeParam = req.params.storeNumber;
+
+  const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
+  const isCentral = storeParam === 'Central';
+
+  if (!isNumber && !isCentral) {
+    logger.warn(`Numéro de magasin invalide (1-5) ou 'Central'`);
+    return res.status(400).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 400,
+        error: "Bad Request",
+        message: "Numéro de magasin invalide (1-5) ou 'Central'",
+        path: `/api/v1/stocks/stores/${storeParam}/supply`
+      }
+    );
+  }
+
+  const storeName = `Magasin ${storeParam}`; 
+
+  try {
+    const store = await Store.findOne({ name: storeName });
+    if (!store) {
+      logger.warn(`Magasin '${storeName}' introuvable`);
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: `Magasin '${storeName}' introuvable`,
+          path: `/api/v1/stocks/stores/${storeParam}/supply`
+        }
+      );
+    }
+
+    await Store.updateOne(
+          { _id: store._id },
+          { $inc: { nb_requests: 1 } }
+        );
+
+    res.status(200).json(store);
+  } catch (err) {
+    logger.error(`Erreur de communication avec le serveur: ${err}`);
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/stocks/stores/${storeParam}/${isSale}`
+      }
+    );
+  }
+};
+
+
+
