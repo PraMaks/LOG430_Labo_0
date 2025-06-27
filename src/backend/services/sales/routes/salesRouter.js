@@ -1,149 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const standardController = require('../controllers/standardController');
-const { authenticate } = require('../controllers/authController');
+const salesController = require('../controllers/salesController');
+const { authenticate } = require('../utils/authenticate');
 
 
 /**
  * @swagger
  * tags:
- *   name: Standard
- *   description: Endpoints pour la gestion sans avoir besoin d'accès administratifs'
+ *   name: Sales
+ *   description: Endpoints pour la gestion des ventes'
  */
 
 /**
  * @swagger
- * /api/v1/standard/stores/{storeNumber}/stock/{productName}:
- *   get:
- *     tags:
- *       - Standard
- *     summary: Obtenir un produit spécifique d’un magasin
- *     description: Retourne les informations d’un produit spécifique pour un magasin donné.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - name: storeNumber
- *         in: path
- *         required: true
- *         description: Numéro du magasin (ou 'Central' pour l'entrepôt)
- *         schema:
- *           type: string
- *           example: "1"
- *       - name: productName
- *         in: path
- *         required: true
- *         description: Nom du produit
- *         schema:
- *           type: string
- *           example: "Pain"
- *     responses:
- *       200:
- *         description: Détails du produit
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 name:
- *                   type: string
- *                 description:
- *                   type: string
- *                 price:
- *                   type: number
- *                 qty:
- *                   type: integer
- *                 max_qty:
- *                   type: integer
- *       400:
- *         description: Requête invalide
- *       404:
- *         description: Produit non trouvé
- *       500:
- *         description: Erreur interne du serveur
- */
-router.get('/stores/:storeNumber/stock/:productName', authenticate, standardController.getProductByStoreByName);
-
-/**
- * @swagger
- * /api/v1/standard/stores/warehouse/stock:
- *   get:
- *     tags:
- *       - Standard
- *     summary: Obtenir les produits de l'entrepôt central
- *     description: Retourne la liste complète des produits stockés dans l’entrepôt central.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Liste des produits
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   name:
- *                     type: string
- *                   description:
- *                     type: string
- *                   price:
- *                     type: number
- *                   qty:
- *                     type: integer
- *                   max_qty:
- *                     type: integer
- *       500:
- *         description: Erreur interne du serveur
- */
-router.get('/stores/warehouse/stock', authenticate, standardController.getProductsFromWarehouse);
-
-/**
- * @swagger
- * /api/v1/standard/stores/{storeNumber}/stock:
- *   get:
- *     tags:
- *       - Standard
- *     summary: Obtenir les produits d’un magasin
- *     description: Retourne tous les produits disponibles dans l’inventaire d’un magasin spécifique.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - name: storeNumber
- *         in: path
- *         required: true
- *         description: Numéro du magasin
- *         schema:
- *           type: string
- *           example: "2"
- *     responses:
- *       200:
- *         description: Liste des produits
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   name:
- *                     type: string
- *                   description:
- *                     type: string
- *                   price:
- *                     type: number
- *                   qty:
- *                     type: integer
- *                   max_qty:
- *                     type: integer
- *       500:
- *         description: Erreur interne du serveur
- */
-router.get('/stores/:storeNumber/stock', authenticate, standardController.getProductsByStore);
-
-/**
- * @swagger
- * /api/v1/standard/stores/{storeNumber}/sales:
+ * /api/v1/sales/stores/{storeNumber}:
  *   post:
  *     tags:
  *       - Standard
@@ -260,11 +130,11 @@ router.get('/stores/:storeNumber/stock', authenticate, standardController.getPro
  *                   type: string
  *                   example: "/api/v1/standard/stores/3/stock/Banane"
  */
-router.post('/stores/:storeNumber/sales', authenticate, standardController.postNewSaleInStore);
+router.post('/stores/:storeNumber', authenticate, salesController.postNewSaleInStore);
 
 /**
  * @swagger
- * /api/v1/standard/stores/{storeNumber}/sales:
+ * /api/v1/sales/stores/{storeNumber}:
  *   get:
  *     tags:
  *       - Standard
@@ -302,11 +172,11 @@ router.post('/stores/:storeNumber/sales', authenticate, standardController.postN
  *       500:
  *         description: Erreur interne du serveur
  */
-router.get('/stores/:storeNumber/sales', authenticate, standardController.getSalesByStore);
+router.get('/stores/:storeNumber', authenticate, salesController.getSalesByStore);
 
 /**
  * @swagger
- * /api/v1/stores/{storeNumber}/sales/{saleId}:
+ * /api/v1/sales/stores/{storeNumber}/{saleId}:
  *   delete:
  *     tags:
  *       - Standard
@@ -407,57 +277,6 @@ router.get('/stores/:storeNumber/sales', authenticate, standardController.getSal
  *                   type: string
  *                   example: "/api/v1/standard/stores/2/sales/642d9b1f4f1a4b1234567890"
  */
-router.delete('/stores/:storeNumber/sales/:saleId', authenticate, standardController.deleteSaleByStore);
-
-/**
- * @swagger
- * /api/v1/standard/stores/{storeNumber}/supplies:
- *   post:
- *     tags:
- *       - Standard
- *     summary: Faire une demande de réapprovisionnement
- *     description: Permet à un magasin d’envoyer une demande de réapprovisionnement pour un produit donné.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - name: storeNumber
- *         in: path
- *         required: true
- *         description: Numéro du magasin qui fait la demande
- *         schema:
- *           type: string
- *           example: "2"
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - productName
- *               - quantity
- *             properties:
- *               productName:
- *                 type: string
- *                 example: "Lait"
- *               quantity:
- *                 type: integer
- *                 example: 10
- *     responses:
- *       200:
- *         description: Demande de réapprovisionnement envoyée avec succès
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *       400:
- *         description: Requête invalide
- *       500:
- *         description: Erreur interne du serveur
- */
-router.post('/stores/:storeNumber/supplies', authenticate, standardController.postNewSupplyRequestFromStore)
+router.delete('/stores/:storeNumber/:saleId', authenticate, salesController.deleteSaleByStore);
 
 module.exports = router;

@@ -1,5 +1,5 @@
-const logger = require('../utils/logger');
-const redisClient = require('../utils/redisClient');
+const logger = require('./logger');
+const redisClient = require('./redisClient');
 
 async function authenticate(req, res, next) {
   const token = req.headers['authorization'];

@@ -69,7 +69,7 @@ def enregistrer_vente(request):
     store_param = selected_store if selected_store == "Central" else int(selected_store)
 
     url_stock = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
-    url_vente = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_SALES}"
+    url_vente = f"http://localhost:80/api/v1/sales/stores/{store_param}"
     headers = {
         'Authorization': request.session.get('token')
     }
@@ -230,7 +230,7 @@ def retour_vente(request):
         selected_store = request.session.get("selected_store", "1")
 
     store_param = selected_store if selected_store == "Central" else int(selected_store)
-    url = f"{EXPRESS_STANDARD_API_URL_STORES}/{store_param}{EXPRESS_STANDARD_API_URL_SALES}"
+    url = f"http://localhost:80/api/v1/sales/stores/{store_param}"
 
     # Suppression d'une vente
     if request.method == "POST" and request.POST.get("sale_id"):
@@ -495,7 +495,7 @@ def rapport_ventes(request):
 
     # Récupérer les ventes pour magasins 1 à 5
     for i in range(1, 6):
-        url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(i) + EXPRESS_STANDARD_API_URL_SALES
+        url = f"http://localhost:80/api/v1/sales/stores/{str(i)}"
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
@@ -507,7 +507,7 @@ def rapport_ventes(request):
 
     # Récupérer les ventes du magasin Central (6)
     try:
-        url = EXPRESS_STANDARD_API_URL_STORES + '/Central' + EXPRESS_STANDARD_API_URL_SALES
+        url = url = f"http://localhost:80/api/v1/sales/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         sales = response.json()
@@ -580,7 +580,7 @@ def tableau_de_bord(request):
 
     for i in range(1, 6):
         try:
-            url = EXPRESS_STANDARD_API_URL_STORES + '/' + str(i) + EXPRESS_STANDARD_API_URL_SALES
+            url = f"http://localhost:80/api/v1/sales/stores/{str(i)}"
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             report_sales_dict[i] = response.json()
@@ -589,7 +589,7 @@ def tableau_de_bord(request):
             return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = EXPRESS_STANDARD_API_URL_STORES + '/Central' + EXPRESS_STANDARD_API_URL_SALES
+        url = f"http://localhost:80/api/v1/sales/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_sales_dict[6] = response.json()

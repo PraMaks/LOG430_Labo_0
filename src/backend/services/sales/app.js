@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-const standardRouter = require('./routes/standardRouter');
+const salesRouter = require('./routes/salesRouter');
 
 const options = {
   definition: {
@@ -72,7 +72,7 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 app.use('/api/v1/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api/v1/standard', standardRouter);
+app.use('/api/v1/sales', salesRouter);
 
 // Fonction de démarrage
 async function startServer() {

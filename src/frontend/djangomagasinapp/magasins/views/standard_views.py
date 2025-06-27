@@ -134,7 +134,7 @@ def enregistrer_vente(request):
             })
 
         # Envoi de la vente
-        url_vente = f"{EXPRESS_STANDARD_API_URL_STORES}/{numero}{EXPRESS_STANDARD_API_URL_SALES}"
+        url_vente = f"http://localhost:80/api/v1/sales/stores/{numero}"
         try:
             response = requests.post(url_vente, json=produits, headers=headers, timeout=3)
             if response.status_code == 201:
@@ -207,7 +207,7 @@ def retour_vente(request):
     except Exception:
         numero = '?'
 
-    url = f"{EXPRESS_STANDARD_API_URL_STORES}/{numero}{EXPRESS_STANDARD_API_URL_SALES}"
+    url = f"http://localhost:80/api/v1/sales/stores/{numero}"
     ventes = []
 
     # Récupération des ventes

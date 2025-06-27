@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const logger = require('../utils/logger');
-const redis = require('redis');
 const redisClient = require('../utils/redisClient');
 
 function generateStaticToken(username) {
