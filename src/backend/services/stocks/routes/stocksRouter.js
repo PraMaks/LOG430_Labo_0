@@ -230,5 +230,7 @@ router.patch('/stores/:storeNumber/supply', authenticate, stocksController.updat
 
 router.patch('/stores/:storeNumber/:isSale', authenticate, stocksController.updateProductsAfterSale);
 
+router.post('/:user/cart', authenticate, stocksController.updateUserCart);
+
 
 module.exports = router;

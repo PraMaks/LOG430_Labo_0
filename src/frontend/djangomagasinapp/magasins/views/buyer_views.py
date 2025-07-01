@@ -52,6 +52,50 @@ def liste_produits(request):
         'produits': produits
     })
 
+@login_required
+@buyer_required
+def ajouter_panier(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+        price = float(request.POST.get("price"))
+        qty = int(request.POST.get("qty"))
+
+        user = request.session.get('username')
+        token = request.session.get('token')
+
+        produit = {
+            "name": name,
+            "description": description,
+            "qty": qty,
+            "price": price,
+            "total_price": round(qty * price, 2) #pour arrondir à 2 decimales
+        }
+
+        # Construction du panier (ici simplifié à un seul produit, mais on peut l'étendre plus tard)
+        panier = {
+            "user": user,
+            "total_price": produit["total_price"],
+            "contents": [produit]
+        }
+
+        try:
+            response = requests.post(
+                f"http://localhost:80/api/v1/stocks/{user}/cart",  # À adapter selon ton Express.js
+                json=panier,
+                headers={"Authorization": token},
+                timeout=3
+            )
+
+            if response.status_code == 200:
+                messages.success(request, f"{qty} x {name} ajouté au panier.")
+            else:
+                messages.error(request, f"Erreur lors de l'ajout au panier : {response.text}")
+        except RequestException as e:
+            messages.error(request, f"Erreur de communication avec le serveur du panier : {e}")
+
+    return redirect('liste_produits')
+
 
 @login_required
 @buyer_required

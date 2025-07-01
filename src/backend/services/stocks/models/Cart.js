@@ -11,9 +11,9 @@ const productCartSchema = new mongoose.Schema({
 const cartSchema = new mongoose.Schema({
     user: { type: String, required: true },
     total_price: { type: Number, required: true },
-    contents: { type: [productSoldSchema], required: true }
+    contents: { type: [productCartSchema], required: true }
 }, {
     collection: 'magasinPaniers'
 });
 
-module.exports = mongoose.model('Cart', productCartSchema);
+module.exports = mongoose.model('Cart', cartSchema);

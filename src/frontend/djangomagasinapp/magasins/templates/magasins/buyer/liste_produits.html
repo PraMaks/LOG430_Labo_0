@@ -21,17 +21,28 @@
           <th>Nom du produit</th>
           <th>Description</th>
           <th>Quantité disponible</th>
-          <th>Quantité maximale</th>
+          <th>Prix par unité ($)</th>
+          <th>Ajouter combien?</th>
         </tr>
       </thead>
       <tbody>
         {% for p in produits %}
-          <tr>
+            <tr>
             <td>{{ p.name }}</td>
             <td>{{ p.description }}</td>
             <td>{{ p.qty }}</td>
-            <td>{{ p.max_qty }}</td>
-          </tr>
+            <td>{{ p.price }}</td>
+            <td>
+                <form method="post" action="{% url 'ajouter_panier' %}">
+                {% csrf_token %}
+                <input type="hidden" name="name" value="{{ p.name }}">
+                <input type="hidden" name="description" value="{{ p.description }}">
+                <input type="hidden" name="price" value="{{ p.price }}">
+                <input type="number" name="qty" min="1" max="{{ p.qty }}" value="1" class="form-control form-control-sm mb-1">
+                <button type="submit" class="btn btn-sm btn-success">Ajouter au panier</button>
+                </form>
+            </td>
+            </tr>
         {% endfor %}
       </tbody>
     </table>

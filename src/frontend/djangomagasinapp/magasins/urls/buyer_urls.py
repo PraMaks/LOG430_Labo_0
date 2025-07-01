@@ -5,6 +5,7 @@ from magasins.views import buyer_views, login_views
 urlpatterns = [
     path('', buyer_views.magasin_buyer, name='magasin_buyer'),
     path('stock/', buyer_views.liste_produits, name='liste_produits'),
+    path('stock/ajouter_panier/', buyer_views.ajouter_panier, name='ajouter_panier'),
     path('cart/', buyer_views.panier, name='panier'),
     path('logout/', login_views.logout, name='deconnexion')
 ]

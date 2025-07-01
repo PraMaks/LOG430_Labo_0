@@ -1,5 +1,6 @@
 const Store = require('../models/Store');
 const StoreInventory = require('../models/StoreInventory');
+const Cart = require('../models/Cart');
 const logger = require('../utils/logger');
 
 exports.getStores = async (req, res) => { 
@@ -412,5 +413,93 @@ exports.updateSupplyNbRequest = async (req, res) => {
   }
 };
 
+
+exports.updateUserCart = async (req, res) => {
+  const user = req.params.user;
+  const { contents } = req.body;
+
+  if (!user || !Array.isArray(contents) || contents.length === 0) {
+    console.error("Utilisateur ou contenu du panier manquant ou invalide");
+    return res.status(400).json({ error: 'Utilisateur ou contenu du panier manquant ou invalide' });
+  }
+
+  try {
+    // 🔍 Trouver le magasin "Stock Central"
+    const centralStore = await Store.findOne({ name: "Stock Central" });
+    if (!centralStore) {
+      console.error(`Magasin "Stock Central" introuvable`);
+      return res.status(500).json({ error: 'Le magasin central est introuvable' });
+    }
+
+    const centralStoreId = centralStore._id;
+
+    // 🔁 Vérifie et décrémente l’inventaire
+    for (const item of contents) {
+      const inventoryItem = await StoreInventory.findOne({
+        store: centralStoreId,
+        name: item.name
+      });
+
+      if (!inventoryItem) {
+        console.warn(`Produit "${item.name}" non trouvé dans le stock central`);
+        continue;
+      }
+
+      if (inventoryItem.qty < item.qty) {
+        return res.status(400).json({
+          error: `Stock insuffisant dans "Stock Central" pour le produit "${item.name}"`
+        });
+      }
+
+      inventoryItem.qty -= item.qty;
+      await inventoryItem.save();
+    }
+
+    // 🔄 Cherche le panier existant
+    let existingCart = await Cart.findOne({ user });
+
+    if (!existingCart) {
+      // 🆕 Création d’un nouveau panier
+      const total_price = contents.reduce((acc, item) => acc + item.qty * item.price, 0);
+      const newCart = new Cart({
+        user,
+        total_price: parseFloat(total_price.toFixed(2)),
+        contents
+      });
+      await newCart.save();
+    } else {
+      // ♻️ Mise à jour du panier existant
+      const updatedContents = [...existingCart.contents];
+
+      for (const newItem of contents) {
+        const existingIndex = updatedContents.findIndex(p => p.name === newItem.name);
+
+        if (existingIndex !== -1) {
+          // Produit déjà dans le panier ➝ on cumule
+          updatedContents[existingIndex].qty += newItem.qty;
+          updatedContents[existingIndex].total_price = parseFloat(
+            (updatedContents[existingIndex].qty * updatedContents[existingIndex].price).toFixed(2)
+          );
+        } else {
+          // Nouveau produit ➝ on l’ajoute
+          updatedContents.push(newItem);
+        }
+      }
+
+      // 🧮 Total global du panier
+      const newTotal = updatedContents.reduce((acc, item) => acc + item.total_price, 0);
+
+      existingCart.contents = updatedContents;
+      existingCart.total_price = parseFloat(newTotal.toFixed(2));
+      await existingCart.save();
+    }
+
+    return res.status(200).json({ message: 'Panier mis à jour avec fusion des produits et stock décrémenté' });
+
+  } catch (error) {
+    console.error(`[updateUserCart] Erreur serveur:`, error);
+    return res.status(500).json({ error: 'Erreur serveur lors de la mise à jour du panier' });
+  }
+};
 
 
