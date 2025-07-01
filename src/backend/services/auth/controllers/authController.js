@@ -42,7 +42,7 @@ async function login(req, res) {
     // Stocker les données user sérialisées en JSON
     await redisClient.set(token, JSON.stringify({
       username: user.username,
-      is_admin: user.is_admin,
+      type: user.type,
       stores: user.stores.map(s => s.name),
       // tu peux ajouter plus d'infos utiles ici si besoin
     }), {
@@ -53,7 +53,7 @@ async function login(req, res) {
     res.json({
       token,
       username: user.username,
-      is_admin: user.is_admin,
+      type: user.type,
       stores: user.stores.map(s => s.name),
     });
   } catch (error) {

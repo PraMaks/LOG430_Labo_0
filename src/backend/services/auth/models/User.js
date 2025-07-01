@@ -4,7 +4,11 @@ const bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  is_admin: { type: Boolean, default: false },
+  type: { 
+        type: String, 
+        enum: ['admin', 'seller', 'buyer'], 
+        default: 'buyer' 
+    },
   stores: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Store' }]
 }, {
   collection: 'utilisateurs',

@@ -46,8 +46,8 @@ const router = express.Router();
  *                   type: string
  *                 username:
  *                   type: string
- *                 is_admin:
- *                   type: boolean
+ *                 type:
+ *                   type: string
  *                 stores:
  *                   type: array
  *                   items:

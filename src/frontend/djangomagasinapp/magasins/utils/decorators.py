@@ -18,11 +18,13 @@ def admin_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         token = request.session.get('token')
-        is_admin = request.session.get('is_admin', False)
+        type = request.session.get('type', "admin")
         if not token:
             return redirect('login')
-        elif not is_admin:
+        elif type == "seller" :
             return redirect('magasin_standard')
+        elif type == "buyer" :
+            return redirect('login')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -31,10 +33,12 @@ def standard_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         token = request.session.get('token')
-        is_admin = request.session.get('is_admin', False)
+        type = request.session.get('type', "seller")
         if not token:
             return redirect('login')
-        elif is_admin:
+        elif type == "admin":
             return redirect('magasin_admin')
+        elif type == "buyer" :
+            return redirect('login')
         return view_func(request, *args, **kwargs)
     return wrapper

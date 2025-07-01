@@ -3,7 +3,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Connexion{% endblock %}</title>
+    <title>{% block title %}Création de compte{% endblock %}</title>
     {% bootstrap_css %}
     {% bootstrap_javascript %}
 </head>
@@ -19,7 +19,7 @@
     <div class="col-md-6 col-lg-4">
         <div class="card shadow">
             <div class="card-body">
-                <h3 class="text-center mb-4">Connexion</h3>
+                <h3 class="text-center mb-4">Création de compte</h3>
 
                 {% if messages %}
                     {% for message in messages %}
@@ -34,11 +34,10 @@
                     {% csrf_token %}
                     {% bootstrap_form form %}
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Se connecter</button>
-                        <a href="{% url 'register' %}" class="btn btn-outline-secondary">Pas de compte ? Créez-en un</a>
+                        <button type="submit" class="btn btn-primary">Créer le compte</button>
+                        <a href="{% url 'login' %}" class="btn btn-outline-secondary">Déjà un compte ? Connectez-vous</a>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>

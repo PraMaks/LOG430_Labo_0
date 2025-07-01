@@ -13,12 +13,12 @@ const DEFAULT_STORES = [
 ];
 
 const DEFAULT_USERS = [
-  { username: 'admin', password: 'admin123', is_admin: true },
-  { username: 'user1', password: 'password1' },
-  { username: 'user2', password: 'password2' },
-  { username: 'user3', password: 'password3' },
-  { username: 'user4', password: 'password4' },
-  { username: 'user5', password: 'password5' }
+  { username: 'admin', password: 'admin123', type: 'admin' },
+  { username: 'user1', password: 'password1', type: 'seller' },
+  { username: 'user2', password: 'password2', type: 'seller' },
+  { username: 'user3', password: 'password3', type: 'seller' },
+  { username: 'user4', password: 'password4', type: 'seller' },
+  { username: 'user5', password: 'password5', type: 'seller' }
 ];
 
 async function initDb() {
@@ -70,7 +70,7 @@ async function initDb() {
       user = new User({
         username: userData.username,
         password: userData.password,
-        is_admin: userData.is_admin || false,
+        type: userData.type,
         stores: linkedStores
       });
       await user.save();
