@@ -99,7 +99,7 @@ def register(request):
 
 
 def logout(request):
-    """Pour se deconncter"""
+    """Pour se deconnecter"""
     token = request.session.get('token')
     request.session.flush()
     if token:
