@@ -620,3 +620,30 @@ exports.deleteUserCartItem = async (req, res) => {
   }
 };
 
+
+exports.deleteUserCartItems = async (req, res) => {
+  const user = req.params.user;
+
+  if (!user) {
+    return res.status(400).json({ error: "Nom d'utilisateur manquant" });
+  }
+
+  try {
+    const cart = await Cart.findOne({ user });
+    if (!cart) return res.status(404).json({ error: "Panier non trouvé" });
+
+    const centralStore = await Store.findOne({ name: "Stock Central" });
+    if (!centralStore) return res.status(500).json({ error: "Magasin central introuvable" });
+
+    // Supprimer tous les items du panier
+    cart.contents = [];
+    cart.total_price = 0;
+    await cart.save();
+
+    return res.status(200).json({ message: "Panier vidé" });
+
+  } catch (err) {
+    console.error("[deleteUserCartAll] Erreur :", err);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+};

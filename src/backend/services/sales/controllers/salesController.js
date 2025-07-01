@@ -10,8 +10,9 @@ exports.postNewSaleInStore = async (req, res) => {
 
   const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
   const isCentral = storeParam === 'Central';
+  const isStock = storeParam === 'StockCentral';
 
-  if (!isNumber && !isCentral) {
+  if (!isNumber && !isCentral && !isStock) {
     logger.warn(`Numéro de magasin invalide (1-5) ou 'Central'`);
     return res.status(400).json(
       {
@@ -26,7 +27,13 @@ exports.postNewSaleInStore = async (req, res) => {
 
   try { 
     // On cherche le magasin
-    const storeName = `Magasin ${storeParam}`; 
+    let storeName;
+
+    if (!isStock) {
+      storeName = `Magasin ${storeParam}`; 
+    } else {
+      storeName = 'Stock Central'
+    } 
     const store = await Store.findOne({ name: storeName });
     if (!store) {
       logger.warn(`Magasin '${storeName}' introuvable`);
@@ -41,22 +48,23 @@ exports.postNewSaleInStore = async (req, res) => {
       );
     }
 
-    const response = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeParam}/true`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(soldProducts)
-    });
+    if(!isStock) {
+        const response = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeParam}/true`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(soldProducts)
+      });
 
-    if (!response.ok) {
-      const data = await response.json();
-      logger.error(`Erreur retour du stock-service: ${response.status} → ${data.message || JSON.stringify(data)}`);
-      throw new Error(`Stock service responded with ${response.status}: ${data.message}`);
+      if (!response.ok) {
+        const data = await response.json();
+        logger.error(`Erreur retour du stock-service: ${response.status} → ${data.message || JSON.stringify(data)}`);
+        throw new Error(`Stock service responded with ${response.status}: ${data.message}`);
+      }
     }
-
-
+    
     // Gestion des produits
     let totalPrice = 0;
     for (const item of soldProducts) {

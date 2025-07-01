@@ -9,5 +9,6 @@ urlpatterns = [
     path('cart/', buyer_views.panier, name='panier'),
     path('cart/modifier-article/', buyer_views.modifier_article_panier, name='modifier_article_panier'),
     path('cart/supprimer-article/', buyer_views.supprimer_article_panier, name='supprimer_article_panier'),
+    path('cart/acheter/', buyer_views.acheter_panier, name='acheter_panier'),
     path('logout/', login_views.logout, name='deconnexion')
 ]

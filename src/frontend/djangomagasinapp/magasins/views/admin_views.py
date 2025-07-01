@@ -486,6 +486,16 @@ def rapport_ventes(request):
     except requests.exceptions.RequestException as e:
         messages.error(request, f"Erreur lors de la récupération des produits magasin Central : {e}")
         report_products_dict[6] = []
+    
+    # Récupérer les produits du magasin Central (6)
+    try:
+        url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        report_products_dict[7] = response.json()
+    except requests.exceptions.RequestException as e:
+        messages.error(request, f"Erreur lors de la récupération des produits magasin Central : {e}")
+        report_products_dict[7] = []
 
     # Récupérer les ventes pour magasins 1 à 5
     for i in range(1, 6):
@@ -510,9 +520,20 @@ def rapport_ventes(request):
         messages.error(request, f"Erreur lors de la récupération des ventes magasin Central : {e}")
         report_sales_dict[6] = []
 
+    # Récupérer les ventes d'achat en ligne (7)
+    try:
+        url = url = f"http://localhost:80/api/v1/sales/stores/StockCentral"
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        sales = response.json()
+        report_sales_dict[7] = sales if sales else []
+    except requests.exceptions.RequestException as e:
+        messages.error(request, f"Erreur lors de la récupération des ventes magasin StockCentral : {e}")
+        report_sales_dict[7] = []
+
     # Préparer les données pour le template
     magasins = []
-    for i in range(1, 7):
+    for i in range(1, 8):
         product_sold_dict = {}
         products = report_products_dict.get(i, [])
         sales = report_sales_dict.get(i, [])
@@ -529,7 +550,7 @@ def rapport_ventes(request):
 
         magasins.append({
             'id': i,
-            'name': 'Magasin Central' if i == 6 else f'Magasin #{i}',
+            'name': 'Magasin Central' if i == 6 else 'Achats en ligne' if i == 7 else f'Magasin #{i}',
             'products': products,
             'sales': sales,
             'most_sold_products': most_sold_products,
@@ -572,6 +593,15 @@ def tableau_de_bord(request):
         messages.error(request, f"Erreur de récupération des produits du magasin Central: {e}")
         return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
+    try:
+        url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        report_products_dict[7] = response.json()
+    except requests.exceptions.RequestException as e:
+        messages.error(request, f"Erreur de récupération des produits du magasin warehouse: {e}")
+        return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
+
     for i in range(1, 6):
         try:
             url = f"http://localhost:80/api/v1/sales/stores/{str(i)}"
@@ -592,6 +622,15 @@ def tableau_de_bord(request):
         return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
+        url = f"http://localhost:80/api/v1/sales/stores/StockCentral"
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        report_sales_dict[7] = response.json()
+    except requests.exceptions.RequestException as e:
+        messages.error(request, f"Erreur de récupération des ventes du magasin Central: {e}")
+        return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
+
+    try:
         response = requests.get('http://localhost:80/api/v1/stocks/storesAll', headers=headers)
         response.raise_for_status()
         for store in response.json():
@@ -605,12 +644,12 @@ def tableau_de_bord(request):
         messages.error(request, f"Erreur de récupération des infos magasins: {e}")
         return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
-    for i in range(1, 7):
+    for i in range(1, 8):
         ventes = report_sales_dict.get(i, [])
         produits = report_products_dict.get(i, [])
         magasin = report_stores_dict.get(i, {
-            "name": f"Magasin {i}",
-            "address": "N/A",
+            "name": f"Achats en ligne",
+            "address": "Adresse 1235",
             "nb_requests": 0
         })
 

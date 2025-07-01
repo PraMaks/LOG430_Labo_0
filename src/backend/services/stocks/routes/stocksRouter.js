@@ -238,4 +238,6 @@ router.patch('/:user/cart', authenticate, stocksController.updateUserCartItem);
 
 router.delete('/:user/cart', authenticate, stocksController.deleteUserCartItem);
 
+router.delete('/:user/cart/all', authenticate, stocksController.deleteUserCartItems);
+
 module.exports = router;

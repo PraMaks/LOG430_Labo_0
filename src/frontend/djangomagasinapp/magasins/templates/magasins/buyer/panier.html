@@ -69,6 +69,14 @@
           </tr>
         </tfoot>
       </table>
+      <form method="post" action="{% url 'acheter_panier' %}">
+        {% csrf_token %}
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-success">
+            Acheter maintenant
+            </button>
+        </div>
+      </form>
     </div>
   {% else %}
     <div class="alert alert-info">Votre panier est vide.</div>
