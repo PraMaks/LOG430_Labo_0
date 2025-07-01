@@ -223,7 +223,7 @@ def retour_vente(request):
     else:
         selected_store = request.session.get("selected_store", "1")
 
-    store_param = selected_store if selected_store == "Central" else int(selected_store)
+    store_param = selected_store if (selected_store == "Central" or selected_store == "StockCentral") else int(selected_store)
     url = f"http://localhost:80/api/v1/sales/stores/{store_param}"
 
     # Suppression d'une vente

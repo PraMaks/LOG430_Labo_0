@@ -273,8 +273,9 @@ exports.updateProductsAfterSale = async (req, res) => {
 
   const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
   const isCentral = storeParam === 'Central';
+  const isStock = storeParam === 'StockCentral';
 
-  if (!isNumber && !isCentral) {
+  if (!isNumber && !isCentral && !isStock) {
     logger.warn(`Numéro de magasin invalide (1-5) ou 'Central'`);
     return res.status(400).json(
       {
@@ -287,7 +288,13 @@ exports.updateProductsAfterSale = async (req, res) => {
     );
   }
 
-  const storeName = `Magasin ${storeParam}`; 
+  let storeName;
+
+  if (!isStock) {
+    storeName = `Magasin ${storeParam}`; 
+  } else {
+    storeName = 'Stock Central'
+  } 
 
   try {
     const store = await Store.findOne({ name: storeName });
@@ -416,38 +423,27 @@ exports.updateSupplyNbRequest = async (req, res) => {
 
 exports.updateUserCart = async (req, res) => {
   const user = req.params.user;
-  const { contents } = req.body;
+  const { contents, replace } = req.body;
 
   if (!user || !Array.isArray(contents) || contents.length === 0) {
-    console.error("Utilisateur ou contenu du panier manquant ou invalide");
     return res.status(400).json({ error: 'Utilisateur ou contenu du panier manquant ou invalide' });
   }
 
   try {
-    // 🔍 Trouver le magasin "Stock Central"
     const centralStore = await Store.findOne({ name: "Stock Central" });
     if (!centralStore) {
-      console.error(`Magasin "Stock Central" introuvable`);
       return res.status(500).json({ error: 'Le magasin central est introuvable' });
     }
 
     const centralStoreId = centralStore._id;
 
-    // 🔁 Vérifie et décrémente l’inventaire
     for (const item of contents) {
-      const inventoryItem = await StoreInventory.findOne({
-        store: centralStoreId,
-        name: item.name
-      });
-
-      if (!inventoryItem) {
-        console.warn(`Produit "${item.name}" non trouvé dans le stock central`);
-        continue;
-      }
+      const inventoryItem = await StoreInventory.findOne({ store: centralStoreId, name: item.name });
+      if (!inventoryItem) continue;
 
       if (inventoryItem.qty < item.qty) {
         return res.status(400).json({
-          error: `Stock insuffisant dans "Stock Central" pour le produit "${item.name}"`
+          error: `Stock insuffisant pour le produit "${item.name}"`
         });
       }
 
@@ -455,46 +451,51 @@ exports.updateUserCart = async (req, res) => {
       await inventoryItem.save();
     }
 
-    // 🔄 Cherche le panier existant
-    let existingCart = await Cart.findOne({ user });
+    const total_price = contents.reduce((total, item) => {
+      return total + (item.price * item.qty);
+    }, 0);
 
-    if (!existingCart) {
-      // 🆕 Création d’un nouveau panier
-      const total_price = contents.reduce((acc, item) => acc + item.qty * item.price, 0);
-      const newCart = new Cart({
-        user,
-        total_price: parseFloat(total_price.toFixed(2)),
-        contents
-      });
-      await newCart.save();
+    if (replace) {
+      // 🧼 Écraser le panier
+      await Cart.findOneAndUpdate(
+        { user },
+        {
+          user,
+          total_price: parseFloat(total_price.toFixed(2)),
+          contents
+        },
+        { upsert: true, new: true, runValidators: true }
+      );
     } else {
-      // ♻️ Mise à jour du panier existant
+      // 🔁 Fusion (comportement précédent)
+      const existingCart = await Cart.findOne({ user }) || { contents: [] };
       const updatedContents = [...existingCart.contents];
 
       for (const newItem of contents) {
-        const existingIndex = updatedContents.findIndex(p => p.name === newItem.name);
-
-        if (existingIndex !== -1) {
-          // Produit déjà dans le panier ➝ on cumule
-          updatedContents[existingIndex].qty += newItem.qty;
-          updatedContents[existingIndex].total_price = parseFloat(
-            (updatedContents[existingIndex].qty * updatedContents[existingIndex].price).toFixed(2)
+        const index = updatedContents.findIndex(p => p.name === newItem.name);
+        if (index !== -1) {
+          updatedContents[index].qty += newItem.qty;
+          updatedContents[index].total_price = parseFloat(
+            (updatedContents[index].qty * updatedContents[index].price).toFixed(2)
           );
         } else {
-          // Nouveau produit ➝ on l’ajoute
           updatedContents.push(newItem);
         }
       }
 
-      // 🧮 Total global du panier
       const newTotal = updatedContents.reduce((acc, item) => acc + item.total_price, 0);
-
-      existingCart.contents = updatedContents;
-      existingCart.total_price = parseFloat(newTotal.toFixed(2));
-      await existingCart.save();
+      await Cart.findOneAndUpdate(
+        { user },
+        {
+          user,
+          total_price: parseFloat(newTotal.toFixed(2)),
+          contents: updatedContents
+        },
+        { upsert: true, new: true, runValidators: true }
+      );
     }
 
-    return res.status(200).json({ message: 'Panier mis à jour avec fusion des produits et stock décrémenté' });
+    return res.status(200).json({ message: 'Panier mis à jour avec succès' });
 
   } catch (error) {
     console.error(`[updateUserCart] Erreur serveur:`, error);
@@ -502,4 +503,120 @@ exports.updateUserCart = async (req, res) => {
   }
 };
 
+exports.getUserCart = async (req, res) => {
+  const user = req.params.user;
+  try {
+    const cart = await Cart.findOne({ user });
+    if (!cart) {
+      return res.status(404).json({ message: 'Panier vide' });
+    }
+    res.status(200).json(cart);
+  } catch (error) {
+    logger.error("Erreur récupération panier:", error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+
+exports.updateUserCartItem = async (req, res) => {
+  const user = req.params.user;
+  const { name, qty } = req.body;
+
+  if (!user || !name || typeof qty !== 'number') {
+    return res.status(400).json({ error: "Champs manquants ou invalides" });
+  }
+
+  try {
+    const cart = await Cart.findOne({ user });
+    if (!cart) return res.status(404).json({ error: "Panier introuvable" });
+
+    const itemIndex = cart.contents.findIndex(p => p.name === name);
+    if (itemIndex === -1) return res.status(404).json({ error: "Produit non trouvé dans le panier" });
+
+    const product = cart.contents[itemIndex];
+    const previousQty = product.qty;
+    const difference = qty - previousQty;
+
+    // Trouver le produit dans le stock central
+    const centralStore = await Store.findOne({ name: "Stock Central" });
+    if (!centralStore) return res.status(500).json({ error: "Magasin central introuvable" });
+
+    const inventoryItem = await StoreInventory.findOne({
+      store: centralStore._id,
+      name: name
+    });
+
+    if (!inventoryItem) {
+      return res.status(404).json({ error: `Produit "${name}" introuvable dans le stock central` });
+    }
+
+    // Vérifie si le stock est suffisant
+    if (difference > 0 && inventoryItem.qty < difference) {
+      return res.status(400).json({ error: `Stock insuffisant pour "${name}"` });
+    }
+
+    // Ajuster l'inventaire central
+    inventoryItem.qty -= difference;
+    await inventoryItem.save();
+
+    // Mettre à jour le produit dans le panier
+    product.qty = qty;
+    product.total_price = parseFloat((qty * product.price).toFixed(2));
+    cart.contents[itemIndex] = product;
+
+    // Recalcul du total général du panier
+    cart.total_price = cart.contents.reduce((acc, p) => acc + p.total_price, 0);
+    await cart.save();
+
+    return res.status(200).json({ message: "Article mis à jour avec succès" });
+  } catch (err) {
+    console.error("[updateCartItem] Erreur :", err);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+exports.deleteUserCartItem = async (req, res) => {
+  const user = req.params.user;
+  const { name, qty } = req.body;
+
+  if (!user || !name || typeof qty !== 'number') {
+    return res.status(400).json({ error: "Champs invalides pour suppression" });
+  }
+
+  try {
+    const cart = await Cart.findOne({ user });
+    if (!cart) return res.status(404).json({ error: "Panier non trouvé" });
+
+    const itemIndex = cart.contents.findIndex(p => p.name === name);
+    if (itemIndex === -1) return res.status(404).json({ error: "Produit non trouvé dans le panier" });
+
+    const removedItem = cart.contents[itemIndex];
+    const removedQty = removedItem.qty;
+
+    // Supprimer du panier
+    cart.contents.splice(itemIndex, 1);
+    cart.total_price = cart.contents.reduce((acc, p) => acc + p.total_price, 0);
+    await cart.save();
+
+    // Recréditer l'inventaire
+    const centralStore = await Store.findOne({ name: "Stock Central" });
+    if (!centralStore) return res.status(500).json({ error: "Magasin central introuvable" });
+
+    const inventoryItem = await StoreInventory.findOne({
+      store: centralStore._id,
+      name: name
+    });
+
+    if (inventoryItem) {
+      inventoryItem.qty += removedQty;
+      await inventoryItem.save();
+    }
+
+    return res.status(200).json({ message: "Produit supprimé et stock restauré." });
+
+  } catch (err) {
+    console.error("[deleteCartItem] Erreur :", err);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+};
 

@@ -100,5 +100,102 @@ def ajouter_panier(request):
 @login_required
 @buyer_required
 def panier(request):
-    """Page Panier"""
-    return render(request, 'magasins/buyer/panier.html')
+    """Affiche le panier actuel de l'utilisateur"""
+    user = request.session.get("username")
+    token = request.session.get("token")
+
+    try:
+        response = requests.get(
+            f"http://localhost:80/api/v1/stocks/{user}/cart",
+            headers={"Authorization": token},
+            timeout=3
+        )
+        if response.status_code == 200:
+            panier = response.json()
+        else:
+            panier = None
+            messages.warning(request, "Impossible de récupérer le panier.")
+    except RequestException as e:
+        panier = None
+        messages.error(request, f"Erreur de connexion : {e}")
+
+    return render(request, "magasins/buyer/panier.html", {
+        "panier": panier
+    })
+
+@login_required
+@buyer_required
+def modifier_article_panier(request):
+    if request.method == "POST":
+        username = request.session.get("username")
+        token = request.session.get("token")
+
+        try:
+            name = request.POST["name"]
+            description = request.POST["description"]
+            qty = int(request.POST["qty"])
+            price = float(request.POST["price"])
+            total_price = round(qty * price, 2)
+        except (KeyError, ValueError):
+            messages.error(request, "Champs invalides.")
+            return redirect("panier")
+
+        # On envoie seulement UN item
+        product_data = {
+            "contents": [{
+                "name": name,
+                "description": description,
+                "qty": qty,
+                "price": price,
+                "total_price": total_price
+            }],
+            "replace": False  # Fusion avec l'existant
+        }
+
+        try:
+            response = requests.patch(
+                f"http://localhost:80/api/v1/stocks/{username}/cart",
+                headers={"Authorization": token},
+                json={
+                    "name": name,
+                    "qty": qty
+                },
+                timeout=3
+            )
+            if response.status_code == 200:
+                messages.success(request, f"{name} mis à jour dans le panier.")
+            else:
+                messages.error(request, f"Erreur : {response.text}")
+        except RequestException as e:
+            messages.error(request, f"Connexion impossible au serveur : {e}")
+
+    return redirect("panier")
+
+@login_required
+@buyer_required
+def supprimer_article_panier(request):
+    if request.method == "POST":
+        username = request.session.get("username")
+        token = request.session.get("token")
+        name = request.POST.get("name")
+        qty = request.POST.get("qty")
+
+        if not name or not qty:
+            messages.error(request, "Champs manquants pour la suppression.")
+            return redirect("panier")
+
+        try:
+            response = requests.delete(
+                f"http://localhost:80/api/v1/stocks/{username}/cart",
+                headers={"Authorization": token},
+                json={"name": name, "qty": int(qty)},
+                timeout=3
+            )
+            if response.status_code == 200:
+                messages.success(request, f"{name} a été retiré du panier.")
+            else:
+                messages.error(request, f"Erreur : {response.text}")
+        except requests.RequestException as e:
+            messages.error(request, f"Erreur de connexion : {e}")
+
+    return redirect("panier")

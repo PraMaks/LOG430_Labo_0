@@ -223,6 +223,74 @@
       ]
     },
     {
+      "endpoint": "/api/v1/stocks/{user}/cart",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization"],
+      "backend": [
+        {
+          "url_pattern": "/api/v1/stocks/{user}/cart",
+          "host": ["http://stocks-service:3020"],
+          "extra_config": {
+            "github.com/devopsfaith/krakend/proxy": {
+              "headers_to_pass": ["Authorization"]
+            },
+            "github.com/devopsfaith/krakend/http": {
+              "return_error_code": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/stocks/{user}/cart",
+      "method": "PATCH",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
+      "backend": [
+        {
+          "url_pattern": "/api/v1/stocks/{user}/cart",
+          "host": ["http://stocks-service:3020"],
+          "input_body": "json",
+          "extra_config": {
+            "github.com/devopsfaith/krakend/proxy": {
+              "headers_to_pass": ["Authorization", "Content-Type"]
+            },
+            "github.com/devopsfaith/krakend/http": {
+              "return_error_code": true
+            },
+            "github.com/devopsfaith/krakend/transport/http/client": {
+              "disable_body": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/stocks/{user}/cart",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
+      "backend": [
+        {
+          "url_pattern": "/api/v1/stocks/{user}/cart",
+          "host": ["http://stocks-service:3020"],
+          "input_body": "json",
+          "extra_config": {
+            "github.com/devopsfaith/krakend/proxy": {
+              "headers_to_pass": ["Authorization", "Content-Type"]
+            },
+            "github.com/devopsfaith/krakend/http": {
+              "return_error_code": true
+            },
+            "github.com/devopsfaith/krakend/transport/http/client": {
+              "disable_body": false
+            }
+          }
+        }
+      ]
+    },
+    {
       "endpoint": "/api/v1/sales/stores/{storeNumber}",
       "method": "POST",
       "output_encoding": "no-op",

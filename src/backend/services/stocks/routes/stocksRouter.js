@@ -232,5 +232,10 @@ router.patch('/stores/:storeNumber/:isSale', authenticate, stocksController.upda
 
 router.post('/:user/cart', authenticate, stocksController.updateUserCart);
 
+router.get('/:user/cart', authenticate, stocksController.getUserCart);
+
+router.patch('/:user/cart', authenticate, stocksController.updateUserCartItem);
+
+router.delete('/:user/cart', authenticate, stocksController.deleteUserCartItem);
 
 module.exports = router;
