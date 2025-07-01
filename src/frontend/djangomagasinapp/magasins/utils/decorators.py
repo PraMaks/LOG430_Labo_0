@@ -22,14 +22,14 @@ def admin_required(view_func):
         if not token:
             return redirect('login')
         elif type == "seller" :
-            return redirect('magasin_standard')
+            return redirect('magasin_seller')
         elif type == "buyer" :
-            return redirect('login')
+            return redirect('magasin_buyer')
         return view_func(request, *args, **kwargs)
     return wrapper
 
-def standard_required(view_func):
-    """Besoin d'être connecté et être un utilisateur standard"""
+def seller_required(view_func):
+    """Besoin d'être connecté et être un utilisateur seller"""
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         token = request.session.get('token')
@@ -39,6 +39,21 @@ def standard_required(view_func):
         elif type == "admin":
             return redirect('magasin_admin')
         elif type == "buyer" :
+            return redirect('magasin_buyer')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+def buyer_required(view_func):
+    """Besoin d'être connecté et être un utilisateur buyer"""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        token = request.session.get('token')
+        type = request.session.get('type', "buyer")
+        if not token:
             return redirect('login')
+        elif type == "admin":
+            return redirect('magasin_admin')
+        elif type == "seller" :
+            return redirect('magasin_seller')
         return view_func(request, *args, **kwargs)
     return wrapper

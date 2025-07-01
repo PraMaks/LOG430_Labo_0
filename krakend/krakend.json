@@ -17,6 +17,17 @@
       ]
     },
     {
+      "endpoint": "/api/v1/auth/users/register",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/auth/users/register",
+          "host": ["http://auth-service:3010"]
+        }
+      ]
+    },
+    {
       "endpoint": "/api/v1/auth/users/logout",
       "method": "DELETE",
       "output_encoding": "no-op",

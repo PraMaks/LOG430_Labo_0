@@ -2,6 +2,7 @@
 from django.urls import path, include
 
 urlpatterns = [
-    path('standard/', include('magasins.urls.standard_urls')),
+    path('seller/', include('magasins.urls.seller_urls')),
     path('admin/', include('magasins.urls.admin_urls')),
+    path('buyer/', include('magasins.urls.buyer_urls')),
 ]

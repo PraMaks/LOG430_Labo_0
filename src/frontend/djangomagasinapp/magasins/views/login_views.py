@@ -40,9 +40,9 @@ def login(request):
                     if request.session.get('type') == "admin" :
                         return redirect('magasin_admin')
                     elif request.session.get('type') == "seller" :
-                        return redirect('magasin_standard')
+                        return redirect('magasin_seller')
                     else :
-                        return redirect('login')
+                        return redirect('magasin_buyer')
                 else:
                     json_data = response.json()
                     timestamp = json_data['timestamp']
@@ -77,6 +77,7 @@ def register(request):
 
             try:
                 response = requests.post(EXPRESS_AUTH_API_URL_REGISTER, json=data)
+                print(f"{response}")
                 if response.status_code == 200:
                     json_data = response.json()
                     messages.success(request, "Compte créé avec succès.")

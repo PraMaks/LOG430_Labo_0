@@ -12,12 +12,6 @@ from requests.exceptions import ConnectionError, RequestException
 from ..utils.decorators import login_required, admin_required
 
 
-EXPRESS_STANDARD_API_URL = 'http://localhost:80/api/v1/standard'
-EXPRESS_STANDARD_API_URL_STORES = EXPRESS_STANDARD_API_URL + '/stores'
-EXPRESS_STANDARD_API_URL_STOCK = '/stock'
-EXPRESS_STANDARD_API_URL_SALES = '/sales'
-
-
 @login_required
 @admin_required
 def magasin_admin(request):

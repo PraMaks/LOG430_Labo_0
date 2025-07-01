@@ -150,8 +150,47 @@ async function logout(req, res) {
   }
 }
 
+async function register(req, res) {
+  try {
+    const { username, password } = req.body;
+
+    let user = await User.findOne({ username: username });
+
+    if (!user) {
+      user = new User({
+        username: username,
+        password: password,
+      });
+      await user.save();
+      logger.info(`Utilisateur '${user.username}' créé.`);
+      return res.status(200).json({ message: "Utilisateur créé avec succès." });
+    } else {
+      logger.info(`Utilisateur '${user.username}' déjà existant.`);
+      return res.status(400).json({
+        timestamp: new Date().toISOString(),
+        status: 400,
+        error: "Bad Request",
+        message: "Nom d'utilisateur déjà existant, choississez un autre",
+        path: "/api/v1/auth/users/register"
+      });
+    }
+
+  } catch (error) {
+    logger.error(`Erreur de communication avec le serveur`, error);
+    res.status(500).json({
+      timestamp: new Date().toISOString(),
+      status: 500,
+      error: "Internal Server Error",
+      message: "Erreur de communication avec le serveur",
+      path: "/api/v1/auth/users/register"
+    });
+  }
+}
+
+
 module.exports = {
   login,
   authenticate,
   logout,
+  register,
 };

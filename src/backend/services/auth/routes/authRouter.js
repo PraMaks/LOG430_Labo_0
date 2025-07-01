@@ -3,6 +3,7 @@ const {
   login,
   authenticate,
   logout,
+  register,
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -133,5 +134,7 @@ router.post('/users/login', login);
  *                   type: string
  */
 router.delete('/users/logout', authenticate, logout);
+
+router.post('/users/register', register);
 
 module.exports = router;

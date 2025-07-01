@@ -8,21 +8,16 @@ import requests
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from requests.exceptions import RequestException, ConnectionError
-from ..utils.decorators import login_required, standard_required
-
-EXPRESS_STANDARD_API_URL = 'http://localhost:80/api/v1/standard'
-EXPRESS_STANDARD_API_URL_STORES = EXPRESS_STANDARD_API_URL + '/stores'
-EXPRESS_STANDARD_API_URL_STOCK = '/stock'
-EXPRESS_STANDARD_API_URL_SALES = '/sales'
+from ..utils.decorators import login_required, seller_required
 
 @login_required
-@standard_required
-def magasin_standard(request):
+@seller_required
+def magasin_seller(request):
     """Page Home"""
-    return render(request, 'magasins/standard/magasin_standard.html')
+    return render(request, 'magasins/seller/magasin_seller.html')
 
 @login_required
-@standard_required
+@seller_required
 def rechercher_produit(request):
     """Page de recherche de produit"""
     produit = None
@@ -45,7 +40,7 @@ def rechercher_produit(request):
         name = request.POST.get("nom_produit", "").strip()
         if not name:
             messages.error(request, "Le nom du produit ne peut pas être vide.")
-            return render(request, 'magasins/standard/rechercher_produit.html', {
+            return render(request, 'magasins/seller/rechercher_produit.html', {
                 'produit': produit,
                 'query': name,
             })
@@ -63,13 +58,13 @@ def rechercher_produit(request):
             error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
             messages.warning(request, error_message)
 
-    return render(request, 'magasins/standard/rechercher_produit.html', {
+    return render(request, 'magasins/seller/rechercher_produit.html', {
         'produit': produit,
         'query': name,
     })
 
 @login_required
-@standard_required
+@seller_required
 def enregistrer_vente(request):
     """Page d'enregistrement d'une vente"""
     headers = {
@@ -128,7 +123,7 @@ def enregistrer_vente(request):
                 produits_disponibles = []
                 messages.error(request, f"Erreur lors de la récupération des stocks : {e}")
 
-            return render(request, "magasins/standard/enregistrer_vente.html", {
+            return render(request, "magasins/seller/enregistrer_vente.html", {
                 "produits": produits_disponibles,
                 "message": "Aucun produit sélectionné."
             })
@@ -138,7 +133,7 @@ def enregistrer_vente(request):
         try:
             response = requests.post(url_vente, json=produits, headers=headers, timeout=3)
             if response.status_code == 201:
-                return render(request, "magasins/standard/vente_success.html", {
+                return render(request, "magasins/seller/vente_success.html", {
                     "produits": produits,
                     "total": total
                 })
@@ -165,7 +160,7 @@ def enregistrer_vente(request):
         except Exception:
             produits_disponibles = []
 
-        return render(request, "magasins/standard/enregistrer_vente.html", {
+        return render(request, "magasins/seller/enregistrer_vente.html", {
             "produits": produits_disponibles,
             "message": error_message
         })
@@ -190,11 +185,11 @@ def enregistrer_vente(request):
         produits = []
         messages.error(request, f"Erreur lors du chargement des produits : {e}")
 
-    return render(request, "magasins/standard/enregistrer_vente.html", {"produits": produits})
+    return render(request, "magasins/seller/enregistrer_vente.html", {"produits": produits})
 
 
 @login_required
-@standard_required
+@seller_required
 def retour_vente(request):
     """Page de retour de vente"""
     headers = {
@@ -234,7 +229,7 @@ def retour_vente(request):
         messages.error(request, "Connexion refusée au serveur distant (port 3001).")
     except RequestException as e:
         messages.error(request, f"Erreur de communication avec le serveur : {e}")
-        return render(request, "magasins/standard/retour_vente.html", {
+        return render(request, "magasins/seller/retour_vente.html", {
             "ventes": [],
             "store_number": numero
         })
@@ -267,13 +262,13 @@ def retour_vente(request):
             except RequestException as e:
                 messages.error(request, f"Erreur lors de la suppression : {e}")
 
-    return render(request, "magasins/standard/retour_vente.html", {
+    return render(request, "magasins/seller/retour_vente.html", {
         "ventes": ventes,
         "store_number": numero
     })
 
 @login_required
-@standard_required
+@seller_required
 def liste_produits(request):
     """Page pour lister l'inventaire"""
     headers = {
@@ -310,12 +305,12 @@ def liste_produits(request):
     except RequestException as e:
         messages.error(request, f"Erreur lors de la récupération des produits : {e}")
 
-    return render(request, 'magasins/standard/liste_produits.html', {
+    return render(request, 'magasins/seller/liste_produits.html', {
         'produits': produits
     })
 
 @login_required
-@standard_required
+@seller_required
 def liste_produits_central(request):
     """Page pour lister l'inventaire du stock central"""
     headers = {
@@ -345,12 +340,12 @@ def liste_produits_central(request):
     except RequestException as e:
         messages.error(request, f"Erreur lors du chargement des produits : {e}")
 
-    return render(request, 'magasins/standard/liste_produits_central.html', {
+    return render(request, 'magasins/seller/liste_produits_central.html', {
         'produits': produits
     })
 
 @login_required
-@standard_required
+@seller_required
 def demande_reappro(request):
     """Page de demande de reapprovisionnement"""
     headers = {
@@ -374,7 +369,7 @@ def demande_reappro(request):
         stock_mere = requests.get(url_stock_central, headers=headers).json()
     except requests.exceptions.RequestException as e:
         messages.error(request, f"Erreur de communication avec le serveur : {e}")
-        return render(request, "magasins/standard/demande_reappro.html", {
+        return render(request, "magasins/seller/demande_reappro.html", {
             "stock_magasin": [],
             "stock_mere": [],
         })
@@ -408,7 +403,7 @@ def demande_reappro(request):
             except requests.exceptions.RequestException as e:
                 messages.error(request, f"Erreur lors de l'envoi de la demande : {e}")
 
-    return render(request, "magasins/standard/demande_reappro.html", {
+    return render(request, "magasins/seller/demande_reappro.html", {
         "stock_magasin": stock_magasin,
         "stock_mere": stock_mere
     })
