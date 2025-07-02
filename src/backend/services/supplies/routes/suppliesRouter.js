@@ -16,7 +16,7 @@ const { authenticate } = require('../utils/authentication');
  * /api/v1/supplies/stores/{storeNumber}:
  *   post:
  *     tags:
- *       - Standard
+ *       - Supplies
  *     summary: Faire une demande de réapprovisionnement
  *     description: Permet à un magasin d’envoyer une demande de réapprovisionnement pour un produit donné.
  *     security:

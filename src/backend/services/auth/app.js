@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const initDb = require('./initDb'); 
-const cors = require('cors');
+//const cors = require('cors');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const logger = require('./utils/logger');
@@ -13,11 +13,27 @@ const port = 3010;
 // Middleware pour parser le JSON
 app.use(express.json());
 
-app.use(cors({
+/*app.use(cors({
   origin: 'http://localhost:8000',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}));
+})); */
+
+/*const allowedOrigins = ['http://localhost:8000', 'http://localhost:3010'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Autoriser les outils comme Postman (origin null)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));*/
 
 const metricsMiddleware = promBundle({
   includeMethod: true,
@@ -49,6 +65,11 @@ const options = {
     servers: [
       {
         url: 'http://localhost:3010',
+        description: 'Appel Direct au service',
+      },
+      {
+        url: 'http://localhost:80',
+        description: 'Appel par le Gateway KrakenD',
       },
     ],
     components: {

@@ -269,8 +269,6 @@ exports.updateProductsAfterSale = async (req, res) => {
   const isSale = req.params.isSale;
   const products = req.body;
 
-  logger.info(products);
-
   const isNumber = !isNaN(parseInt(storeParam)) && parseInt(storeParam) >= 1 && parseInt(storeParam) <= 5;
   const isCentral = storeParam === 'Central';
   const isStock = storeParam === 'StockCentral';
@@ -426,13 +424,29 @@ exports.updateUserCart = async (req, res) => {
   const { contents, replace } = req.body;
 
   if (!user || !Array.isArray(contents) || contents.length === 0) {
-    return res.status(400).json({ error: 'Utilisateur ou contenu du panier manquant ou invalide' });
+    return res.status(400).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 400,
+        error: "Bad Request",
+        message: "Utilisateur ou contenu du panier manquant ou invalide",
+        path: `/api/v1/stocks/${user}/cart`
+      }
+    );
   }
 
   try {
     const centralStore = await Store.findOne({ name: "Stock Central" });
     if (!centralStore) {
-      return res.status(500).json({ error: 'Le magasin central est introuvable' });
+      return res.status(404).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 404,
+        error: "Not Found",
+        message: "Le magasin en ligne est introuvable",
+        path: `/api/v1/stocks/${user}/cart`
+      }
+    );
     }
 
     const centralStoreId = centralStore._id;
@@ -442,9 +456,15 @@ exports.updateUserCart = async (req, res) => {
       if (!inventoryItem) continue;
 
       if (inventoryItem.qty < item.qty) {
-        return res.status(400).json({
-          error: `Stock insuffisant pour le produit "${item.name}"`
-        });
+        return res.status(400).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 400,
+          error: "Bad Request",
+          message: `Stock insuffisant pour le produit "${item.name}"`,
+          path: `/api/v1/stocks/${user}/cart`
+        }
+    );
       }
 
       inventoryItem.qty -= item.qty;
@@ -456,7 +476,6 @@ exports.updateUserCart = async (req, res) => {
     }, 0);
 
     if (replace) {
-      // 🧼 Écraser le panier
       await Cart.findOneAndUpdate(
         { user },
         {
@@ -467,7 +486,6 @@ exports.updateUserCart = async (req, res) => {
         { upsert: true, new: true, runValidators: true }
       );
     } else {
-      // 🔁 Fusion (comportement précédent)
       const existingCart = await Cart.findOne({ user }) || { contents: [] };
       const updatedContents = [...existingCart.contents];
 
@@ -498,8 +516,16 @@ exports.updateUserCart = async (req, res) => {
     return res.status(200).json({ message: 'Panier mis à jour avec succès' });
 
   } catch (error) {
-    console.error(`[updateUserCart] Erreur serveur:`, error);
-    return res.status(500).json({ error: 'Erreur serveur lors de la mise à jour du panier' });
+    logger.error(`Erreur de communication avec le serveur: ${err}`);
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/stocks/${user}/cart`
+      }
+    );
   }
 };
 
@@ -508,12 +534,28 @@ exports.getUserCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user });
     if (!cart) {
-      return res.status(404).json({ message: 'Panier vide' });
+      res.status(500).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 400,
+          error: "Bad Request",
+          message: "Panier est vide/non-existant",
+          path: `/api/v1/stocks/${user}/cart`
+        }
+      );
     }
     res.status(200).json(cart);
   } catch (error) {
-    logger.error("Erreur récupération panier:", error);
-    res.status(500).json({ error: 'Erreur serveur' });
+    logger.error(`Erreur de communication avec le serveur: ${err}`);
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/stocks/${user}/cart`
+      }
+    );
   }
 };
 
@@ -523,15 +565,43 @@ exports.updateUserCartItem = async (req, res) => {
   const { name, qty } = req.body;
 
   if (!user || !name || typeof qty !== 'number') {
-    return res.status(400).json({ error: "Champs manquants ou invalides" });
+    return res.status(400).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 400,
+        error: "Bad Request",
+        message: "Utilisateur ou contenu du panier manquant ou invalide",
+        path: `/api/v1/stocks/${user}/cart`
+      }
+    );
   }
 
   try {
     const cart = await Cart.findOne({ user });
-    if (!cart) return res.status(404).json({ error: "Panier introuvable" });
+    if (!cart) {
+       return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: "Panier introuvable",
+          path: `/api/v1/stocks/${user}/cart`
+        }
+      );
+    }
 
     const itemIndex = cart.contents.findIndex(p => p.name === name);
-    if (itemIndex === -1) return res.status(404).json({ error: "Produit non trouvé dans le panier" });
+    if (itemIndex === -1) {
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: "Produit non trouvé dans le panier",
+          path: `/api/v1/stocks/${user}/cart`
+        }
+      );
+    }
 
     const product = cart.contents[itemIndex];
     const previousQty = product.qty;
@@ -539,7 +609,17 @@ exports.updateUserCartItem = async (req, res) => {
 
     // Trouver le produit dans le stock central
     const centralStore = await Store.findOne({ name: "Stock Central" });
-    if (!centralStore) return res.status(500).json({ error: "Magasin central introuvable" });
+    if (!centralStore) {
+       return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: "Magasin d'achat en ligne introuvable",
+          path: `/api/v1/stocks/${user}/cart`
+        }
+      );
+    }
 
     const inventoryItem = await StoreInventory.findOne({
       store: centralStore._id,
@@ -547,12 +627,28 @@ exports.updateUserCartItem = async (req, res) => {
     });
 
     if (!inventoryItem) {
-      return res.status(404).json({ error: `Produit "${name}" introuvable dans le stock central` });
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: `Produit "${name}" introuvable dans le stock central`,
+          path: `/api/v1/stocks/${user}/cart`
+        }
+      );
     }
 
     // Vérifie si le stock est suffisant
     if (difference > 0 && inventoryItem.qty < difference) {
-      return res.status(400).json({ error: `Stock insuffisant pour "${name}"` });
+      return res.status(400).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 400,
+          error: "Bad Request",
+          message: `Stock insuffisant pour "${name}"`,
+          path: `/api/v1/stocks/${user}/cart`
+        }
+      );
     }
 
     // Ajuster l'inventaire central
@@ -570,8 +666,16 @@ exports.updateUserCartItem = async (req, res) => {
 
     return res.status(200).json({ message: "Article mis à jour avec succès" });
   } catch (err) {
-    console.error("[updateCartItem] Erreur :", err);
-    return res.status(500).json({ error: "Erreur serveur" });
+    logger.error(`Erreur de communication avec le serveur: ${err}`);
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/stocks/${user}/cart`
+      }
+    );
   }
 };
 
@@ -580,15 +684,43 @@ exports.deleteUserCartItem = async (req, res) => {
   const { name, qty } = req.body;
 
   if (!user || !name || typeof qty !== 'number') {
-    return res.status(400).json({ error: "Champs invalides pour suppression" });
+    return res.status(400).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 400,
+        error: "Bad Request",
+        message: "Champs invalides pour suppression",
+        path: `/api/v1/stocks/${user}/cart`
+      }
+    );
   }
 
   try {
     const cart = await Cart.findOne({ user });
-    if (!cart) return res.status(404).json({ error: "Panier non trouvé" });
+    if (!cart) {
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: "Panier introuvable",
+          path: `/api/v1/stocks/${user}/cart`
+        }
+      );
+    } 
 
     const itemIndex = cart.contents.findIndex(p => p.name === name);
-    if (itemIndex === -1) return res.status(404).json({ error: "Produit non trouvé dans le panier" });
+    if (itemIndex === -1) {
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: "Produit non trouvé dans le panier",
+          path: `/api/v1/stocks/${user}/cart`
+        }
+      );
+    }
 
     const removedItem = cart.contents[itemIndex];
     const removedQty = removedItem.qty;
@@ -615,8 +747,16 @@ exports.deleteUserCartItem = async (req, res) => {
     return res.status(200).json({ message: "Produit supprimé et stock restauré." });
 
   } catch (err) {
-    console.error("[deleteCartItem] Erreur :", err);
-    return res.status(500).json({ error: "Erreur serveur" });
+    logger.error(`Erreur de communication avec le serveur: ${err}`);
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/stocks/${user}/cart`
+      }
+    );
   }
 };
 
@@ -625,15 +765,43 @@ exports.deleteUserCartItems = async (req, res) => {
   const user = req.params.user;
 
   if (!user) {
-    return res.status(400).json({ error: "Nom d'utilisateur manquant" });
+    return res.status(400).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 400,
+        error: "Bad Request",
+        message: "Nom d'utilisateuur manquant",
+        path: `/api/v1/stocks/${user}/cart/all`
+      }
+    );
   }
 
   try {
     const cart = await Cart.findOne({ user });
-    if (!cart) return res.status(404).json({ error: "Panier non trouvé" });
+    if (!cart) {
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: "Panier introuvable",
+          path: `/api/v1/stocks/${user}/cart/all`
+        }
+      );
+    } 
 
     const centralStore = await Store.findOne({ name: "Stock Central" });
-    if (!centralStore) return res.status(500).json({ error: "Magasin central introuvable" });
+    if (!centralStore) {
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: "Magasin d'achat introuvable",
+          path: `/api/v1/stocks/${user}/cart/all`
+        }
+      );
+    } 
 
     // Supprimer tous les items du panier
     cart.contents = [];
@@ -643,7 +811,15 @@ exports.deleteUserCartItems = async (req, res) => {
     return res.status(200).json({ message: "Panier vidé" });
 
   } catch (err) {
-    console.error("[deleteUserCartAll] Erreur :", err);
-    return res.status(500).json({ error: "Erreur serveur" });
+    logger.error(`Erreur de communication avec le serveur: ${err}`);
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/stocks/${user}/cart/all`
+      }
+    );
   }
 };
