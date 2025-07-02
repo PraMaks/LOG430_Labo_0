@@ -24,7 +24,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eeoypd4snhipsf"
+        "uid": "deqpwt2ih0qo0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -100,7 +100,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1+security-01",
+      "pluginVersion": "12.0.2",
       "targets": [
         {
           "datasource": {
@@ -120,7 +120,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eeoypd4snhipsf"
+        "uid": "deqpwt2ih0qo0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -196,7 +196,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1+security-01",
+      "pluginVersion": "12.0.2",
       "targets": [
         {
           "editorMode": "code",
@@ -212,7 +212,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eeoypd4snhipsf"
+        "uid": "deqpwt2ih0qo0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -288,7 +288,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1+security-01",
+      "pluginVersion": "12.0.2",
       "targets": [
         {
           "editorMode": "code",
@@ -304,7 +304,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eeoypd4snhipsf"
+        "uid": "deqpwt2ih0qo0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -380,7 +380,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1+security-01",
+      "pluginVersion": "12.0.2",
       "targets": [
         {
           "editorMode": "code",
@@ -396,7 +396,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eeoypd4snhipsf"
+        "uid": "deqpwt2ih0qo0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -472,7 +472,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1+security-01",
+      "pluginVersion": "12.0.2",
       "targets": [
         {
           "editorMode": "code",
@@ -488,7 +488,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eeoypd4snhipsf"
+        "uid": "deqpwt2ih0qo0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -564,7 +564,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1+security-01",
+      "pluginVersion": "12.0.2",
       "targets": [
         {
           "editorMode": "code",
@@ -580,7 +580,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eeoypd4snhipsf"
+        "uid": "deqpwt2ih0qo0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -656,7 +656,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1+security-01",
+      "pluginVersion": "12.0.2",
       "targets": [
         {
           "editorMode": "code",
@@ -672,7 +672,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eeoypd4snhipsf"
+        "uid": "deqpwt2ih0qo0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -748,7 +748,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1+security-01",
+      "pluginVersion": "12.0.2",
       "targets": [
         {
           "editorMode": "code",
@@ -777,5 +777,5 @@
   "timezone": "browser",
   "title": "Dashboard",
   "uid": "ddbd0983-b6e0-4125-af4b-64af1f87f449",
-  "version": 15
+  "version": 2
 }
