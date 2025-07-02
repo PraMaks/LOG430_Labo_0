@@ -135,6 +135,87 @@ router.post('/users/login', login);
  */
 router.delete('/users/logout', authenticate, logout);
 
+
+/**
+ * @swagger
+ * /api/v1/auth/users/register:
+ *   post:
+ *     tags:
+ *       - Authentification
+ *     summary: Enregistrement d’un nouvel utilisateur
+ *     description: Crée un nouvel utilisateur s’il n’existe pas déjà.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "johndoe"
+ *               password:
+ *                 type: string
+ *                 example: "securePassword123"
+ *     responses:
+ *       200:
+ *         description: Utilisateur créé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Utilisateur créé avec succès."
+ *       400:
+ *         description: Utilisateur déjà existant
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 error:
+ *                   type: string
+ *                   example: "Bad Request"
+ *                 message:
+ *                   type: string
+ *                   example: "Nom d'utilisateur déjà existant, choississez un autre"
+ *                 path:
+ *                   type: string
+ *                   example: "/api/v1/auth/users/register"
+ *       500:
+ *         description: Erreur interne du serveur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Erreur de communication avec le serveur"
+ *                 path:
+ *                   type: string
+ *                   example: "/api/v1/auth/users/register"
+ */
 router.post('/users/register', register);
 
 module.exports = router;
