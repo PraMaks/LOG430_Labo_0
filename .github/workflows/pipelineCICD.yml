@@ -103,7 +103,85 @@ jobs:
         working-directory: src/backend/services/supplies
         run: npm run test
 
-  
+  BuildImageAuth:
+  needs: TestUnitairesAuth
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        docker build -f src/backend/services/auth/Dockerfile-Auth -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app-auth-service:latest src/backend/services/auth
+
+    - name: Save Docker image as tar archive
+      run: |
+        docker save docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app-auth-service:latest -o image.tar
+
+    - name: Upload Docker image as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-image
+        path: image.tar
+
+  BuildImageStocks:
+  needs: TestUnitairesStocks
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        docker build -f src/backend/services/stocks/Dockerfile-Stocks -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app-stocks-service:latest src/backend/services/stocks
+
+    - name: Save Docker image as tar archive
+      run: |
+        docker save docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app-stocks-service:latest -o image.tar
+
+    - name: Upload Docker image as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-image
+        path: image.tar
+
+  BuildImageSales:
+  needs: TestUnitairesSales
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        docker build -f src/backend/services/sales/Dockerfile-Sales -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app-sales-service:latest src/backend/services/sales
+
+    - name: Save Docker image as tar archive
+      run: |
+        docker save docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app-sales-service:latest -o image.tar
+
+    - name: Upload Docker image as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-image
+        path: image.tar
+
+  BuildImageSupplies:
+  needs: TestUnitairesSupplies
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        docker build -f src/backend/services/supplies/Dockerfile-Supplies -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app-supplies-service:latest src/backend/services/supplies
+
+    - name: Save Docker image as tar archive
+      run: |
+        docker save docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app-supplies-service:latest -o image.tar
+
+    - name: Upload Docker image as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-image
+        path: image.tar
 
    
 
