@@ -436,7 +436,14 @@ disable=raw-checker-failed,
         too-many-statements,
         broad-exception-caught,
         chained-comparison,
-        R0801
+        R0801, 
+        C0301,
+        R0914,
+        W0622,
+        R1714,
+        R0911,
+        W0621
+        
 
     
 

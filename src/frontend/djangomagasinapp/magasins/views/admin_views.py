@@ -366,7 +366,7 @@ def liste_produits_central(request):
     headers = {
         'Authorization': request.session.get('token')
     }
-    url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+    url = "http://localhost:80/api/v1/stocks/stores/warehouse"
     produits = []
 
     try:
@@ -407,7 +407,7 @@ def demande_reappro(request):
 
     # URLs dynamiques selon magasin choisi
     url_stock_magasin = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
-    url_stock_central = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+    url_stock_central = "http://localhost:80/api/v1/stocks/stores/warehouse"
 
     try:
         stock_magasin = requests.get(url_stock_magasin, headers=headers).json()
@@ -479,17 +479,17 @@ def rapport_ventes(request):
 
     # Récupérer les produits du magasin Central (6)
     try:
-        url = f"http://localhost:80/api/v1/stocks/stores/Central"
+        url = "http://localhost:80/api/v1/stocks/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[6] = response.json()
     except requests.exceptions.RequestException as e:
         messages.error(request, f"Erreur lors de la récupération des produits magasin Central : {e}")
         report_products_dict[6] = []
-    
+
     # Récupérer les produits du magasin Central (6)
     try:
-        url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+        url = "http://localhost:80/api/v1/stocks/stores/warehouse"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[7] = response.json()
@@ -511,7 +511,7 @@ def rapport_ventes(request):
 
     # Récupérer les ventes du magasin Central (6)
     try:
-        url = url = f"http://localhost:80/api/v1/sales/stores/Central"
+        url = "http://localhost:80/api/v1/sales/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         sales = response.json()
@@ -522,7 +522,7 @@ def rapport_ventes(request):
 
     # Récupérer les ventes d'achat en ligne (7)
     try:
-        url = url = f"http://localhost:80/api/v1/sales/stores/StockCentral"
+        url = "http://localhost:80/api/v1/sales/stores/StockCentral"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         sales = response.json()
@@ -585,7 +585,7 @@ def tableau_de_bord(request):
             return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = f"http://localhost:80/api/v1/stocks/stores/Central"
+        url = "http://localhost:80/api/v1/stocks/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[6] = response.json()
@@ -594,7 +594,7 @@ def tableau_de_bord(request):
         return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+        url = "http://localhost:80/api/v1/stocks/stores/warehouse"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[7] = response.json()
@@ -613,7 +613,7 @@ def tableau_de_bord(request):
             return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = f"http://localhost:80/api/v1/sales/stores/Central"
+        url = "http://localhost:80/api/v1/sales/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_sales_dict[6] = response.json()
@@ -622,7 +622,7 @@ def tableau_de_bord(request):
         return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = f"http://localhost:80/api/v1/sales/stores/StockCentral"
+        url = "http://localhost:80/api/v1/sales/stores/StockCentral"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_sales_dict[7] = response.json()
@@ -648,7 +648,7 @@ def tableau_de_bord(request):
         ventes = report_sales_dict.get(i, [])
         produits = report_products_dict.get(i, [])
         magasin = report_stores_dict.get(i, {
-            "name": f"Achats en ligne",
+            "name": "Achats en ligne",
             "address": "Adresse 1235",
             "nb_requests": 0
         })
@@ -691,7 +691,7 @@ def tableau_de_bord(request):
 @admin_required
 def mise_a_jour_produit(request):
     """Page de mise à jour de produits"""
-    products_url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+    products_url = "http://localhost:80/api/v1/stocks/stores/warehouse"
     headers = {
                 'Authorization': request.session.get('token')
             }

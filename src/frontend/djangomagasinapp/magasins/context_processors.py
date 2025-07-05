@@ -6,7 +6,6 @@ def store_name(request):
 
     if request.session.get('type') == 'buyer':
         return {'store_name': ''}
-    else : 
-        return {
-            'store_name': stores[0]  # prend seulement le premier magasin
-        }
+    return {
+        'store_name': stores[0]  # prend seulement le premier magasin
+    }

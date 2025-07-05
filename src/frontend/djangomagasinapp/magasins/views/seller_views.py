@@ -316,7 +316,7 @@ def liste_produits_central(request):
     headers = {
         'Authorization': request.session.get('token')
     }
-    url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+    url = "http://localhost:80/api/v1/stocks/stores/warehouse"
     produits = []
 
     try:
@@ -362,7 +362,7 @@ def demande_reappro(request):
         numero = '?'
 
     url_stock_magasin = f"http://localhost:80/api/v1/stocks/stores/{numero}"
-    url_stock_central = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+    url_stock_central = "http://localhost:80/api/v1/stocks/stores/warehouse"
 
     try:
         stock_magasin = requests.get(url_stock_magasin, headers=headers).json()

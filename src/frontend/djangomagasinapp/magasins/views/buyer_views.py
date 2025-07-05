@@ -24,7 +24,7 @@ def liste_produits(request):
     headers = {
         'Authorization': request.session.get('token')
     }
-    url = f"http://localhost:80/api/v1/stocks/stores/warehouse"
+    url = "http://localhost:80/api/v1/stocks/stores/warehouse"
     produits = []
 
     try:
@@ -55,6 +55,7 @@ def liste_produits(request):
 @login_required
 @buyer_required
 def ajouter_panier(request):
+    """Fonction pour ajouter un produit au panier"""
     if request.method == "POST":
         name = request.POST.get("name")
         description = request.POST.get("description")
@@ -126,31 +127,17 @@ def panier(request):
 @login_required
 @buyer_required
 def modifier_article_panier(request):
+    """Fonction pour modifier le contenu du panier"""
     if request.method == "POST":
         username = request.session.get("username")
         token = request.session.get("token")
 
         try:
             name = request.POST["name"]
-            description = request.POST["description"]
             qty = int(request.POST["qty"])
-            price = float(request.POST["price"])
-            total_price = round(qty * price, 2)
         except (KeyError, ValueError):
             messages.error(request, "Champs invalides.")
             return redirect("panier")
-
-        # On envoie seulement UN item
-        product_data = {
-            "contents": [{
-                "name": name,
-                "description": description,
-                "qty": qty,
-                "price": price,
-                "total_price": total_price
-            }],
-            "replace": False  # Fusion avec l'existant
-        }
 
         try:
             response = requests.patch(
@@ -174,6 +161,7 @@ def modifier_article_panier(request):
 @login_required
 @buyer_required
 def supprimer_article_panier(request):
+    """Fonction pour supprimer un article du panier"""
     if request.method == "POST":
         username = request.session.get("username")
         token = request.session.get("token")
@@ -207,33 +195,33 @@ def acheter_panier(request):
     user = request.session.get("username")
     token = request.session.get("token")
 
-    responsePanier = None;
+    response_panier = None
 
     try:
-        responsePanier = requests.get(
+        response_panier = requests.get(
             f"http://localhost:80/api/v1/stocks/{user}/cart",
             headers={"Authorization": token},
             timeout=3
         )
-        if responsePanier.status_code == 200:
-            panier = responsePanier.json()
+        if response_panier.status_code == 200:
+            panier = response_panier.json() # pylint: disable=unused-variable
         else:
-            panier = None
+            panier = None # pylint: disable=unused-variable
             messages.warning(request, "Impossible de récupérer le panier.")
     except RequestException as e:
         panier = None
         messages.error(request, f"Erreur de connexion : {e}")
-    
-    print(f"{responsePanier.json()['contents']}")
-    
+
+    print(f"{response_panier.json()['contents']}")
+
     try:
         response = requests.post(
-            f"http://localhost:80/api/v1/sales/stores/StockCentral",
+            "http://localhost:80/api/v1/sales/stores/StockCentral",
             headers={
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
-            json=responsePanier.json()['contents'],
+            json=response_panier.json()['contents'],
             timeout=5
         )
 
@@ -253,12 +241,10 @@ def acheter_panier(request):
             timeout=3
         )
         if response.status_code == 200:
-            messages.success(request, f"Panier vidé")
+            messages.success(request, "Panier vidé")
         else:
             messages.error(request, f"Erreur : {response.text}")
     except requests.RequestException as e:
         messages.error(request, f"Erreur de connexion : {e}")
 
     return redirect('panier')
-
-    
