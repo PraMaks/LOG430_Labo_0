@@ -27,52 +27,82 @@ jobs:
       run: |
         pylint $(git ls-files '*.py')
 
-  TestUnitaires:
+  TestUnitairesAuth:
     needs: Pylint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Node.js 18
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
-    - name: Install dependencies
-      run: npm install
-    - name: Run Jest tests
-      run: npm test
+      - uses: actions/checkout@v4
 
-  BuildImage:
-    needs: TestUnitaires
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build Docker image
-      run: |
-        docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app:latest .
-    - name: Save Docker image as tar archive
-      run: |
-        docker save docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app:latest -o image.tar
-    - name: Upload Docker image as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: docker-image
-        path: image.tar
-
-  PublishDockerHub:
-    needs: BuildImage
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v4
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
         with:
-          name: docker-image
-      - name: Load Docker image from tar
-        run: docker load -i image.tar
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-      - name: Push Docker image to Docker Hub
-        run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/labo5-express-magasin-app:latest
-  
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: src/backend/services/auth
+        run: npm install
+
+      - name: Run Jest tests
+        working-directory: src/backend/services/auth
+        run: npm run test
+
+  TestUnitairesStocks:
+    needs: Pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: src/backend/services/stocks
+        run: npm install
+
+      - name: Run Jest tests
+        working-directory: src/backend/services/stocks
+        run: npm run test
+
+  TestUnitairesSales:
+    needs: Pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: src/backend/services/sales
+        run: npm install
+
+      - name: Run Jest tests
+        working-directory: src/backend/services/sales
+        run: npm run test
+
+  TestUnitairesSupplies:
+    needs: Pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: src/backend/services/supplies
+        run: npm install
+
+      - name: Run Jest tests
+        working-directory: src/backend/services/supplies
+        run: npm run test
+
   
 
    
