@@ -48,11 +48,11 @@ services:
       - "3010:3010"
     command: node app.js 
 
-  stocks:
+  stocks-1:
     build: 
       context: ./src/backend/services/stocks
       dockerfile: Dockerfile-Stocks
-    container_name: stocks-service
+    container_name: stocks-service-1
     depends_on:
       - mongo-stocks
     environment:
@@ -60,6 +60,20 @@ services:
       - MONGO_PORT=27017
     ports:
       - "3020:3020"
+    command: node app.js
+
+  stocks-2:
+    build: 
+      context: ./src/backend/services/stocks
+      dockerfile: Dockerfile-Stocks
+    container_name: stocks-service-2
+    depends_on:
+      - mongo-stocks
+    environment:
+      - MONGO_HOST=mongo-stocks
+      - MONGO_PORT=27017
+    ports:
+      - "3021:3020"  
     command: node app.js
 
   sales:
@@ -90,20 +104,6 @@ services:
       - "3040:3040"
     command: node app.js
 
-  krakend:
-    image: devopsfaith/krakend:2.6
-    container_name: krakend-gateway
-    ports:
-      - "80:80"
-    volumes:
-      - ./krakend:/etc/krakend
-    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
-    depends_on:
-      - auth
-      - stocks
-      - sales
-      - supplies
-
   prometheus:
     image: prom/prometheus
     container_name: prometheus_server
@@ -125,6 +125,33 @@ services:
       - prometheus
     volumes:
       - grafana-storage:/var/lib/grafana
+
+  stocks-lb:
+    image: nginx:latest
+    container_name: stocks-loadbalancer
+    ports:
+      - "3022:3020"  # Redirige vers port 3020 interne de NGINX
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - stocks-1
+      - stocks-2
+
+  krakend:
+    image: devopsfaith/krakend:2.6
+    container_name: krakend-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./krakend:/etc/krakend
+    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
+    depends_on:
+      - auth
+      - stocks-1
+      - stocks-2
+      - sales
+      - supplies
+      - stocks-lb
 
 volumes:
   grafana-storage:

@@ -64,7 +64,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/storesAll",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -84,7 +84,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/storesAll/{productName}",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization", "Content-Type"]
@@ -107,7 +107,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/stores/{storeNumber}/{productName}",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -127,7 +127,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/stores/warehouse",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -147,7 +147,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/stores/{storeNumber}",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -167,7 +167,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/stores/{storeNumber}/{isSale}",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "input_body": "json",
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
@@ -191,7 +191,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/stores/{storeNumber}/supply",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "input_body": "json",
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
@@ -215,7 +215,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/{user}/cart",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "input_body": "json",
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
@@ -239,7 +239,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/{user}/cart",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
               "headers_to_pass": ["Authorization"]
@@ -259,7 +259,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/{user}/cart",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "input_body": "json",
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
@@ -283,7 +283,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/{user}/cart",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "input_body": "json",
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
@@ -307,7 +307,7 @@
       "backend": [
         {
           "url_pattern": "/api/v1/stocks/{user}/cart/all",
-          "host": ["http://stocks-service:3020"],
+          "host": ["http://stocks-lb:3020"],
           "input_body": "json",
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {
