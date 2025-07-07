@@ -28,11 +28,18 @@ Frontend: Serveur Django qui utilise Python comme langue de programmation
 
 Load Balancing: Serveur NGINX entre le frontend et le backend pour distribuer la charge du trafic pour le service des stocks.
 
+- ![Preuve Load Balancing](docs/loadbalancing.png)
+
 Mise en cache: Serveur Redis pour stocker la cache comme les tokens des utilisateurs parmi tous les services
 
 Collecte des métriques: Serveur Prometheus qui ramasse les métriques du backend de tous les services
 
 Affichage des métriques sous forme de diagrammes dans un dashboard: Serveur Grafana utilise les métriques de Prometheus pour afficher sous forme de Dashboard, si le dashboard est absent sur le container, importer le dashboard "grafana_dashboard.json". Lorsque Grafana est ouvert la premiere fois, utiliser le compte d'utilisateur habituel (name: admin et pwd: admin) et choisir comme data source "http://prometheus:9090/" et ensuite importer le dashboard. Si le dashboard affiche des problèmes/erreurs c'est à cause des identifiants qui ont changé. Pour fix ce problème: edit chaque diagramme et juste le refresh, ça devrait regener correctement chaque diagramme.
+
+- ![Preuve Grafana 1](docs/grafana1.png)
+- ![Preuve Grafana 1](docs/grafana2.png)
+- ![Preuve Grafana 1](docs/grafana3.png)
+- ![Preuve Grafana 1](docs/grafana4.png)
 
 API Gateway: KrakenD est utilisé comme gateway pour rediriger les requetes du frontend ou de Swagger/Postman vers l'instance de service disponible. Possède aussi une politique CORS.
 
