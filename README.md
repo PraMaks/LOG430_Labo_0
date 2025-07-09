@@ -3,11 +3,13 @@
 ## Comment lancer le projet ?
 Il faut utiliser l'environnement virtuel pour faire fonctionner le projet: "source venv/bin/activate" ou "venv/scripts/activate/ sur windows
 
-Il faut installer toutes les dépendances: python3 -m pip install -r requirements.txt
+Il faut installer toutes les dépendances pour le frontend: python3 -m pip install -r requirements.txt
+
+Il faut installer toutes les dépendances pour le backend pour chaque service (sans rouler avec Docker): npm install
 
 Pour lancer le frontend: lancer "python manage.py migrate" (pour avoir accès aux sessions) dans le dossier django puis ensuite "python3 manage.py runserver" pour lancer le frontend
 
-Pour lancer le backend: installer les dépendances avec "npm install" et ensuite "node src/backend/app.js" dans chaque dossier de service (auth/stocks/sales/supplies) ou "docker compose up --build" pour lancer tous les containers à partir de la racine du projet.
+Pour lancer le backend: installer les dépendances avec "npm install" et ensuite "node src/backend/{SERVICE_NOM}/app.js" dans chaque dossier de service (auth/stocks/sales/supplies) ou "docker compose up --build" pour lancer tous les containers à partir de la racine du projet.
 
 Pour lancer les tests backend: "npm run test" (va lancer en mode TEST et mock la bd) dans le dossier d'un service
 
@@ -68,7 +70,8 @@ Version de Docker utilisée: version 28.1.1, build 4eba377
 
 Version de Docker Compose utilisée : version 2.35.1
 
-Pour lancer et build le tout avec Docker Compose : "docker compose up --build"
+Pour lancer et build le tout avec Docker Compose : "docker compose up --build" ceci est fait pour faciliter le lancement de l'ensemble du système,
+sinon lancer la même commande dans le dossier d'un service pour lancer uniquement ce service.
 
 ## Réussite des jobs sur le pipeline CI/CD
 
