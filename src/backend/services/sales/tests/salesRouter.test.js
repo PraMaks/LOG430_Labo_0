@@ -1,7 +1,6 @@
 global.fetch = jest.fn(); 
 const request = require('supertest');
 const express = require('express');
-const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const salesRouter = require('../routes/salesRouter');
 const StoreSale = require('../models/StoreSale');
@@ -37,10 +36,7 @@ describe('Sales Router', () => {
     jest.restoreAllMocks();
   });
 
-  let token;
-  let storeUser;
   let store;
-  let product;
 
   beforeAll(async () => {
 

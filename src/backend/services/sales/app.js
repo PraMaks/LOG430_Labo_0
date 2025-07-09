@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const initDb = require('./initDb'); 
-//const cors = require('cors');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const logger = require('./utils/logger');
@@ -12,12 +11,6 @@ const port = 3030;
 
 // Middleware pour parser le JSON
 app.use(express.json());
-/*
-app.use(cors({
-  origin: ['http://localhost:8000', 'http://localhost:80'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));*/
 
 const metricsMiddleware = promBundle({
   includeMethod: true,

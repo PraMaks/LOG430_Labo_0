@@ -73,7 +73,7 @@ def ajouter_panier(request):
             "total_price": round(qty * price, 2) #pour arrondir à 2 decimales
         }
 
-        # Construction du panier (ici simplifié à un seul produit, mais on peut l'étendre plus tard)
+        # Construction du panier
         panier = {
             "user": user,
             "total_price": produit["total_price"],
@@ -82,7 +82,7 @@ def ajouter_panier(request):
 
         try:
             response = requests.post(
-                f"http://localhost:80/api/v1/stocks/{user}/cart",  # À adapter selon ton Express.js
+                f"http://localhost:80/api/v1/stocks/{user}/cart", 
                 json=panier,
                 headers={"Authorization": token},
                 timeout=3

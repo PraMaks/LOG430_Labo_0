@@ -1,6 +1,5 @@
 const request = require('supertest');
 const express = require('express');
-const bcrypt = require('bcrypt');
 const stocksRouter = require('../routes/stocksRouter');
 const Store = require('../models/Store');
 const StoreInventory = require('../models/StoreInventory');
