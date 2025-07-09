@@ -82,7 +82,7 @@ def ajouter_panier(request):
 
         try:
             response = requests.post(
-                f"http://localhost:80/api/v1/stocks/{user}/cart", 
+                f"http://localhost:80/api/v1/stocks/{user}/cart",
                 json=panier,
                 headers={"Authorization": token},
                 timeout=3
