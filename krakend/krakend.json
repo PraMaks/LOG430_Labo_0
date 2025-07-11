@@ -6,7 +6,7 @@
   "timeout": "3000ms",
   "extra_config": {
     "github_com/devopsfaith/krakend-cors": {
-      "allow_origins": ["http://localhost:3010", "http://localhost:3020", "http://localhost:3030", "http://localhost:3040" ],
+      "allow_origins": ["http://localhost:3010", "http://localhost:3020", "http://localhost:3030", "http://localhost:3040",  "http://localhost:3050"],
       "allow_methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       "allow_headers": ["Origin", "Authorization", "Content-Type"],
       "allow_credentials": true,
@@ -396,6 +396,30 @@
         {
           "url_pattern": "/api/v1/supplies/stores/{storeNumber}",
           "host": ["http://supplies-service:3040"],
+          "input_body": "json",
+          "extra_config": {
+            "github.com/devopsfaith/krakend/proxy": {
+              "headers_to_pass": ["Authorization", "Content-Type"]
+            },
+            "github.com/devopsfaith/krakend/http": {
+              "return_error_code": true
+            },
+            "github.com/devopsfaith/krakend/transport/http/client": {
+              "disable_body": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/orchestr-sales/stores/{storeNumber}/{user}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
+      "backend": [
+        {
+          "url_pattern": "/api/v1/orchestr-sales/stores/{storeNumber}/{user}",
+          "host": ["http://orchestr-sales-service:3050"],
           "input_body": "json",
           "extra_config": {
             "github.com/devopsfaith/krakend/proxy": {

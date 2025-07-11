@@ -179,6 +179,7 @@ async function register(req, res) {
       user = new User({
         username: username,
         password: password,
+        rank: 0,
       });
       await user.save();
       logger.info(`Utilisateur '${user.username}' créé.`);

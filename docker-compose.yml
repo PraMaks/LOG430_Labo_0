@@ -104,6 +104,19 @@ services:
       - "3040:3040"
     command: node app.js
 
+  orchestr-sales:
+    build: 
+      context: ./src/backend/services/orchestration-sales
+      dockerfile: Dockerfile-Orchestr-Sales
+    container_name: orchestr-sales-service
+    depends_on:
+      - sales
+      - stocks-1
+      - stocks-2
+    ports:
+      - "3050:3050"
+    command: node app.js
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus_server

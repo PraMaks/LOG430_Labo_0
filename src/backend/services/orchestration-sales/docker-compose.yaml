@@ -1,0 +1,10 @@
+services:
+
+  sales:
+    build: 
+      context: ./src/backend/services/sales
+      dockerfile: Dockerfile-Sales
+    container_name: sales-service
+    ports:
+      - "3050:3050"
+    command: node app.js

@@ -197,7 +197,7 @@ def acheter_panier(request):
 
     response_panier = None
 
-    try:
+    """try:
         response_panier = requests.get(
             f"http://localhost:80/api/v1/stocks/{user}/cart",
             headers={"Authorization": token},
@@ -212,16 +212,16 @@ def acheter_panier(request):
         panier = None
         messages.error(request, f"Erreur de connexion : {e}")
 
-    print(f"{response_panier.json()['contents']}")
+    print(f"{response_panier.json()['contents']}")"""
 
     try:
         response = requests.post(
-            "http://localhost:80/api/v1/sales/stores/StockCentral",
+            f"http://localhost:80/api/v1/orchestr-sales/stores/StockCentral/{user}",
             headers={
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
-            json=response_panier.json()['contents'],
+            #json=response_panier.json()['contents'],
             timeout=5
         )
 

@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'seller', 'buyer'], 
         default: 'buyer' 
     },
-  stores: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Store' }]
+  stores: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Store' }],
+  rank: { type: Number }
 }, {
   collection: 'utilisateurs',
   timestamps: true
