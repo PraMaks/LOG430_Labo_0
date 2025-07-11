@@ -4,6 +4,7 @@ const {
   authenticate,
   logout,
   register,
+  incrementUserRank,
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -217,5 +218,7 @@ router.delete('/users/logout', authenticate, logout);
  *                   example: "/api/v1/auth/users/register"
  */
 router.post('/users/register', register);
+
+router.patch('/users/:user/rank', authenticate, incrementUserRank);
 
 module.exports = router;

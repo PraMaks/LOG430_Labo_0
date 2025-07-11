@@ -1,7 +1,6 @@
 const logger = require('../utils/logger');
 
 exports.postNewSaleEvent = async (req, res) => {
-  const soldProducts = req.body;
   const storeParam = req.params.storeNumber;
   const user = req.params.user;
 
@@ -26,7 +25,6 @@ exports.postNewSaleEvent = async (req, res) => {
 
   try { 
     logger.info(`Appel reçu avec succès.`);
-    logger.info(soldProducts)
     logger.info(user)
 
     // ÉTAPE 1 : Récuperer le panier
@@ -70,9 +68,9 @@ exports.postNewSaleEvent = async (req, res) => {
       });
 
       if (!responseStep2.ok) {
-        const data = await responseStep1.json();
-        logger.error(`Erreur retour du stock-service: ${responseStep1.status} → ${data.message || JSON.stringify(data)}`);
-        throw new Error(`Stock service responded with ${responseStep1.status}: ${data.message}`);
+        const data = await responseStep2.json();
+        logger.error(`Erreur retour du sales-service: ${responseStep2.status} → ${data.message || JSON.stringify(data)}`);
+        throw new Error(`Stock service responded with ${responseStep2.status}: ${data.message}`);
       }
 
       const data = await responseStep2.json();
@@ -83,9 +81,55 @@ exports.postNewSaleEvent = async (req, res) => {
     }
 
     // ÉTAPE 3 : MAJ inventaire
+    logger.info("ÉTAPE 3 : MAJ de l'inventaire")
+    let responseStep3;
+    if(isStock) {
+        responseStep3 = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeParam}/true`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(cartContents)
+      });
+
+      if (!responseStep3.ok) {
+        const data = await responseStep3.json();
+        logger.error(`Erreur retour du stock-service: ${responseStep3.status} → ${data.message || JSON.stringify(data)}`);
+        throw new Error(`Stock service responded with ${responseStep3.status}: ${data.message}`);
+      }
+
+      const data = await responseStep3.json();
+      logger.info("Réponse JSON du service stock :");
+      logger.info(data);
+
+      //TODO Ajouter succes step2
+    }
 
     // ÉTAPE 4 : Increase rank
+    logger.info("ÉTAPE 4 : Increase rank")
+    let responseStep4;
+    if(isStock) {
+        responseStep4 = await fetch(`http://krakend:80/api/v1/auth/users/${user}/rank`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+      });
 
+      if (!responseStep4.ok) {
+        const data = await responseStep4.json();
+        logger.error(`Erreur retour du auth-service: ${responseStep4.status} → ${data.message || JSON.stringify(data)}`);
+        throw new Error(`Stock service responded with ${responseStep4.status}: ${data.message}`);
+      }
+
+      const data = await responseStep4.json();
+      logger.info("Réponse JSON du service stock :");
+      logger.info(data);
+
+      //TODO Ajouter succes step2
+    }
 
 
     res.status(201).json({ message: "Vente enregistrée avec succès." });

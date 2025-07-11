@@ -37,6 +37,30 @@
       ]
     },
     {
+      "endpoint": "/api/v1/auth/users/{user}/rank",
+      "method": "PATCH",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
+      "backend": [
+        {
+          "url_pattern": "/api/v1/auth/users/{user}/rank",
+          "host": ["http://auth-service:3010"],
+          "input_body": "json",
+          "extra_config": {
+            "github.com/devopsfaith/krakend/proxy": {
+              "headers_to_pass": ["Authorization", "Content-Type"]
+            },
+            "github.com/devopsfaith/krakend/http": {
+              "return_error_code": true
+            },
+            "github.com/devopsfaith/krakend/transport/http/client": {
+              "disable_body": false
+            }
+          }
+        }
+      ]
+    },
+    {
       "endpoint": "/api/v1/auth/users/logout",
       "method": "DELETE",
       "output_encoding": "no-op",

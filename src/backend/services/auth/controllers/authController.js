@@ -207,10 +207,40 @@ async function register(req, res) {
   }
 }
 
+async function incrementUserRank(req, res) {
+  try {
+    const username = req.params.user;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username },
+      { $inc: { rank: 1 } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      logger.warn(`Utilisateur '${username}' non trouvé pour l'incrémentation du rank.`);
+      return null;
+    }
+
+    logger.info(`Rank de l'utilisateur '${username}' incrémenté à ${updatedUser.rank}`);
+    return res.status(200).json({ message: "Utilisateur mis à jour avec succès." }); 
+  } catch (error) {
+    logger.error(`Erreur de communication avec le serveur`, error);
+    res.status(500).json({
+      timestamp: new Date().toISOString(),
+      status: 500,
+      error: "Internal Server Error",
+      message: "Erreur de communication avec le serveur",
+      path: `/api/v1/auth/users/${username}/rank`
+    });
+  }
+}
+
 
 module.exports = {
   login,
   authenticate,
   logout,
   register,
+  incrementUserRank
 };

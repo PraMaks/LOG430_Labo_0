@@ -48,7 +48,7 @@ exports.postNewSaleInStore = async (req, res) => {
       );
     }
 
-    if(!isStock) {
+    /*if(!isStock) {
         const response = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeParam}/true`, {
         method: 'PATCH',
         headers: {
@@ -63,7 +63,7 @@ exports.postNewSaleInStore = async (req, res) => {
         logger.error(`Erreur retour du stock-service: ${response.status} → ${data.message || JSON.stringify(data)}`);
         throw new Error(`Stock service responded with ${response.status}: ${data.message}`);
       }
-    }
+    }*/
     
     // Gestion des produits
     let totalPrice = 0;
