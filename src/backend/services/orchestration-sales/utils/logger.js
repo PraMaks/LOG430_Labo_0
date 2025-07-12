@@ -1,7 +1,9 @@
 const pino = require('pino');
 
+const isTest = process.env.NODE_ENV === 'test';
+
 const logger = pino({
-  level: 'info',
+  level: isTest ? 'silent' : 'info',
   transport: {
     target: 'pino-pretty', 
     options: {
