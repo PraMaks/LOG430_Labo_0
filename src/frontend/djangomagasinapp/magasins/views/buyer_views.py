@@ -195,25 +195,6 @@ def acheter_panier(request):
     user = request.session.get("username")
     token = request.session.get("token")
 
-    response_panier = None
-
-    """try:
-        response_panier = requests.get(
-            f"http://localhost:80/api/v1/stocks/{user}/cart",
-            headers={"Authorization": token},
-            timeout=3
-        )
-        if response_panier.status_code == 200:
-            panier = response_panier.json() # pylint: disable=unused-variable
-        else:
-            panier = None # pylint: disable=unused-variable
-            messages.warning(request, "Impossible de récupérer le panier.")
-    except RequestException as e:
-        panier = None
-        messages.error(request, f"Erreur de connexion : {e}")
-
-    print(f"{response_panier.json()['contents']}")"""
-
     try:
         response = requests.post(
             f"http://localhost:80/api/v1/orchestr-sales/stores/StockCentral/{user}",
@@ -221,12 +202,24 @@ def acheter_panier(request):
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
-            #json=response_panier.json()['contents'],
             timeout=5
         )
 
         if response.status_code == 201:
             messages.success(request, "Achat effectué avec succès.")
+
+            try:
+                response = requests.delete(
+                    f"http://localhost:80/api/v1/stocks/{user}/cart/all",
+                    headers={"Authorization": token},
+                    timeout=3
+                )
+                if response.status_code == 200:
+                    messages.success(request, "Panier vidé")
+                else:
+                    messages.error(request, f"Erreur : {response.text}")
+            except requests.RequestException as e:
+                messages.error(request, f"Erreur de connexion : {e}")
         else:
             data = response.json()
             messages.error(request, f"Erreur lors de l’achat : {data.get('message', 'Erreur inconnue')}")
@@ -234,17 +227,5 @@ def acheter_panier(request):
     except requests.RequestException as e:
         messages.error(request, f"Erreur réseau : {e}")
 
-    try:
-        response = requests.delete(
-            f"http://localhost:80/api/v1/stocks/{user}/cart/all",
-            headers={"Authorization": token},
-            timeout=3
-        )
-        if response.status_code == 200:
-            messages.success(request, "Panier vidé")
-        else:
-            messages.error(request, f"Erreur : {response.text}")
-    except requests.RequestException as e:
-        messages.error(request, f"Erreur de connexion : {e}")
 
     return redirect('panier')

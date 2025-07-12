@@ -279,4 +279,6 @@ router.get('/stores/:storeNumber', authenticate, salesController.getSalesByStore
  */
 router.delete('/stores/:storeNumber/:saleId', authenticate, salesController.deleteSaleByStore);
 
+router.delete('/stores/:storeNumber/recent', authenticate, salesController.deleteMostRecentSaleForStore);
+
 module.exports = router;

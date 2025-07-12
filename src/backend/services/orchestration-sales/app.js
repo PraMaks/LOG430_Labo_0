@@ -73,13 +73,24 @@ app.use('/api/v1/orchestr-sales', orchestrSalesRouter);
 
 // Fonction de démarrage
 async function startServer() {
+  try {
+    const mongoHost = process.env.MONGO_HOST || 'localhost';
+    const mongoPort = process.env.MONGO_PORT || '27017';
+    const mongoUrl = `mongodb://${mongoHost}:${mongoPort}/labo5`;
+    await mongoose.connect(mongoUrl);
+    logger.info('Connecté à MongoDB');
+
     if (process.env.NODE_ENV !== 'test') {
       app.listen(port, () => {
         logger.info(`Serveur lancé sur http://localhost:${port}`);
       });
     }
-  
+
+  } catch (err) {
+    logger.error('Erreur de démarrage du serveur :', err);
+  }
 }
+
 
 if (process.env.NODE_ENV !== 'test') {
   startServer();

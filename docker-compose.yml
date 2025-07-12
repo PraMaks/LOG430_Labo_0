@@ -27,6 +27,13 @@ services:
       - "27318:27017" # port different pour docker-compose
     restart: always
 
+  mongo-events:
+    image: mongo:5.0
+    container_name: mongo_events_db
+    ports:
+      - "27418:27017" # port different pour docker-compose
+    restart: always
+
   redis:
     image: redis:7-alpine
     container_name: redis_server
@@ -113,6 +120,10 @@ services:
       - sales
       - stocks-1
       - stocks-2
+      - mongo-events
+    environment:
+      - MONGO_HOST=mongo-events
+      - MONGO_PORT=27017
     ports:
       - "3050:3050"
     command: node app.js
