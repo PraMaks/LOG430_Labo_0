@@ -1,4 +1,4 @@
-# LOG430_Labo_5
+# LOG430_Labo_6
 
 ## Comment lancer le projet ?
 Il faut utiliser l'environnement virtuel pour faire fonctionner le projet: "source venv/bin/activate" ou "venv/scripts/activate/ sur windows
