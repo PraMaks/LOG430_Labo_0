@@ -219,6 +219,68 @@ router.delete('/users/logout', authenticate, logout);
  */
 router.post('/users/register', register);
 
+/**
+ * @swagger
+ * /api/v1/auth/users/{user}/rank:
+ *   patch:
+ *     tags:
+ *       - Authentification
+ *     summary: Incrémente le rang de l’utilisateur
+ *     description: Incrémente la valeur `rank` de 1 pour un utilisateur donné.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: user
+ *         in: path
+ *         required: true
+ *         description: Nom d'utilisateur à mettre à jour
+ *         schema:
+ *           type: string
+ *           example: "johndoe"
+ *     responses:
+ *       200:
+ *         description: Rank incrémenté avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Utilisateur mis à jour avec succès."
+ *       404:
+ *         description: Utilisateur non trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Utilisateur 'johndoe' non trouvé pour l'incrémentation du rank."
+ *       500:
+ *         description: Erreur interne du serveur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Erreur de communication avec le serveur"
+ *                 path:
+ *                   type: string
+ *                   example: "/api/v1/auth/users/johndoe/rank"
+ */
 router.patch('/users/:user/rank', authenticate, incrementUserRank);
 
 module.exports = router;

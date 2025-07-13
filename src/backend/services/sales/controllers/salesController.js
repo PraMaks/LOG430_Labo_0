@@ -259,7 +259,7 @@ exports.deleteMostRecentSaleForStore = async (req, res) => {
         status: 400,
         error: "Bad Request",
         message: "Numéro de magasin invalide (1-5) ou 'Central'",
-        path: `/api/v1/sales/stores/${storeParam}/${saleId}`
+        path: `/api/v1/sales/stores/${storeParam}/recent`
       }
     );
   }
@@ -276,7 +276,15 @@ exports.deleteMostRecentSaleForStore = async (req, res) => {
     const store = await Store.findOne({ name: storeName });
     if (!store) {
       logger.warn(`Magasin '${storeName}' introuvable`);
-      return false;
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: `Magasin '${storeName}' introuvable`,
+          path: `/api/v1/sales/stores/${storeParam}/recent`
+        }
+      );
     }
 
     const deletedSale = await StoreSale.findOneAndDelete(
@@ -285,14 +293,30 @@ exports.deleteMostRecentSaleForStore = async (req, res) => {
     );
 
     if (!deletedSale) {
-      logger.warn(`Aucune vente à supprimer pour le magasin '${storeName}'`);
-      return false;
+      logger.warn(`Ventes dans '${storeName}' introuvables`);
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: `Ventes dans '${storeName}' introuvables`,
+          path: `/api/v1/sales/stores/${storeParam}/recent`
+        }
+      );
     }
 
     logger.info(`Vente la plus récente supprimée pour le magasin '${storeName}'`);
-    return true;
+    return res.status(200).json({ message: "Vente supprimée" });
   } catch (error) {
-    logger.error(`Erreur lors de la suppression de la vente :`, error);
-    throw error;
+    logger.error(`Erreur de communication avec le serveur`);
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/sales/stores/${storeParam}/recent`
+      }
+    );
   }
 }

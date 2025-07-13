@@ -279,6 +279,86 @@ router.get('/stores/:storeNumber', authenticate, salesController.getSalesByStore
  */
 router.delete('/stores/:storeNumber/:saleId', authenticate, salesController.deleteSaleByStore);
 
+/**
+ * @swagger
+ * /api/v1/sales/stores/{storeNumber}/recent:
+ *   delete:
+ *     tags:
+ *       - Sales
+ *     summary: Supprimer la vente la plus récente d’un magasin
+ *     description: Supprime la dernière vente enregistrée pour un magasin donné (entre 1 et 5 ou StockCentral/Central).
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: storeNumber
+ *         in: path
+ *         required: true
+ *         description: Numéro ou nom logique du magasin (1-5, Central ou StockCentral)
+ *         schema:
+ *           type: string
+ *           example: "StockCentral"
+ *     responses:
+ *       200:
+ *         description: Vente supprimée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Vente la plus récente supprimée pour le magasin 'Stock Central'"
+ *       400:
+ *         description: Numéro de magasin invalide
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 timestamp:
+ *                   type: string
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 error:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *                 path:
+ *                   type: string
+ *       404:
+ *         description: Magasin introuvable ou aucune vente à supprimer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Aucune vente à supprimer pour le magasin 'Magasin 3'"
+ *       500:
+ *         description: Erreur serveur lors de la suppression
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Erreur lors de la suppression de la vente"
+ *                 path:
+ *                   type: string
+ *                   example: "/api/v1/sales/stores/1/recent"
+ */
 router.delete('/stores/:storeNumber/recent', authenticate, salesController.deleteMostRecentSaleForStore);
 
 module.exports = router;

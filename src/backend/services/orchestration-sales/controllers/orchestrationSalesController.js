@@ -3,6 +3,11 @@ const EventSale = require('../models/event');
 const { sagaDuration, sagaFailures, sagaStepReached } = require('../metrics/sagaMetrics');
 
 exports.postNewSaleEvent = async (req, res) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, 5000);
+
   const storeParam = req.params.storeNumber;
   const user = req.params.user;
   const token = req.headers['authorization'];
@@ -40,8 +45,10 @@ exports.postNewSaleEvent = async (req, res) => {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
-        }
+        },
+        signal: controller.signal
       });
+      clearTimeout(timeout);
 
       if (!responseStep1.ok) {
         const data = await responseStep1.json();
@@ -100,8 +107,10 @@ exports.postNewSaleEvent = async (req, res) => {
           'Authorization': token,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(cartContents)
+        body: JSON.stringify(cartContents),
+        signal: controller.signal
       });
+      clearTimeout(timeout);
 
       if (!responseStep2.ok) {
         const data = await responseStep2.json();
@@ -141,8 +150,10 @@ exports.postNewSaleEvent = async (req, res) => {
           'Authorization': token,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(cartContents)
+        body: JSON.stringify(cartContents),
+        signal: controller.signal
       });
+      clearTimeout(timeout);
 
       if (!responseStep3.ok) {
         const data = await responseStep3.json();
@@ -163,8 +174,10 @@ exports.postNewSaleEvent = async (req, res) => {
             'Authorization': token,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(cartContents)
+          body: JSON.stringify(cartContents),
+          signal: controller.signal
         });
+        clearTimeout(timeout);
 
         return res.status(401).json({ message: "Erreur survenue lors de l'ÉTAPE 3" });
       }
@@ -190,8 +203,10 @@ exports.postNewSaleEvent = async (req, res) => {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
-        }
+        },
+        signal: controller.signal
       });
+      clearTimeout(timeout);
 
       if (!responseStep4.ok) {
         const data = await responseStep4.json();
