@@ -204,6 +204,17 @@ services:
     ports:
       - "3060:3060"
     command: node app.js
+
+  notif:
+    build: 
+      context: ./src/backend/services/notification
+      dockerfile: Dockerfile-Notification
+    container_name: notif-service
+    depends_on:
+      - rabbitmq
+    ports:
+      - "3070:3070"
+    command: node app.js
   
 
 volumes:

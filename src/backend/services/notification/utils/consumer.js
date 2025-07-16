@@ -1,6 +1,5 @@
 const amqp = require('amqplib');
-const EventLog = require('../models/EventLog');
-const logger = require('../utils/logger');
+const logger = require('./logger');
 
 const RABBITMQ_URL = 'amqp://rabbitmq';
 const EXCHANGE_NAME = 'reapprovisionnement.events';
@@ -24,21 +23,22 @@ async function startConsumer() {
     const channel = await conn.createChannel();
 
     await channel.assertExchange(EXCHANGE_NAME, 'fanout', { durable: true });
-    const q = await channel.assertQueue('audit.reappro.queue', { durable: true });
+    const q = await channel.assertQueue('notif.reappro.queue', { durable: true });
     await channel.bindQueue(q.queue, EXCHANGE_NAME, '');
 
-    logger.info(`[AUDIT] En écoute sur "${EXCHANGE_NAME}"`);
+    logger.info(`[NOTIF] En écoute sur "${EXCHANGE_NAME}"`);
 
     channel.consume(q.queue, async (msg) => {
       if (msg.content) {
         const event = JSON.parse(msg.content.toString());
         logger.info("Événement reçu :", event);
-        await EventLog.create(event);
+        logger.info("Simulation de notification d'event")
+        logger.info(event);
       }
     }, { noAck: true });
 
   } catch (err) {
-    logger.info("[AUDIT] Erreur au démarrage :", err);
+    logger.info("[NOTIF] Erreur au démarrage :", err);
     process.exit(1);
   }
 }
