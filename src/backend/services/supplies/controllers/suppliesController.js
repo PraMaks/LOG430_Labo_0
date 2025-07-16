@@ -1,6 +1,8 @@
 const Store = require('../models/Store');
 const SupplyRequest = require('../models/SupplyRequest');
 const logger = require('../utils/logger');
+const { publishEvent } = require('../utils/eventPublisher');
+const { v4: uuidv4 } = require('uuid');
 
 exports.postNewSupplyRequestFromStore = async (req, res) => {
   const requestedSupplies = req.body;
@@ -47,6 +49,19 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
       products: requestedSupplies
     });
     await supplyRequest.save();
+
+    await publishEvent({
+      type: 'DemandeReapprovisionnementCreee',
+      eventId: uuidv4(),
+      timestamp: new Date().toISOString(),
+      aggregateId: supplyRequest._id.toString(),
+      data: {
+        store: store.name,
+        products: requestedSupplies
+      }
+    });
+
+
     await Store.updateOne(
       { _id: store._id },
       { $inc: { nb_requests: 1 } }

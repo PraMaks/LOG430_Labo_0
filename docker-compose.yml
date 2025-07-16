@@ -34,6 +34,13 @@ services:
       - "27418:27017" # port different pour docker-compose
     restart: always
 
+  mongo-audit:
+    image: mongo:5.0
+    container_name: mongo_audit_db
+    ports:
+      - "27518:27017" # port different pour docker-compose
+    restart: always
+
   redis:
     image: redis:7-alpine
     container_name: redis_server
@@ -176,6 +183,28 @@ services:
       - sales
       - supplies
       - stocks-lb
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"     # port AMQP
+      - "15672:15672"
+
+  audit:
+    build: 
+      context: ./src/backend/services/audit
+      dockerfile: Dockerfile-Audit
+    container_name: audit-service
+    depends_on:
+      - mongo-audit
+      - rabbitmq
+    environment:
+      - MONGO_HOST=mongo-audit
+      - MONGO_PORT=27017
+    ports:
+      - "3060:3060"
+    command: node app.js
+  
 
 volumes:
   grafana-storage:
