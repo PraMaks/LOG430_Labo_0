@@ -48,6 +48,13 @@ services:
       - "27618:27017" # port different pour docker-compose
     restart: always
 
+  mongo-supplies-query:
+    image: mongo:5.0
+    container_name: mongo_supplies_query_db
+    ports:
+      - "27718:27017" # port different pour docker-compose
+    restart: always
+
   redis:
     image: redis:7-alpine
     container_name: redis_server
@@ -137,6 +144,20 @@ services:
       - MONGO_PORT=27017
     ports:
       - "3045:3045"
+    command: node app.js
+
+  supplies-query:
+    build: 
+      context: ./src/backend/services/supplies-query
+      dockerfile: Dockerfile-Supplies-Query
+    container_name: supplies-query-service
+    depends_on:
+      - mongo-supplies-query
+    environment:
+      - MONGO_HOST=mongo-supplies-query
+      - MONGO_PORT=27017
+    ports:
+      - "3046:3046"
     command: node app.js
 
   orchestr-sales:
