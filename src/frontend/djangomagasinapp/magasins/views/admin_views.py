@@ -738,3 +738,45 @@ def mise_a_jour_produit(request):
             messages.info(request, "Aucune modification apportée.")
 
     return render(request, "magasins/admin/mise_a_jour_produit.html", {"products": products})
+@login_required
+@admin_required
+def demande_reappro_modif(request):
+    headers = {
+        'Authorization': request.session.get('token')
+    }
+
+    try:
+        response = requests.get("http://localhost:80/api/v1/supplies/pending", headers=headers)
+        response.raise_for_status()
+        raw_demandes = [d for d in response.json() if d["status"] == "pending"]
+
+        # 🔁 Transforme les _id en id pour l'affichage
+        demandes = []
+        for d in raw_demandes:
+            demande = d.copy()
+            demande["id"] = demande.pop("_id")
+            if "store" in demande and "_id" in demande["store"]:
+                demande["store"]["id"] = demande["store"].pop("_id")
+            demandes.append(demande)
+
+    except (ConnectionError, RequestException) as e:
+        messages.error(request, f"Erreur de communication avec le serveur : {e}")
+        demandes = []
+
+    # Traitement POST (approve/reject)
+    if request.method == "POST":
+        action = request.POST.get("action")
+        demande_id = request.POST.get("demande_id")
+        if action in ["approve", "reject"] and demande_id:
+            url = f"http://localhost:80/api/v1/supplies/{action}/{demande_id}"
+            try:
+                res = requests.patch(url, headers=headers)
+                res.raise_for_status()
+                messages.success(request, f"Demande {action}ée avec succès.")
+                return redirect("admin_demande_reappro_modif")
+            except RequestException as e:
+                messages.error(request, f"Erreur lors de l'action : {e}")
+
+    return render(request, "magasins/admin/demande_reappro_modif.html", {
+        "demandes": demandes
+    })

@@ -10,6 +10,7 @@ urlpatterns = [
     path('stock-magasin/', admin_views.liste_produits, name='admin_liste_produits'),
     path('stock-central/', admin_views.liste_produits_central, name='admin_liste_produits_central'),
     path('reapprovisionnement/', admin_views.demande_reappro, name='admin_demande_reappro'),
+    path('reapprovisionnement-modif/', admin_views.demande_reappro_modif, name='admin_demande_reappro_modif'),
     path('rapport-ventes/', admin_views.rapport_ventes, name='admin_rapport_ventes'),
     path('tableau-de-bord/', admin_views.tableau_de_bord, name='admin_tableau_de_bord'),
     path('mise-a-jour-produit/', admin_views.mise_a_jour_produit, name='admin_mise_a_jour_produit'),
