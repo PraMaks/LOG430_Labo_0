@@ -158,3 +158,13 @@ exports.rejectSupplyRequest = async (req, res) => {
     res.status(500).json({ error: "Erreur lors du rejet de la demande" });
   }
 };
+
+exports.getPendingSupplyRequests = async (req, res) => {
+  try {
+    const pendingRequests = await SupplyRequest.find({ status: 'pending' }).populate('store');
+    res.status(200).json(pendingRequests);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des demandes pending:", error);
+    res.status(500).json({ error: 'Erreur serveur lors de la récupération des demandes.' });
+  }
+};

@@ -504,6 +504,26 @@
       ]
     },
     {
+      "endpoint": "/api/v1/supplies/pending",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization"],
+      "backend": [
+        {
+          "url_pattern": "/api/v1/supplies/pending",
+          "host": ["http://supplies-service:3040"],
+          "extra_config": {
+            "github.com/devopsfaith/krakend/proxy": {
+              "headers_to_pass": ["Authorization"]
+            },
+            "github.com/devopsfaith/krakend/http": {
+              "return_error_code": true
+            }
+          }
+        }
+      ]
+    },
+    {
       "endpoint": "/api/v1/orchestr-sales/stores/{storeNumber}/{user}",
       "method": "POST",
       "output_encoding": "no-op",

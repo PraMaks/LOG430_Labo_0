@@ -66,4 +66,6 @@ router.patch('/approve/:requestId', suppliesController.approveSupplyRequest);
 
 router.patch('/reject/:requestId', suppliesController.rejectSupplyRequest);
 
+router.get('/pending', suppliesController.getPendingSupplyRequests);
+
 module.exports = router;
