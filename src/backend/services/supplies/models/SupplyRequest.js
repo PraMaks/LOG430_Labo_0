@@ -10,7 +10,7 @@ const supplyRequestSchema = new mongoose.Schema({
     products: { type: [productRequestedSchema], required: true },
     status: { 
         type: String, 
-        enum: ['pending', 'approved', 'rejected', 'fulfilled'], 
+        enum: ['pending', 'approved', 'rejected'], 
         default: 'pending' 
     },
     request_date: { type: Date, default: () => new Date() }

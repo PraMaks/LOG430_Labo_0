@@ -98,3 +98,63 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
     );
   }
 };
+
+exports.approveSupplyRequest = async (req, res) => {
+  const { requestId } = req.params;
+
+  try {
+    const supplyRequest = await SupplyRequest.findById(requestId).populate('store');
+    if (!supplyRequest) {
+      return res.status(404).json({ error: "Demande introuvable" });
+    }
+
+    supplyRequest.status = 'approved';
+    await supplyRequest.save();
+
+    await publishEvent({
+      type: 'DemandeApprouvee',
+      eventId: uuidv4(),
+      timestamp: new Date().toISOString(),
+      aggregateId: supplyRequest._id.toString(),
+      data: {
+        store: supplyRequest.store.name,
+        products: supplyRequest.products
+      }
+    });
+
+    res.status(200).json({ message: "Demande approuvée avec succès" });
+  } catch (err) {
+    logger.error("Erreur lors de l'approbation :", err);
+    res.status(500).json({ error: "Erreur lors de l'approbation de la demande" });
+  }
+};
+
+exports.rejectSupplyRequest = async (req, res) => {
+  const { requestId } = req.params;
+
+  try {
+    const supplyRequest = await SupplyRequest.findById(requestId).populate('store');
+    if (!supplyRequest) {
+      return res.status(404).json({ error: "Demande introuvable" });
+    }
+
+    supplyRequest.status = 'rejected';
+    await supplyRequest.save();
+
+    await publishEvent({
+      type: 'DemandeAnnulee',
+      eventId: uuidv4(),
+      timestamp: new Date().toISOString(),
+      aggregateId: supplyRequest._id.toString(),
+      data: {
+        store: supplyRequest.store.name,
+        products: supplyRequest.products
+      }
+    });
+
+    res.status(200).json({ message: "Demande rejetée avec succès" });
+  } catch (err) {
+    logger.error("Erreur lors du rejet :", err);
+    res.status(500).json({ error: "Erreur lors du rejet de la demande" });
+  }
+};

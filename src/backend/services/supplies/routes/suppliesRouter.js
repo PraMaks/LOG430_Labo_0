@@ -62,4 +62,8 @@ const { authenticate } = require('../utils/authentication');
  */
 router.post('/stores/:storeNumber', authenticate, suppliesController.postNewSupplyRequestFromStore)
 
+router.patch('/approve/:requestId', suppliesController.approveSupplyRequest);
+
+router.patch('/reject/:requestId', suppliesController.rejectSupplyRequest);
+
 module.exports = router;
