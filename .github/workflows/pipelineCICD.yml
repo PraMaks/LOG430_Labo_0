@@ -367,7 +367,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -f src/backend/services/supplies-query/Dockerfile-Supplie-Event -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-supplies-query-service:latest src/backend/services/supplies-query
+          docker build -f src/backend/services/supplies-query/Dockerfile-Supplies-Query -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-supplies-query-service:latest src/backend/services/supplies-query
 
       - name: Save Docker image as tar archive
         run: |
