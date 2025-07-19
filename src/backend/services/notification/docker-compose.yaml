@@ -1,12 +1,5 @@
 services:
 
-  mongo-supplies:
-    image: mongo:5.0
-    container_name: mongo_supplies_db
-    ports:
-      - "27318:27017" # port different pour docker-compose
-    restart: always
-
   redis:
     image: redis:7-alpine
     container_name: redis_server
@@ -14,16 +7,19 @@ services:
       - "6379:6379"
     restart: always
 
-  supplies:
-    build: 
-      context: ./src/backend/services/supplies
-      dockerfile: Dockerfile-Supplies
-    container_name: supplies-service
-    depends_on:
-      - mongo-supplies
-    environment:
-      - MONGO_HOST=mongo-supplies
-      - MONGO_PORT=27017
+  rabbitmq:
+    image: rabbitmq:3-management
     ports:
-      - "3040:3040"
+      - "5672:5672"     # port AMQP
+      - "15672:15672"
+
+  notif:
+    build: 
+      context: .
+      dockerfile: Dockerfile-Notification
+    container_name: notif-service
+    depends_on:
+      - rabbitmq
+    ports:
+      - "3070:3070"
     command: node app.js

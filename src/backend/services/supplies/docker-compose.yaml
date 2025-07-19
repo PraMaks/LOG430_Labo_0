@@ -16,7 +16,7 @@ services:
 
   supplies:
     build: 
-      context: ./src/backend/services/supplies
+      context: .
       dockerfile: Dockerfile-Supplies
     container_name: supplies-service
     depends_on:

@@ -1,10 +1,10 @@
 services:
 
-  mongo-supplies:
+  mongo-audit:
     image: mongo:5.0
-    container_name: mongo_supplies_db
+    container_name: mongo_audit_db
     ports:
-      - "27318:27017" # port different pour docker-compose
+      - "27518:27017" # port different pour docker-compose
     restart: always
 
   redis:
@@ -14,16 +14,23 @@ services:
       - "6379:6379"
     restart: always
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"     # port AMQP
+      - "15672:15672"
+
   supplies:
     build: 
-      context: ./src/backend/services/supplies
-      dockerfile: Dockerfile-Supplies
-    container_name: supplies-service
+      context: .
+      dockerfile: Dockerfile-Audit
+    container_name: audit-service
     depends_on:
-      - mongo-supplies
+      - mongo-audit
+      - rabbitmq
     environment:
-      - MONGO_HOST=mongo-supplies
+      - MONGO_HOST=mongo-audit
       - MONGO_PORT=27017
     ports:
-      - "3040:3040"
+      - "3060:3060"
     command: node app.js

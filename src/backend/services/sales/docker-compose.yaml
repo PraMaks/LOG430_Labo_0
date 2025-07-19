@@ -16,7 +16,7 @@ services:
 
   sales:
     build: 
-      context: ./src/backend/services/sales
+      context: .
       dockerfile: Dockerfile-Sales
     container_name: sales-service
     depends_on:

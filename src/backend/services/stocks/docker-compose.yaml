@@ -17,7 +17,7 @@ services:
 
   stocks-1:
     build: 
-      context: ./src/backend/services/stocks
+      context: .
       dockerfile: Dockerfile-Stocks
     container_name: stocks-service-1
     depends_on:
@@ -31,7 +31,7 @@ services:
 
   stocks-2:
     build: 
-      context: ./src/backend/services/stocks
+      context: .
       dockerfile: Dockerfile-Stocks
     container_name: stocks-service-2
     depends_on:

@@ -1,10 +1,20 @@
 services:
 
-  sales:
+  mongo-events:
+    image: mongo:5.0
+    container_name: mongo_events_db
+    ports:
+      - "27418:27017" # port different pour docker-compose
+    restart: always
+
+  orchestr-sales:
     build: 
-      context: ./src/backend/services/sales
-      dockerfile: Dockerfile-Sales
-    container_name: sales-service
+      context: .
+      dockerfile: Dockerfile-Orchestr-Sales
+    container_name: orchestr-sales-service
+    environment:
+      - MONGO_HOST=mongo-events
+      - MONGO_PORT=27017
     ports:
       - "3050:3050"
     command: node app.js

@@ -1,10 +1,10 @@
 services:
 
-  mongo-supplies:
+  mongo-supplies-event:
     image: mongo:5.0
-    container_name: mongo_supplies_db
+    container_name: mongo_supplies_events_db
     ports:
-      - "27318:27017" # port different pour docker-compose
+      - "27618:27017" # port different pour docker-compose
     restart: always
 
   redis:
@@ -14,16 +14,16 @@ services:
       - "6379:6379"
     restart: always
 
-  supplies:
+  supplies-event-store:
     build: 
-      context: ./src/backend/services/supplies
-      dockerfile: Dockerfile-Supplies
-    container_name: supplies-service
+      context: .
+      dockerfile: Dockerfile-Supplies-Event
+    container_name: supplies-event-store-service
     depends_on:
-      - mongo-supplies
+      - mongo-supplies-event
     environment:
-      - MONGO_HOST=mongo-supplies
+      - MONGO_HOST=mongo-supplies-event
       - MONGO_PORT=27017
     ports:
-      - "3040:3040"
+      - "3045:3045"
     command: node app.js
