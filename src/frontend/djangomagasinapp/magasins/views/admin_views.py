@@ -738,9 +738,11 @@ def mise_a_jour_produit(request):
             messages.info(request, "Aucune modification apportée.")
 
     return render(request, "magasins/admin/mise_a_jour_produit.html", {"products": products})
+
 @login_required
 @admin_required
 def demande_reappro_modif(request):
+    """Fonction pour approuver/reject les demandes"""
     headers = {
         'Authorization': request.session.get('token')
     }

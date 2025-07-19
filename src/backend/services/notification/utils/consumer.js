@@ -43,4 +43,4 @@ async function startConsumer() {
   }
 }
 
-module.exports = { startConsumer };
+module.exports = { startConsumer, connectWithRetry };
