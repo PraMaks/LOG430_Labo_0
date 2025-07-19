@@ -122,6 +122,82 @@ jobs:
         working-directory: src/backend/services/orchestration-sales
         run: npm run test
 
+  TestUnitairesAudit:
+    needs: Pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: src/backend/services/audit
+        run: npm install
+
+      - name: Run Jest tests
+        working-directory: src/backend/services/audit
+        run: npm run test
+
+  TestUnitairesNotification:
+    needs: Pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: src/backend/services/notification
+        run: npm install
+
+      - name: Run Jest tests
+        working-directory: src/backend/services/notification
+        run: npm run test
+
+  TestUnitairesSuppliesEventStore:
+    needs: Pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: src/backend/services/supplies-event-store
+        run: npm install
+
+      - name: Run Jest tests
+        working-directory: src/backend/services/supplies-event-store
+        run: npm run test
+
+  TestUnitairesSuppliesQuery:
+    needs: Pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: src/backend/services/supplies-query
+        run: npm install
+
+      - name: Run Jest tests
+        working-directory: src/backend/services/supplies-query
+        run: npm run test
+
 
   BuildImageAuth:
     needs: TestUnitairesAuth
@@ -223,6 +299,86 @@ jobs:
           name: docker-image-orchestr-sales
           path: image.tar
 
+  BuildImageAudit:
+    needs: TestUnitairesAudit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -f src/backend/services/audit/Dockerfile-Audit -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-audit-service:latest src/backend/services/audit
+
+      - name: Save Docker image as tar archive
+        run: |
+          docker save docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-audit-service:latest -o image.tar
+
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-audit
+          path: image.tar
+
+  BuildImageNotification:
+    needs: TestUnitairesNotification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -f src/backend/services/notification/Dockerfile-Notification -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-notification-service:latest src/backend/services/notification
+
+      - name: Save Docker image as tar archive
+        run: |
+          docker save docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-notification-service:latest -o image.tar
+
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-notification
+          path: image.tar
+
+  BuildImageSuppliesEventStore:
+    needs: TestUnitairesSuppliesEventStore
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -f src/backend/services/supplies-event-store/Dockerfile-Supplies-Event -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-supplies-event-store-service:latest src/backend/services/supplies-event-store
+
+      - name: Save Docker image as tar archive
+        run: |
+          docker save docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-supplies-event-store-service:latest -o image.tar
+
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-supplies-event-store
+          path: image.tar
+
+  BuildImageSuppliesQuery:
+    needs: TestUnitairesSuppliesQuery
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -f src/backend/services/supplies-query/Dockerfile-Supplie-Event -t docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-supplies-query-service:latest src/backend/services/supplies-query
+
+      - name: Save Docker image as tar archive
+        run: |
+          docker save docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-supplies-query-service:latest -o image.tar
+
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-supplies-query
+          path: image.tar
+
   PublishDockerHubAuth:
     needs: BuildImageAuth
     runs-on: ubuntu-latest
@@ -312,6 +468,78 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-orchestr-sales-service:latest
+
+  PublishDockerHubAudit:
+    needs: BuildImageAudit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image-audit
+
+      - name: Load Docker image from tar
+        run: docker load -i image.tar
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Docker image to Docker Hub
+        run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-audit-service:latest
+  
+  PublishDockerHubNotification:
+    needs: BuildImageNotification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image-notification
+
+      - name: Load Docker image from tar
+        run: docker load -i image.tar
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Docker image to Docker Hub
+        run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-notification-service:latest
+
+  PublishDockerHubSuppliesEventStore:
+    needs: BuildImageSuppliesEventStore
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image-supplies-event-store
+
+      - name: Load Docker image from tar
+        run: docker load -i image.tar
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Docker image to Docker Hub
+        run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-supplies-event-store-service:latest
+
+  PublishDockerHubSuppliesQuery:
+    needs: BuildImageSuppliesQuery
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image-supplies-query
+
+      - name: Load Docker image from tar
+        run: docker load -i image.tar
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Docker image to Docker Hub
+        run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/labo7-express-magasin-app-supplies-query-service:latest
 
 
  
