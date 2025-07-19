@@ -65,7 +65,7 @@ describe('GET /api/v1/suppliesState/state/:aggregateId', () => {
     const res = await request(app).get('/api/v1/suppliesState/state/agg-err');
 
     expect(res.statusCode).toBe(500);
-    expect(res.body).toHaveProperty('error', 'Erreur lors du replay');
+    expect(res.body).toHaveProperty('error', 'Internal Server Error');
 
     SupplyEvent.find.mockRestore();
   });

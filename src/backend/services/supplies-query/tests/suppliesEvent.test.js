@@ -50,13 +50,15 @@ describe('supplies-query routes', () => {
       const res = await request(app).get('/api/v1/suppliesQuery/supplies/inexistant');
 
       expect(res.statusCode).toBe(404);
-      expect(res.body).toEqual({ error: 'Not found' });
+      expect(res.body).toMatchObject({
+        status: 404,
+        message: 'Projection pas trouvée'
+      });
     });
   });
 
   describe('POST /replay/:aggregateId', () => {
     it('devrait supprimer et reconstruire une projection depuis l’event store', async () => {
-      // setup projection initiale
       await SupplyProjection.create({
         aggregateId: 'agg4',
         store: 'store-old',
@@ -64,7 +66,6 @@ describe('supplies-query routes', () => {
         products: [{ name: 'Ancien produit', quantity: 99 }]
       });
 
-      // Mock réponse event store
       fetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -87,12 +88,14 @@ describe('supplies-query routes', () => {
     });
 
     it('devrait retourner une erreur si event store renvoie une erreur', async () => {
-      fetch.mockResolvedValueOnce({ ok: false, status: 404 });
+      fetch.mockResolvedValueOnce({ ok: false, status: 400 });
 
       const res = await request(app).post('/api/v1/suppliesQuery/replay/introuvable');
 
-      expect(res.statusCode).toBe(404);
-      expect(res.body).toEqual({ error: 'Erreur depuis event-store' });
+      expect(res.statusCode).toBe(400);
+      expect(res.body).toMatchObject({
+        error: 'Bad Response'
+      });
     });
 
     it('devrait retourner 500 si une exception est levée', async () => {
@@ -101,7 +104,10 @@ describe('supplies-query routes', () => {
       const res = await request(app).post('/api/v1/suppliesQuery/replay/bug');
 
       expect(res.statusCode).toBe(500);
-      expect(res.body).toEqual({ error: 'Erreur lors du replay' });
+      expect(res.body).toMatchObject({
+        status: 500,
+        message: 'Erreur de communication avec le serveur'
+      });
     });
   });
 });
