@@ -117,7 +117,6 @@ def enregistrer_vente(request):
                     })
                     total += total_price
 
-        # Aucun produit sélectionné
         if not produits:
             try:
                 response = requests.get(url_stock, headers=headers, timeout=3)
@@ -148,6 +147,16 @@ def enregistrer_vente(request):
         try:
             response = requests.post(url_vente, json=produits, headers=headers, timeout=3)
             if response.status_code == 201:
+                # ✅ Mise à jour du stock après la vente
+                url_stock_update = f"http://localhost:80/api/v1/stocks/stores/{store_param}/true"
+                try:
+                    stock_response = requests.patch(url_stock_update, json=produits, headers=headers, timeout=3)
+                    if stock_response.status_code != 200:
+                        json_data = stock_response.json()
+                        messages.warning(request, f"Stock partiellement mis à jour : {json_data.get('message', 'Erreur inconnue')}")
+                except Exception as e:
+                    messages.warning(request, f"Erreur lors de la mise à jour du stock : {e}")
+
                 return render(request, "magasins/admin/vente_success.html", {
                     "produits": produits,
                     "total": total,
@@ -170,7 +179,6 @@ def enregistrer_vente(request):
         except RequestException as e:
             error_message = f"Erreur lors de l'envoi de la vente : {e}"
 
-        # En cas d’erreur : recharger les produits pour le formulaire
         try:
             produits_disponibles = requests.get(url_stock, headers=headers, timeout=3)
             produits_disponibles = produits_disponibles.json() if produits_disponibles.status_code == 200 else []

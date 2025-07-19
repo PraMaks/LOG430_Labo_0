@@ -21,7 +21,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
         status: 400,
         error: "Bad Request",
         message: "Numéro de magasin invalide (1-5) ou 'Central'",
-        path: `/api/v1/standard/stores/${storeParam}/supplies`
+        path: `/api/v1/supplies/stores/${storeParam}`
       }
     );
   }
@@ -38,7 +38,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
           status: 404,
           error: "Not Found",
           message: `Magasin '${storeName}' introuvable`,
-          path: `/api/v1/standard/stores/${storeParam}/supplies`
+          path: `/api/v1/supplies/stores/${storeParam}`
         }
       );
     }
@@ -93,7 +93,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
         status: 500,
         error: "Internal Server Error",
         message: "Erreur de communication avec le serveur",
-        path: `/api/v1/standard/stores/${storeParam}/supplies`
+        path: `/api/v1/supplies/stores/${storeParam}`
       }
     );
   }
@@ -105,7 +105,15 @@ exports.approveSupplyRequest = async (req, res) => {
   try {
     const supplyRequest = await SupplyRequest.findById(requestId).populate('store');
     if (!supplyRequest) {
-      return res.status(404).json({ error: "Demande introuvable" });
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: `Demande introuvable`,
+          path: `/api/v1/supplies/approve/:requestId`
+        }
+      );
     }
 
     supplyRequest.status = 'approved';
@@ -124,8 +132,15 @@ exports.approveSupplyRequest = async (req, res) => {
 
     res.status(200).json({ message: "Demande approuvée avec succès" });
   } catch (err) {
-    logger.error("Erreur lors de l'approbation :", err);
-    res.status(500).json({ error: "Erreur lors de l'approbation de la demande" });
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/supplies/approve/:requestId`
+      }
+    );
   }
 };
 
@@ -135,7 +150,15 @@ exports.rejectSupplyRequest = async (req, res) => {
   try {
     const supplyRequest = await SupplyRequest.findById(requestId).populate('store');
     if (!supplyRequest) {
-      return res.status(404).json({ error: "Demande introuvable" });
+      return res.status(404).json(
+        {
+          timestamp: new Date().toISOString(),
+          status: 404,
+          error: "Not Found",
+          message: `Demande introuvable`,
+          path: `/api/v1/supplies/reject/:requestId`
+        }
+      );
     }
 
     supplyRequest.status = 'rejected';
@@ -154,8 +177,15 @@ exports.rejectSupplyRequest = async (req, res) => {
 
     res.status(200).json({ message: "Demande rejetée avec succès" });
   } catch (err) {
-    logger.error("Erreur lors du rejet :", err);
-    res.status(500).json({ error: "Erreur lors du rejet de la demande" });
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/supplies/reject/:requestId`
+      }
+    );
   }
 };
 
@@ -164,7 +194,14 @@ exports.getPendingSupplyRequests = async (req, res) => {
     const pendingRequests = await SupplyRequest.find({ status: 'pending' }).populate('store');
     res.status(200).json(pendingRequests);
   } catch (error) {
-    console.error("Erreur lors de la récupération des demandes pending:", error);
-    res.status(500).json({ error: 'Erreur serveur lors de la récupération des demandes.' });
+    res.status(500).json(
+      {
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Internal Server Error",
+        message: "Erreur de communication avec le serveur",
+        path: `/api/v1/supplies/pending`
+      }
+    );
   }
 };

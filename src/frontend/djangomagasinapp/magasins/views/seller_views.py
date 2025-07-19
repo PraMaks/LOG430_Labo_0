@@ -63,6 +63,7 @@ def rechercher_produit(request):
         'query': name,
     })
 
+
 @login_required
 @seller_required
 def enregistrer_vente(request):
@@ -100,7 +101,6 @@ def enregistrer_vente(request):
                     })
                     total += total_price
 
-        # Aucun produit sélectionné
         if not produits:
             try:
                 response = requests.get(url_stock, headers=headers, timeout=3)
@@ -109,12 +109,7 @@ def enregistrer_vente(request):
                 else:
                     produits_disponibles = []
                     json_data = response.json()
-                    timestamp = json_data['timestamp']
-                    status = json_data['status']
-                    error = json_data['error']
-                    message = json_data['message']
-                    path = json_data['path']
-                    error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+                    error_message = f"Erreur {json_data['status']} ({json_data['error']}): {json_data['message']} à {json_data['timestamp']} sur {json_data['path']}"
                     messages.warning(request, error_message)
             except ConnectionError:
                 produits_disponibles = []
@@ -133,6 +128,16 @@ def enregistrer_vente(request):
         try:
             response = requests.post(url_vente, json=produits, headers=headers, timeout=3)
             if response.status_code == 201:
+                # ✅ Mise à jour du stock après la vente
+                url_stock_update = f"http://localhost:80/api/v1/stocks/stores/{numero}/true"
+                try:
+                    stock_response = requests.patch(url_stock_update, json=produits, headers=headers, timeout=3)
+                    if stock_response.status_code != 200:
+                        json_data = stock_response.json()
+                        messages.warning(request, f"Stock partiellement mis à jour : {json_data.get('message', 'Erreur inconnue')}")
+                except Exception as e:
+                    messages.warning(request, f"Erreur lors de la mise à jour du stock : {e}")
+
                 return render(request, "magasins/seller/vente_success.html", {
                     "produits": produits,
                     "total": total
@@ -140,12 +145,7 @@ def enregistrer_vente(request):
             else:
                 try:
                     json_data = response.json()
-                    timestamp = json_data['timestamp']
-                    status = json_data['status']
-                    error = json_data['error']
-                    message = json_data['message']
-                    path = json_data['path']
-                    error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+                    error_message = f"Erreur {json_data['status']} ({json_data['error']}): {json_data['message']} à {json_data['timestamp']} sur {json_data['path']}"
                     messages.warning(request, error_message)
                 except Exception:
                     error_message = f"Erreur inattendue : {response.text}"
@@ -171,12 +171,7 @@ def enregistrer_vente(request):
         produits = response.json() if response.status_code == 200 else []
         if response.status_code != 200:
             json_data = response.json()
-            timestamp = json_data['timestamp']
-            status = json_data['status']
-            error = json_data['error']
-            message = json_data['message']
-            path = json_data['path']
-            error_message = f"Erreur {status} ({error}): {message} à {timestamp} sur {path}"
+            error_message = f"Erreur {json_data['status']} ({json_data['error']}): {json_data['message']} à {json_data['timestamp']} sur {json_data['path']}"
             messages.warning(request, error_message)
     except ConnectionError:
         produits = []

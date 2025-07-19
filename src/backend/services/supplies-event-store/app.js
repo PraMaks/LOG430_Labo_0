@@ -41,12 +41,8 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3060',
+        url: 'http://localhost:3045',
         description: 'Appel Direct au service',
-      },
-      {
-        url: 'http://localhost:80',
-        description: 'Appel par le Gateway KrakenD',
       },
     ],
     components: {
