@@ -1,5 +1,6 @@
 const amqp = require('amqplib');
 const logger = require('./logger');
+const { eventsConsumedCounter, eventLatencyHistogram } = require('../metrics/metrics');
 
 const RABBITMQ_URL = 'amqp://rabbitmq';
 const EXCHANGE_NAME = 'reapprovisionnement.events';
@@ -32,7 +33,29 @@ async function startConsumer() {
       if (msg.content) {
         const event = JSON.parse(msg.content.toString());
         logger.info("Événement reçu :", event);
-        logger.info("Simulation de notification d'event")
+
+        // Récupérer le type d'event (assumons event.type existe)
+        const type = event.type || 'unknown';
+
+        // Calcul de la latence si timestamp d’émission présent (en ms)
+        // Exemple : event.timestamp ou event.emittedAt
+        let latencySeconds = 0;
+        if (event.timestamp) {
+          const emittedTime = new Date(event.timestamp).getTime();
+          const now = Date.now();
+          latencySeconds = (now - emittedTime) / 1000;
+        }
+
+        // Incrémenter compteur avec label event_type
+        eventsConsumedCounter.inc({ event_type: type });
+
+        // Enregistrer la latence
+        if (latencySeconds > 0) {
+          eventLatencyHistogram.observe({ event_type: type }, latencySeconds);
+        }
+
+        // Simulation de notification
+        logger.info("Simulation de notification d'event");
         logger.info(event);
       }
     }, { noAck: true });

@@ -5,6 +5,7 @@ const swaggerUi = require('swagger-ui-express');
 const logger = require('./utils/logger');
 const promBundle = require('express-prom-bundle');
 const { startConsumer } = require('./utils/consumer');
+const { register } = require('./metrics/metrics');
 
 const app = express();
 const port = 3046;
@@ -18,6 +19,7 @@ const metricsMiddleware = promBundle({
   includeStatusCode: true,
   promClient: {
     collectDefaultMetrics: {},
+    register
   }
 });
 

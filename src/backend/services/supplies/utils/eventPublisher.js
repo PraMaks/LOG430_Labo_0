@@ -1,4 +1,6 @@
 const amqp = require('amqplib');
+const logger = require('./logger');
+const { eventsPublishedCounter } = require('../metrics/metrics');
 
 let channel;
 
@@ -19,7 +21,8 @@ async function publishEvent(event) {
     Buffer.from(JSON.stringify(event))
   );
 
-  console.log("📤 Event publié :", event.type);
+  eventsPublishedCounter.labels(event.type).inc();
+  logger.info("Event publié :", event.type);
 }
 
 module.exports = { publishEvent };

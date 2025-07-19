@@ -4,4 +4,4 @@ global:
 scrape_configs:
   - job_name: 'express-app'
     static_configs:
-      - targets: ['auth-service:3010', 'stocks-service:3020', 'sales-service:3030', supplies-service:3040, orchestr-sales-service:3050]
+      - targets: ['auth-service:3010', 'stocks-service:3020', 'sales-service:3030', supplies-service:3040, orchestr-sales-service:3050, audit-service:3060, notif-service:3070, supplies-event-store-service:3045, supplies-query-service:3046]

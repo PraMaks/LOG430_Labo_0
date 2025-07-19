@@ -1,6 +1,7 @@
 const amqp = require('amqplib');
 const SupplyEvent = require('../models/SupplyEvent');
 const logger = require('../utils/logger');
+const { eventsConsumedCounter, eventLatencyHistogram } = require('../metrics/metrics');
 
 const RABBITMQ_URL = 'amqp://rabbitmq';
 const EXCHANGE_NAME = 'reapprovisionnement.events';
@@ -47,6 +48,22 @@ async function startConsumer() {
         };
 
         await SupplyEvent.create(transformedEvent);
+
+        // Metrics Prometheus
+        const type = rawEvent.type || 'unknown';
+
+        // Calcul de latence en secondes si timestamp présent
+        let latencySeconds = 0;
+        if (rawEvent.timestamp) {
+          const emittedTime = new Date(rawEvent.timestamp).getTime();
+          const now = Date.now();
+          latencySeconds = (now - emittedTime) / 1000;
+        }
+
+        eventsConsumedCounter.inc({ event_type: type });
+        if (latencySeconds > 0) {
+          eventLatencyHistogram.observe({ event_type: type }, latencySeconds);
+        }
       }
     }, { noAck: true });
 
