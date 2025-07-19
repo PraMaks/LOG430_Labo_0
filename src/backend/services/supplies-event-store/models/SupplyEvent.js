@@ -4,7 +4,7 @@ const supplyEventSchema = new mongoose.Schema({
   eventId: String,
   type: String, 
   timestamp: String,
-  aggregateId: String, // l’ID logique de la demande (business)
+  aggregateId: String, 
   store: String,
   products: [ 
     {

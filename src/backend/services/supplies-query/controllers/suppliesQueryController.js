@@ -7,7 +7,15 @@ exports.getAll = async (req, res) => {
 
 exports.getByAggregateId = async (req, res) => {
   const doc = await SupplyProjection.findOne({ aggregateId: req.params.id });
-  if (!doc) return res.status(404).json({ error: 'Not found' });
+  if (!doc) {
+    return res.status(404).json({
+      timestamp: new Date().toISOString(),
+      status: 404,
+      error: "Not Found",
+      message: "Projection pas trouvée",
+      path: "/api/v1/suppliesQuery/supplies/:id"
+    });
+  }
   res.json(doc);
 };
 
@@ -18,7 +26,13 @@ exports.replayOneFromEventStore = async (req, res) => {
     // 1. Récupérer les événements de ce aggregateId depuis l’event-store
     const response = await fetch(`http://supplies-event-store:3045/api/v1/suppliesState/state/${id}`);
     if (!response.ok) {
-      return res.status(response.status).json({ error: 'Erreur depuis event-store' });
+      return res.status(400).json({
+      timestamp: new Date().toISOString(),
+      status: 404,
+      error: "Bad Response",
+      message: "Erreur côté event store",
+      path: "/api/v1/suppliesQuery/replay/:aggregateId"
+    });
     }
 
     const state = await response.json();
@@ -36,7 +50,12 @@ exports.replayOneFromEventStore = async (req, res) => {
 
     res.status(200).json({ message: `Projection reconstruite pour ${id}` });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erreur lors du replay' });
+    res.status(500).json({
+      timestamp: new Date().toISOString(),
+      status: 500,
+      error: "Internal Server Error",
+      message: "Erreur de communication avec le serveur",
+      path: "/api/v1/suppliesQuery/replay/:aggregateId"
+    });
   }
 };

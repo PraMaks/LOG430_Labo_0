@@ -28,7 +28,12 @@ exports.getStateForAggregate = async (req, res) => {
 
     res.json(state);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erreur lors du replay' });
+    res.status(500).json({
+      timestamp: new Date().toISOString(),
+      status: 500,
+      error: "Internal Server Error",
+      message: "Erreur de communication avec le serveur",
+      path: "/api/v1/suppliesState/state/:aggregateId"
+    });
   }
 };
