@@ -101,6 +101,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
 
 exports.approveSupplyRequest = async (req, res) => {
   const { requestId } = req.params;
+  const token = req.headers['authorization'];
 
   try {
     const supplyRequest = await SupplyRequest.findById(requestId).populate('store');
@@ -114,6 +115,57 @@ exports.approveSupplyRequest = async (req, res) => {
           path: `/api/v1/supplies/approve/:requestId`
         }
       );
+    }
+
+    const responseCentral = await fetch(`http://krakend:80/api/v1/stocks/stores/StockCentral/true`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(supplyRequest.products)
+    });
+
+    if (!responseCentral.ok) {
+      return res.status(responseCentral.status).json({
+        timestamp: new Date().toISOString(),
+        status: responseCentral.status,
+        error: "Stock Central Update Failed",
+        message: "Échec de la mise à jour du stock central",
+        path: `/api/v1/stocks/stores/StockCentral/true`
+      });
+    }
+
+    const storeName = supplyRequest.store.name;
+    const storeNumber = storeName.split(" ")[1];
+
+    const responseMagasin = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeNumber}/false`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(supplyRequest.products)
+    });
+
+    if (!responseMagasin.ok) {
+      await fetch(`http://krakend:80/api/v1/stocks/stores/StockCentral/false`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(supplyRequest.products)
+      });
+
+
+      return res.status(responseMagasin.status).json({
+        timestamp: new Date().toISOString(),
+        status: responseMagasin.status,
+        error: "Magasin Update Failed",
+        message: `Échec de la mise à jour du stock pour le magasin ${storeNumber}`,
+        path: `/api/v1/stocks/stores/${storeNumber}/false`
+      });
     }
 
     supplyRequest.status = 'approved';

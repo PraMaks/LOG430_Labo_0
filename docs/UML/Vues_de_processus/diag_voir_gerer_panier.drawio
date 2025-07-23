@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="27.2.0">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="28.0.6">
   <diagram name="Page-1" id="2YBvvXClWsGukQMizWep">
     <mxGraphModel dx="1665" dy="757" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -10,7 +10,7 @@
         <mxCell id="aM9ryv3xv72pqoxQDRHE-6" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="aM9ryv3xv72pqoxQDRHE-5" vertex="1">
           <mxGeometry x="70" y="90" width="10" height="300" as="geometry" />
         </mxCell>
-        <mxCell id="aM9ryv3xv72pqoxQDRHE-7" value="Consulte le panier et fait des modifs" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" source="00wRDX6nhMXzsEndpYq1-1" target="aM9ryv3xv72pqoxQDRHE-6" edge="1">
+        <mxCell id="aM9ryv3xv72pqoxQDRHE-7" value="Consulte le panier" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" source="00wRDX6nhMXzsEndpYq1-1" target="aM9ryv3xv72pqoxQDRHE-6" edge="1">
           <mxGeometry x="0.0019" relative="1" as="geometry">
             <mxPoint x="80" y="130" as="sourcePoint" />
             <Array as="points">
@@ -87,7 +87,7 @@
             <mxPoint x="680" y="280" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-1" value="Envoie une demande POST/PATCH sur&amp;nbsp;&lt;div&gt;http://localhost:80/api/v1/stocks/{user}/cart&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" edge="1" parent="1">
+        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-1" value="Envoie une demande PATCH sur&amp;nbsp;&lt;div&gt;http://localhost:80/api/v1/stocks/{user}/cart&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" edge="1">
           <mxGeometry x="0.0029" relative="1" as="geometry">
             <mxPoint x="340" y="320" as="sourcePoint" />
             <Array as="points">
@@ -97,7 +97,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-2" value="Prepare une query pour le schéma" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" edge="1" parent="1">
+        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-2" value="Prepare une query pour le schéma" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="695" y="330" as="sourcePoint" />
             <Array as="points">
@@ -106,7 +106,7 @@
             <mxPoint x="895" y="330" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-3" value="Fait une recherche find dans le magasin" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" edge="1" parent="1">
+        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-3" value="Fait une recherche find dans le magasin" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="907" y="338" as="sourcePoint" />
             <Array as="points">
@@ -115,7 +115,7 @@
             <mxPoint x="1147" y="338" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-4" value="Retourne le résultat en JSON" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" edge="1" parent="1">
+        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-4" value="Retourne le résultat en JSON" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="694" y="356" as="targetPoint" />
             <Array as="points">
@@ -124,7 +124,7 @@
             <mxPoint x="1144" y="356" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-5" value="Retourne le résultat en JSON" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" edge="1" parent="1">
+        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-5" value="Retourne le résultat en JSON" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="340" y="380" as="targetPoint" />
             <Array as="points">
@@ -133,13 +133,33 @@
             <mxPoint x="685" y="380" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-6" value="Affiche le contenu modifié du panier" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" edge="1" parent="1" source="aM9ryv3xv72pqoxQDRHE-6" target="00wRDX6nhMXzsEndpYq1-1">
+        <mxCell id="gWvqY_dNA4tdeKr9V7Yw-6" value="Affiche le contenu modifié du panier" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" source="aM9ryv3xv72pqoxQDRHE-6" target="00wRDX6nhMXzsEndpYq1-1" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="80" y="400" as="targetPoint" />
             <Array as="points">
               <mxPoint x="270.33333333333326" y="400" />
             </Array>
             <mxPoint x="310" y="400" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ssDETOVL11h5IlyAogmp-1" value="Modifie le contenu du panier" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" edge="1" parent="1">
+          <mxGeometry x="0.0019" relative="1" as="geometry">
+            <mxPoint x="70" y="310" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="165" y="310" />
+            </Array>
+            <mxPoint x="330" y="310" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ssDETOVL11h5IlyAogmp-2" value="Affiche le contenu&amp;nbsp; du panier" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="70" y="290" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="270.33333333333326" y="290" />
+            </Array>
+            <mxPoint x="330" y="290" as="sourcePoint" />
+            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
       </root>
