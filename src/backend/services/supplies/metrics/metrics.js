@@ -9,7 +9,28 @@ const eventsPublishedCounter = new client.Counter({
   labelNames: ['event_type']
 });
 
+const sagaStartedCounter = new client.Counter({
+  name: 'saga_started_total',
+  help: 'Nombre total de sagas démarrées',
+  labelNames: ['saga_name']
+});
+
+const sagaSuccessCounter = new client.Counter({
+  name: 'saga_success_total',
+  help: 'Nombre total de sagas terminées avec succès',
+  labelNames: ['saga_name']
+});
+
+const sagaFailureCounter = new client.Counter({
+  name: 'saga_failure_total',
+  help: 'Nombre total de sagas ayant échoué',
+  labelNames: ['saga_name']
+});
+
 module.exports = {
   register,
   eventsPublishedCounter,
+  sagaStartedCounter,
+  sagaSuccessCounter,
+  sagaFailureCounter,
 };

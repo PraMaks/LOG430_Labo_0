@@ -3,8 +3,10 @@ const SupplyRequest = require('../models/SupplyRequest');
 const logger = require('../utils/logger');
 const { publishEvent } = require('../utils/eventPublisher');
 const { v4: uuidv4 } = require('uuid');
+const { sagaStartedCounter, sagaSuccessCounter, sagaFailureCounter } = require('../metrics/metrics');
 
 exports.postNewSupplyRequestFromStore = async (req, res) => {
+  sagaStartedCounter.labels('reapprovisionnement').inc();
   const requestedSupplies = req.body;
   const storeParam = req.params.storeNumber;
 
@@ -83,10 +85,12 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
     }
 
     logger.info(`Requete enregistrée avec succès.`);
+    sagaSuccessCounter.labels('reapprovisionnement').inc();
     res.status(201).json({ message: "Requete enregistrée avec succès." });
 
   } catch (err) {
     logger.error(`Erreur de communication avec le serveur`);
+    sagaFailureCounter.labels('reapprovisionnement').inc();
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -100,6 +104,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
 };
 
 exports.approveSupplyRequest = async (req, res) => {
+  sagaStartedCounter.labels('reapprovisionnement').inc();
   const { requestId } = req.params;
   const token = req.headers['authorization'];
 
@@ -182,8 +187,10 @@ exports.approveSupplyRequest = async (req, res) => {
       }
     });
 
+    sagaSuccessCounter.labels('reapprovisionnement').inc();
     res.status(200).json({ message: "Demande approuvée avec succès" });
   } catch (err) {
+    sagaFailureCounter.labels('reapprovisionnement').inc();
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),
@@ -197,6 +204,7 @@ exports.approveSupplyRequest = async (req, res) => {
 };
 
 exports.rejectSupplyRequest = async (req, res) => {
+  sagaStartedCounter.labels('reapprovisionnement').inc();
   const { requestId } = req.params;
 
   try {
@@ -227,8 +235,10 @@ exports.rejectSupplyRequest = async (req, res) => {
       }
     });
 
+    sagaSuccessCounter.labels('reapprovisionnement').inc();
     res.status(200).json({ message: "Demande rejetée avec succès" });
   } catch (err) {
+    sagaFailureCounter.labels('reapprovisionnement').inc();
     res.status(500).json(
       {
         timestamp: new Date().toISOString(),

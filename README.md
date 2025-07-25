@@ -1,4 +1,4 @@
-# LOG430_Labo_6
+# LOG430_Labo_7
 
 ## Comment lancer le projet ?
 Il faut utiliser l'environnement virtuel pour faire fonctionner le projet: "source venv/bin/activate" ou "venv/scripts/activate/ sur windows
@@ -43,6 +43,9 @@ Affichage des métriques sous forme de diagrammes dans un dashboard: Serveur Gra
 - ![Preuve Grafana 3](docs/grafana3.png)
 - ![Preuve Grafana 4](docs/grafana4.png)
 - ![Preuve Grafana 5](docs/grafana5.png)
+- ![Preuve Grafana 6](docs/grafana6.png)
+- ![Preuve Grafana 7](docs/grafana7.png)
+- ![Preuve Grafana 8](docs/grafana8.png)
 
 API Gateway: KrakenD est utilisé comme gateway pour rediriger les requetes du frontend ou de Swagger/Postman vers l'instance de service disponible. Possède aussi une politique CORS.
 
@@ -57,9 +60,9 @@ Docker Compose est utilisée pour lancer l'image Docker générée. Docker est u
 Ce projet utilise un pipeline CI/CD avec GitHub Actions après chaque push sur la branche principale (main) pour tester le code poussé. Le pipeline contient 4 jobs:
 
     1) PyLint pour verifier le format des fichiers .py
-    2) Jest pour lancer les tests unitaires et verifier qu'il n'y a pas d'erreurs de logique sur chaque service (5 jobs isolés)
-    3) Création et sauvegarde (comme un artifact) d'une image Docker de l'application de chaque service (5 jobs isolés)
-    4) Utilisation de l'image Docker stoquée comme un artifact et push de celle-ci sur Docker Hub de chaque service (5 jobs isolés)
+    2) Jest pour lancer les tests unitaires et verifier qu'il n'y a pas d'erreurs de logique sur chaque service (9 jobs isolés)
+    3) Création et sauvegarde (comme un artifact) d'une image Docker de l'application de chaque service (9 jobs isolés)
+    4) Utilisation de l'image Docker stoquée comme un artifact et push de celle-ci sur Docker Hub de chaque service (9 jobs isolés)
 
 Le lien vers les images Docker sur Docker Hub : https://hub.docker.com/repository/docker/pramaks/
 
@@ -91,8 +94,14 @@ Aller sur:
 - ![Preuve Swagger Sales](docs/PreuveSwagger3.png)
 - Supplies Service: "http://localhost:3040/api/v1/api-docs/"
 - ![Preuve Swagger Supplies](docs/PreuveSwagger4.png)
-- - Orchestr-Sales Service: "http://localhost:3050/api/v1/api-docs/"
-- ![Preuve Swagger Supplies](docs/PreuveSwagger5.png)
+- Orchestr-Sales Service: "http://localhost:3050/api/v1/api-docs/"
+- ![Preuve Swagger Orchestr-Sales](docs/PreuveSwagger5.png)
+- Audit Service: "http://localhost:3060/api/v1/api-docs/"
+- ![Preuve Swagger Audit](docs/PreuveSwagger6.png)
+- Supplies-Event-Store: "http://localhost:3045/api/v1/api-docs/"
+- ![Preuve Swagger Supplies-Event-Store](docs/PreuveSwagger7.png)
+- Supplies-Query Service: "http://localhost:3046/api/v1/api-docs/"
+- ![Preuve Swagger Supplies-Query](docs/PreuveSwagger8.png)
 
 ## Saga pour le labo 6:
 
@@ -102,3 +111,14 @@ Voici les étapes:
 - Enregistrer la vente (sales-service)
 - Mettre à jour l'inventaire (stocks-service)
 - Metre à jour l'utilisateur (auth-service)
+
+## Saga pour le labo 7:
+
+Traitement d'une demande de réapprovisionnement
+Containers concernées:
+- Supplies
+- RabbitMQ
+- Audit
+- Notif
+- Supplies-Event-Store
+- Supplies-Query
