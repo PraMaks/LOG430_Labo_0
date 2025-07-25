@@ -87,21 +87,21 @@ La réussite des jobs sur le pipeline CI/CD peuvent aussi être visionnées dans
 
 Aller sur:
 - Auth Service: "http://localhost:3010/api/v1/api-docs/"
-- ![Preuve Swagger Auth](docs/PreuveSwagger1.png)
+- ![Preuve Swagger Auth](docs/preuveSwagger1.png)
 - Stocks Service: "http://localhost:3020/api/v1/api-docs/"
-- ![Preuve Swagger Stocks](docs/PreuveSwagger2.png)
+- ![Preuve Swagger Stocks](docs/preuveSwagger2.png)
 - Sales Service: "http://localhost:3030/api/v1/api-docs/"
-- ![Preuve Swagger Sales](docs/PreuveSwagger3.png)
+- ![Preuve Swagger Sales](docs/preuveSwagger3.png)
 - Supplies Service: "http://localhost:3040/api/v1/api-docs/"
-- ![Preuve Swagger Supplies](docs/PreuveSwagger4.png)
+- ![Preuve Swagger Supplies](docs/preuveSwagger4.png)
 - Orchestr-Sales Service: "http://localhost:3050/api/v1/api-docs/"
-- ![Preuve Swagger Orchestr-Sales](docs/PreuveSwagger5.png)
+- ![Preuve Swagger Orchestr-Sales](docs/preuveSwagger5.png)
 - Audit Service: "http://localhost:3060/api/v1/api-docs/"
-- ![Preuve Swagger Audit](docs/PreuveSwagger6.png)
+- ![Preuve Swagger Audit](docs/preuveSwagger6.png)
 - Supplies-Event-Store: "http://localhost:3045/api/v1/api-docs/"
-- ![Preuve Swagger Supplies-Event-Store](docs/PreuveSwagger7.png)
+- ![Preuve Swagger Supplies-Event-Store](docs/preuveSwagger7.png)
 - Supplies-Query Service: "http://localhost:3046/api/v1/api-docs/"
-- ![Preuve Swagger Supplies-Query](docs/PreuveSwagger8.png)
+- ![Preuve Swagger Supplies-Query](docs/preuveSwagger8.png)
 
 ## Saga pour le labo 6:
 
