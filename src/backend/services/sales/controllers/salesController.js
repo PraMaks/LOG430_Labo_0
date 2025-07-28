@@ -1,6 +1,7 @@
 const Store = require('../models/Store');
 const StoreSale = require('../models/StoreSale');
 const logger = require('../utils/logger');
+const { API_BASE_URL } = require('../utils/api');
 
 exports.postNewSaleInStore = async (req, res) => {
   const soldProducts = req.body;
@@ -213,7 +214,7 @@ exports.deleteSaleByStore = async (req, res) => {
     logger.info(`Retour de vente: envoi PATCH à stocks-service via krakend`);
     logger.info(`Contenu de la vente à restituer : ${JSON.stringify(sale.contents)}`);
 
-    const response = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeParam}/false`, {
+    const response = await fetch(`${API_BASE_URL}/stocks/stores/${storeParam}/false`, {
       method: 'PATCH',
       headers: {
         'Authorization': token,

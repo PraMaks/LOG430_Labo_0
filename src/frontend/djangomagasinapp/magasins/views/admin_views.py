@@ -11,6 +11,7 @@ from django.contrib import messages
 from requests.exceptions import ConnectionError, RequestException
 from ..utils.decorators import login_required, admin_required
 
+API_BASE_URL = "http://localhost:80/api/v1"
 
 @login_required
 @admin_required
@@ -35,7 +36,7 @@ def rechercher_produit(request):
 
         if query and selected_store:
             store_param = selected_store if selected_store == "Central" else int(selected_store)
-            url = 'http://localhost:80/api/v1/stocks/stores/' + str(store_param) + '/' + query
+            url = f"{API_BASE_URL}/stocks/stores/{store_param}/{query}"
             response = requests.get(url, headers=headers)
             if response.status_code == 200:
                 produit = response.json()
@@ -62,8 +63,8 @@ def enregistrer_vente(request):
     selected_store = request.POST.get("store", "1")
     store_param = selected_store if selected_store == "Central" else int(selected_store)
 
-    url_stock = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
-    url_vente = f"http://localhost:80/api/v1/sales/stores/{store_param}"
+    url_stock = f"{API_BASE_URL}/stocks/stores/{store_param}"
+    url_vente = f"{API_BASE_URL}/sales/stores/{store_param}"
     headers = {
         'Authorization': request.session.get('token')
     }
@@ -147,8 +148,8 @@ def enregistrer_vente(request):
         try:
             response = requests.post(url_vente, json=produits, headers=headers, timeout=3)
             if response.status_code == 201:
-                # ✅ Mise à jour du stock après la vente
-                url_stock_update = f"http://localhost:80/api/v1/stocks/stores/{store_param}/true"
+                # Mise à jour du stock après la vente
+                url_stock_update = f"{API_BASE_URL}/stocks/stores/{store_param}/true"
                 try:
                     stock_response = requests.patch(url_stock_update, json=produits, headers=headers, timeout=3)
                     if stock_response.status_code != 200:
@@ -232,7 +233,7 @@ def retour_vente(request):
         selected_store = request.session.get("selected_store", "1")
 
     store_param = selected_store if (selected_store == "Central" or selected_store == "StockCentral") else int(selected_store)
-    url = f"http://localhost:80/api/v1/sales/stores/{store_param}"
+    url = f"{API_BASE_URL}/sales/stores/{store_param}"
 
     # Suppression d'une vente
     if request.method == "POST" and request.POST.get("sale_id"):
@@ -309,7 +310,7 @@ def liste_produits(request):
 
         if action == "change_store":
             store_param = selected_store if selected_store == "Central" else int(selected_store)
-            url = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
+            url = f"{API_BASE_URL}/stocks/stores/{store_param}"
 
             try:
                 response = requests.get(url, headers=headers, timeout=3)
@@ -339,7 +340,7 @@ def liste_produits(request):
 
     # Cas GET ou soumission standard
     store_param = selected_store if selected_store == "Central" else int(selected_store)
-    url = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
+    url = f"{API_BASE_URL}/stocks/stores/{store_param}"
 
     try:
         response = requests.get(url, headers=headers, timeout=3)
@@ -374,7 +375,7 @@ def liste_produits_central(request):
     headers = {
         'Authorization': request.session.get('token')
     }
-    url = "http://localhost:80/api/v1/stocks/stores/warehouse"
+    url = f"{API_BASE_URL}/stocks/stores/warehouse"
     produits = []
 
     try:
@@ -414,8 +415,8 @@ def demande_reappro(request):
             }
 
     # URLs dynamiques selon magasin choisi
-    url_stock_magasin = f"http://localhost:80/api/v1/stocks/stores/{store_param}"
-    url_stock_central = "http://localhost:80/api/v1/stocks/stores/warehouse"
+    url_stock_magasin = f"{API_BASE_URL}/stocks/stores/{store_param}"
+    url_stock_central = f"{API_BASE_URL}/stocks/stores/warehouse"
 
     try:
         stock_magasin = requests.get(url_stock_magasin, headers=headers).json()
@@ -448,7 +449,7 @@ def demande_reappro(request):
                     messages.warning(request, f"Quantité invalide pour {product['name']}.")
 
         if produits_demandes:
-            url_post = 'http://localhost:80/api/v1/supplies/stores/' + str(store_param)
+            url_post = f'{API_BASE_URL}/supplies/stores/' + str(store_param)
             try:
                 response = requests.post(url_post, json=produits_demandes, headers=headers)
                 response.raise_for_status()
@@ -476,7 +477,7 @@ def rapport_ventes(request):
 
     # Récupérer les produits pour magasins 1 à 5
     for i in range(1, 6):
-        url = f"http://localhost:80/api/v1/stocks/stores/{i}"
+        url = f"{API_BASE_URL}/stocks/stores/{i}"
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
@@ -487,7 +488,7 @@ def rapport_ventes(request):
 
     # Récupérer les produits du magasin Central (6)
     try:
-        url = "http://localhost:80/api/v1/stocks/stores/Central"
+        url = f"{API_BASE_URL}/stocks/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[6] = response.json()
@@ -497,7 +498,7 @@ def rapport_ventes(request):
 
     # Récupérer les produits du magasin Central (6)
     try:
-        url = "http://localhost:80/api/v1/stocks/stores/warehouse"
+        url = f"{API_BASE_URL}/stocks/stores/warehouse"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[7] = response.json()
@@ -507,7 +508,7 @@ def rapport_ventes(request):
 
     # Récupérer les ventes pour magasins 1 à 5
     for i in range(1, 6):
-        url = f"http://localhost:80/api/v1/sales/stores/{str(i)}"
+        url = f"{API_BASE_URL}/sales/stores/{str(i)}"
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
@@ -519,7 +520,7 @@ def rapport_ventes(request):
 
     # Récupérer les ventes du magasin Central (6)
     try:
-        url = "http://localhost:80/api/v1/sales/stores/Central"
+        url = f"{API_BASE_URL}/sales/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         sales = response.json()
@@ -530,7 +531,7 @@ def rapport_ventes(request):
 
     # Récupérer les ventes d'achat en ligne (7)
     try:
-        url = "http://localhost:80/api/v1/sales/stores/StockCentral"
+        url = f"{API_BASE_URL}/sales/stores/StockCentral"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         sales = response.json()
@@ -584,7 +585,7 @@ def tableau_de_bord(request):
 
     for i in range(1, 6):
         try:
-            url = f"http://localhost:80/api/v1/stocks/stores/{i}"
+            url = f"{API_BASE_URL}/stocks/stores/{i}"
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             report_products_dict[i] = response.json()
@@ -593,7 +594,7 @@ def tableau_de_bord(request):
             return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = "http://localhost:80/api/v1/stocks/stores/Central"
+        url = f"{API_BASE_URL}/stocks/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[6] = response.json()
@@ -602,7 +603,7 @@ def tableau_de_bord(request):
         return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = "http://localhost:80/api/v1/stocks/stores/warehouse"
+        url = f"{API_BASE_URL}/stocks/stores/warehouse"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_products_dict[7] = response.json()
@@ -612,7 +613,7 @@ def tableau_de_bord(request):
 
     for i in range(1, 6):
         try:
-            url = f"http://localhost:80/api/v1/sales/stores/{str(i)}"
+            url = f"{API_BASE_URL}/sales/stores/{str(i)}"
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             report_sales_dict[i] = response.json()
@@ -621,7 +622,7 @@ def tableau_de_bord(request):
             return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = "http://localhost:80/api/v1/sales/stores/Central"
+        url = f"{API_BASE_URL}/sales/stores/Central"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_sales_dict[6] = response.json()
@@ -630,7 +631,7 @@ def tableau_de_bord(request):
         return render(request, "magasins/admin/tableau_de_bord.html", {"magasins": []})
 
     try:
-        url = "http://localhost:80/api/v1/sales/stores/StockCentral"
+        url = f"{API_BASE_URL}/sales/stores/StockCentral"
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         report_sales_dict[7] = response.json()
@@ -699,7 +700,7 @@ def tableau_de_bord(request):
 @admin_required
 def mise_a_jour_produit(request):
     """Page de mise à jour de produits"""
-    products_url = "http://localhost:80/api/v1/stocks/stores/warehouse"
+    products_url = f"{API_BASE_URL}/stocks/stores/warehouse"
     headers = {
                 'Authorization': request.session.get('token')
             }
@@ -734,7 +735,7 @@ def mise_a_jour_produit(request):
 
         if update_data:
             try:
-                update_url = 'http://localhost:80/api/v1/stocks/storesAll/' + product_name
+                update_url = f'{API_BASE_URL}/stocks/storesAll/' + product_name
                 update_response = requests.put(update_url, json=update_data, headers=headers)
                 update_response.raise_for_status()
                 result = update_response.json()
@@ -778,7 +779,7 @@ def demande_reappro_modif(request):
         action = request.POST.get("action")
         demande_id = request.POST.get("demande_id")
         if action in ["approve", "reject"] and demande_id:
-            url = f"http://localhost:80/api/v1/supplies/{action}/{demande_id}"
+            url = f"{API_BASE_URL}/supplies/{action}/{demande_id}"
             try:
                 res = requests.patch(url, headers=headers)
                 res.raise_for_status()

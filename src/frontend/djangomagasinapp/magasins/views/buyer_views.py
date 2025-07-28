@@ -10,6 +10,8 @@ from django.contrib import messages
 from requests.exceptions import RequestException, ConnectionError
 from ..utils.decorators import login_required, buyer_required
 
+API_BASE_URL = "http://localhost:80/api/v1"
+
 @login_required
 @buyer_required
 def magasin_buyer(request):
@@ -24,7 +26,7 @@ def liste_produits(request):
     headers = {
         'Authorization': request.session.get('token')
     }
-    url = "http://localhost:80/api/v1/stocks/stores/warehouse"
+    url = f"{API_BASE_URL}/stocks/stores/warehouse"
     produits = []
 
     try:
@@ -82,7 +84,7 @@ def ajouter_panier(request):
 
         try:
             response = requests.post(
-                f"http://localhost:80/api/v1/stocks/{user}/cart",
+                f"{API_BASE_URL}/stocks/{user}/cart",
                 json=panier,
                 headers={"Authorization": token},
                 timeout=3
@@ -107,7 +109,7 @@ def panier(request):
 
     try:
         response = requests.get(
-            f"http://localhost:80/api/v1/stocks/{user}/cart",
+            f"{API_BASE_URL}/stocks/{user}/cart",
             headers={"Authorization": token},
             timeout=3
         )
@@ -141,7 +143,7 @@ def modifier_article_panier(request):
 
         try:
             response = requests.patch(
-                f"http://localhost:80/api/v1/stocks/{username}/cart",
+                f"{API_BASE_URL}/stocks/{username}/cart",
                 headers={"Authorization": token},
                 json={
                     "name": name,
@@ -174,7 +176,7 @@ def supprimer_article_panier(request):
 
         try:
             response = requests.delete(
-                f"http://localhost:80/api/v1/stocks/{username}/cart",
+                f"{API_BASE_URL}/stocks/{username}/cart",
                 headers={"Authorization": token},
                 json={"name": name, "qty": int(qty)},
                 timeout=3
@@ -197,7 +199,7 @@ def acheter_panier(request):
 
     try:
         response = requests.post(
-            f"http://localhost:80/api/v1/orchestr-sales/stores/StockCentral/{user}",
+            f"{API_BASE_URL}/orchestr-sales/stores/StockCentral/{user}",
             headers={
                 'Authorization': token,
                 'Content-Type': 'application/json'
@@ -210,7 +212,7 @@ def acheter_panier(request):
 
             try:
                 response = requests.delete(
-                    f"http://localhost:80/api/v1/stocks/{user}/cart/all",
+                    f"{API_BASE_URL}/stocks/{user}/cart/all",
                     headers={"Authorization": token},
                     timeout=3
                 )

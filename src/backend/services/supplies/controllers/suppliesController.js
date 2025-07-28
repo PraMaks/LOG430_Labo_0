@@ -4,6 +4,7 @@ const logger = require('../utils/logger');
 const { publishEvent } = require('../utils/eventPublisher');
 const { v4: uuidv4 } = require('uuid');
 const { sagaStartedCounter, sagaSuccessCounter, sagaFailureCounter } = require('../metrics/metrics');
+const { API_BASE_URL } = require('../utils/api');
 
 exports.postNewSupplyRequestFromStore = async (req, res) => {
   sagaStartedCounter.labels('reapprovisionnement').inc();
@@ -69,7 +70,7 @@ exports.postNewSupplyRequestFromStore = async (req, res) => {
       { $inc: { nb_requests: 1 } }
     );
 
-    const response = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeParam}/supply`, {
+    const response = await fetch(`${API_BASE_URL}/stocks/stores/${storeParam}/supply`, {
       method: 'PATCH',
       headers: {
         'Authorization': token,
@@ -122,7 +123,7 @@ exports.approveSupplyRequest = async (req, res) => {
       );
     }
 
-    const responseCentral = await fetch(`http://krakend:80/api/v1/stocks/stores/StockCentral/true`, {
+    const responseCentral = await fetch(`${API_BASE_URL}/stocks/stores/StockCentral/true`, {
       method: 'PATCH',
       headers: {
         'Authorization': token,
@@ -144,7 +145,7 @@ exports.approveSupplyRequest = async (req, res) => {
     const storeName = supplyRequest.store.name;
     const storeNumber = storeName.split(" ")[1];
 
-    const responseMagasin = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeNumber}/false`, {
+    const responseMagasin = await fetch(`${API_BASE_URL}/stocks/stores/${storeNumber}/false`, {
       method: 'PATCH',
       headers: {
         'Authorization': token,
@@ -154,7 +155,7 @@ exports.approveSupplyRequest = async (req, res) => {
     });
 
     if (!responseMagasin.ok) {
-      await fetch(`http://krakend:80/api/v1/stocks/stores/StockCentral/false`, {
+      await fetch(`${API_BASE_URL}/stocks/stores/StockCentral/false`, {
         method: 'PATCH',
         headers: {
           'Authorization': token,

@@ -1,6 +1,7 @@
 const logger = require('../utils/logger');
 const EventSale = require('../models/event');
 const { sagaDuration, sagaFailures, sagaStepReached } = require('../metrics/sagaMetrics');
+const { API_BASE_URL } = require('../utils/api');
 
 exports.postNewSaleEvent = async (req, res) => {
   const controller = new AbortController();
@@ -40,7 +41,7 @@ exports.postNewSaleEvent = async (req, res) => {
     let responseStep1;
     let cartContents;
     if (isStock) {
-      responseStep1 = await fetch(`http://krakend:80/api/v1/stocks/${user}/cart`, {
+      responseStep1 = await fetch(`${API_BASE_URL}/stocks/${user}/cart`, {
         method: 'GET',
         headers: {
           'Authorization': token,
@@ -101,7 +102,7 @@ exports.postNewSaleEvent = async (req, res) => {
     logger.info("ÉTAPE 2 : Enregistrer la vente");
     let responseStep2;
     if (isStock) {
-      responseStep2 = await fetch(`http://krakend:80/api/v1/sales/stores/${storeParam}`, {
+      responseStep2 = await fetch(`${API_BASE_URL}/sales/stores/${storeParam}`, {
         method: 'POST',
         headers: {
           'Authorization': token,
@@ -144,7 +145,7 @@ exports.postNewSaleEvent = async (req, res) => {
     logger.info("ÉTAPE 3 : MAJ de l'inventaire");
     let responseStep3;
     if (isStock) {
-      responseStep3 = await fetch(`http://krakend:80/api/v1/stocks/stores/${storeParam}/true`, {
+      responseStep3 = await fetch(`${API_BASE_URL}/stocks/stores/${storeParam}/true`, {
         method: 'PATCH',
         headers: {
           'Authorization': token,
@@ -168,7 +169,7 @@ exports.postNewSaleEvent = async (req, res) => {
           details: `Échec à l'étape 3: MAJ de l'invetaire`
         });
 
-        await fetch(`http://krakend:80/api/v1/sales/stores/${storeParam}/recent`, {
+        await fetch(`${API_BASE_URL}/sales/stores/${storeParam}/recent`, {
           method: 'DELETE',
           headers: {
             'Authorization': token,
@@ -198,7 +199,7 @@ exports.postNewSaleEvent = async (req, res) => {
     logger.info("ÉTAPE 4 : Increase rank");
     let responseStep4;
     if (isStock) {
-      responseStep4 = await fetch(`http://krakend:80/api/v1/auth/users/${user}/rank`, {
+      responseStep4 = await fetch(`${API_BASE_URL}/auth/users/${user}/rank`, {
         method: 'PATCH',
         headers: {
           'Authorization': token,

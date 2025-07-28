@@ -10,6 +10,8 @@ from django.contrib import messages
 from requests.exceptions import RequestException, ConnectionError
 from ..utils.decorators import login_required, seller_required
 
+API_BASE_URL = "http://localhost:80/api/v1"
+
 @login_required
 @seller_required
 def magasin_seller(request):
@@ -44,7 +46,7 @@ def rechercher_produit(request):
                 'produit': produit,
                 'query': name,
             })
-        url_search = f"http://localhost:80/api/v1/stocks/stores/{numero}/{name}"
+        url_search = f"{API_BASE_URL}/stocks/stores/{numero}/{name}"
         response = requests.get(url_search, headers=headers)
         if response.status_code == 200:
             produit = response.json()
@@ -78,7 +80,7 @@ def enregistrer_vente(request):
     except Exception:
         numero = '?'
 
-    url_stock = f"http://localhost:80/api/v1/stocks/stores/{numero}"
+    url_stock = f"{API_BASE_URL}/stocks/stores/{numero}"
 
     if request.method == "POST":
         produits = []
@@ -124,12 +126,12 @@ def enregistrer_vente(request):
             })
 
         # Envoi de la vente
-        url_vente = f"http://localhost:80/api/v1/sales/stores/{numero}"
+        url_vente = f"{API_BASE_URL}/sales/stores/{numero}"
         try:
             response = requests.post(url_vente, json=produits, headers=headers, timeout=3)
             if response.status_code == 201:
-                # ✅ Mise à jour du stock après la vente
-                url_stock_update = f"http://localhost:80/api/v1/stocks/stores/{numero}/true"
+                # Mise à jour du stock après la vente
+                url_stock_update = f"{API_BASE_URL}/stocks/stores/{numero}/true"
                 try:
                     stock_response = requests.patch(url_stock_update, json=produits, headers=headers, timeout=3)
                     if stock_response.status_code != 200:
@@ -197,7 +199,7 @@ def retour_vente(request):
     except Exception:
         numero = '?'
 
-    url = f"http://localhost:80/api/v1/sales/stores/{numero}"
+    url = f"{API_BASE_URL}/sales/stores/{numero}"
     ventes = []
 
     # Récupération des ventes
@@ -276,7 +278,7 @@ def liste_produits(request):
     except Exception:
         numero = '?'
 
-    url = f"http://localhost:80/api/v1/stocks/stores/{numero}"
+    url = f"{API_BASE_URL}/stocks/stores/{numero}"
     produits = []
 
     try:
@@ -311,7 +313,7 @@ def liste_produits_central(request):
     headers = {
         'Authorization': request.session.get('token')
     }
-    url = "http://localhost:80/api/v1/stocks/stores/warehouse"
+    url = f"{API_BASE_URL}/stocks/stores/warehouse"
     produits = []
 
     try:
@@ -356,8 +358,8 @@ def demande_reappro(request):
     else:
         numero = '?'
 
-    url_stock_magasin = f"http://localhost:80/api/v1/stocks/stores/{numero}"
-    url_stock_central = "http://localhost:80/api/v1/stocks/stores/warehouse"
+    url_stock_magasin = f"{API_BASE_URL}/stocks/stores/{numero}"
+    url_stock_central = f"{API_BASE_URL}/stocks/stores/warehouse"
 
     try:
         stock_magasin = requests.get(url_stock_magasin, headers=headers).json()
@@ -389,7 +391,7 @@ def demande_reappro(request):
                     messages.warning(request, f"Quantité invalide pour {product['name']}.")
 
         if produits_demandes:
-            url_post = 'http://localhost:80/api/v1/supplies/stores/' + str(numero)
+            url_post = f'{API_BASE_URL}/supplies/stores/' + str(numero)
             try:
                 response = requests.post(url_post, json=produits_demandes, headers=headers)
                 response.raise_for_status()
