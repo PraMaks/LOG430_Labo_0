@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="27.2.0">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="28.0.7">
   <diagram name="Page-1" id="2YBvvXClWsGukQMizWep">
-    <mxGraphModel dx="1665" dy="757" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="703" dy="756" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -41,7 +41,7 @@
         <mxCell id="00wRDX6nhMXzsEndpYq1-8" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="00wRDX6nhMXzsEndpYq1-7" vertex="1">
           <mxGeometry x="55" y="200" width="10" height="200" as="geometry" />
         </mxCell>
-        <mxCell id="00wRDX6nhMXzsEndpYq1-10" value="Envoie une demande GET sur&amp;nbsp;&lt;div&gt;http://localhost:80/api/v1/stocks/stores/warehouse&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" source="aM9ryv3xv72pqoxQDRHE-6" edge="1">
+        <mxCell id="00wRDX6nhMXzsEndpYq1-10" value="Envoie une demande GET sur&amp;nbsp;&lt;div&gt;API_BASE_URL/stocks/stores/warehouse&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" source="aM9ryv3xv72pqoxQDRHE-6" edge="1">
           <mxGeometry x="0.0029" relative="1" as="geometry">
             <mxPoint x="325" y="206" as="sourcePoint" />
             <Array as="points">
@@ -106,7 +106,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="h344_oIUonVgHa4xzxQR-2" value="Envoie une demande PUT sur&amp;nbsp;&lt;div&gt;http://lolcalhost:80/api/v1/stocks/storesAll/{productName}&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" edge="1">
+        <mxCell id="h344_oIUonVgHa4xzxQR-2" value="Envoie une demande PUT sur&amp;nbsp;&lt;br&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;API_BASE_URL&lt;/span&gt;stocks/storesAll/{productName}&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" edge="1">
           <mxGeometry x="0.0029" relative="1" as="geometry">
             <mxPoint x="340" y="360" as="sourcePoint" />
             <Array as="points">

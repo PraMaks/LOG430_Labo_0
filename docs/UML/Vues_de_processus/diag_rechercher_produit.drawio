@@ -58,7 +58,7 @@
             <mxPoint x="315" y="179" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="00wRDX6nhMXzsEndpYq1-10" value="Envoie une demande GET sur&amp;nbsp;&lt;div&gt;http://localhost:80/api/v1/stocks/stores/{storeNumber}/{productName}&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" edge="1">
+        <mxCell id="00wRDX6nhMXzsEndpYq1-10" value="Envoie une demande GET sur&amp;nbsp;&lt;div&gt;API_BASE_URL/stocks/stores/{storeNumber}/{productName}&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;" parent="1" edge="1">
           <mxGeometry x="0.0029" relative="1" as="geometry">
             <mxPoint x="340" y="209" as="sourcePoint" />
             <Array as="points">

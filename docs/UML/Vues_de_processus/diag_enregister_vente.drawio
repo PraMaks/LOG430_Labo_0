@@ -29,7 +29,7 @@
         <mxCell id="00wRDX6nhMXzsEndpYq1-4" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="00wRDX6nhMXzsEndpYq1-3" vertex="1">
           <mxGeometry x="55" y="170" width="10" height="210" as="geometry" />
         </mxCell>
-        <mxCell id="00wRDX6nhMXzsEndpYq1-10" value="Envoie une demande POST sur&amp;nbsp;&lt;div&gt;http://localhost:80/api/v1/sales/stores/{storeNumber}&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=horizontal;curved=0;rounded=0;" parent="1" source="aM9ryv3xv72pqoxQDRHE-6" edge="1">
+        <mxCell id="00wRDX6nhMXzsEndpYq1-10" value="Envoie une demande POST sur&amp;nbsp;&lt;div&gt;API_BASE_URL/sales/stores/{storeNumber}&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=horizontal;curved=0;rounded=0;" parent="1" source="aM9ryv3xv72pqoxQDRHE-6" edge="1">
           <mxGeometry x="0.0029" relative="1" as="geometry">
             <mxPoint x="325" y="206" as="sourcePoint" />
             <Array as="points">
@@ -101,7 +101,7 @@
             <mxPoint x="320" y="530" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="1SsZbYx3lNVpEQuCt3Qb-2" value="&lt;div style=&quot;font-size: 11px;&quot;&gt;Envoie une requête PATCH sur&lt;/div&gt;&lt;div style=&quot;font-size: 11px;&quot;&gt;http://localhost:80/api/v1/stocks/stores/{store}/{isSale}&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+        <mxCell id="1SsZbYx3lNVpEQuCt3Qb-2" value="&lt;div style=&quot;font-size: 11px;&quot;&gt;Envoie une requête PATCH sur&lt;/div&gt;&lt;div style=&quot;font-size: 11px;&quot;&gt;API_BASE_URL/stocks/stores/{store}/{isSale}&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="700" y="170" width="280" height="40" as="geometry" />
         </mxCell>
         <mxCell id="1SsZbYx3lNVpEQuCt3Qb-3" value="Envoie l&#39;update pour l&#39;inventaire" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=horizontal;curved=0;rounded=0;" edge="1" parent="1" target="AmmMfAGba9_SOh-tRvxB-8">

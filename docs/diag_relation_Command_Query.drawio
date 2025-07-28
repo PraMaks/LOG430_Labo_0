@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="28.0.6">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="28.0.7">
   <diagram name="Page-1" id="k3tzlB8XghA4WyJ-DVOV">
     <mxGraphModel dx="2515" dy="1857" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -88,20 +88,38 @@
         <mxCell id="D5ZYjX_9P_y3UZM8KzxZ-52" value="stocke les evenements provenant&lt;div&gt;&amp;nbsp;du produceur + relation Command et Query&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="-470" y="-920" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="RqRUVIJ9l4AUGDJetFSY-1" value="" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#3415FF);" vertex="1" parent="1">
+        <mxCell id="RqRUVIJ9l4AUGDJetFSY-1" value="" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#3415FF);" parent="1" vertex="1">
           <mxGeometry x="510" y="-490" width="180" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="RqRUVIJ9l4AUGDJetFSY-2" value="&lt;font style=&quot;font-size: 48px;&quot;&gt;Notif&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=1;points=[];autosize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+        <mxCell id="RqRUVIJ9l4AUGDJetFSY-2" value="&lt;font style=&quot;font-size: 48px;&quot;&gt;Notif&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=1;points=[];autosize=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="515" y="-476" width="170" height="82" as="geometry" />
         </mxCell>
-        <mxCell id="RqRUVIJ9l4AUGDJetFSY-3" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="D5ZYjX_9P_y3UZM8KzxZ-37" target="RqRUVIJ9l4AUGDJetFSY-1">
+        <mxCell id="RqRUVIJ9l4AUGDJetFSY-3" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=1;exitDx=0;exitDy=0;" parent="1" source="D5ZYjX_9P_y3UZM8KzxZ-37" target="RqRUVIJ9l4AUGDJetFSY-1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="410" y="-600" as="sourcePoint" />
             <mxPoint x="410" y="-411" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="RqRUVIJ9l4AUGDJetFSY-4" value="consomme l&#39;evenement" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+        <mxCell id="RqRUVIJ9l4AUGDJetFSY-4" value="consomme l&#39;evenement" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="450" y="-565" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="2C6NbhmiTygLgyzR57QK-1" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-740" y="-530" width="540" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="2C6NbhmiTygLgyzR57QK-2" value="&lt;span style=&quot;font-size: 48px;&quot;&gt;Légende:&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=1;points=[];autosize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="-710" y="-530" width="170" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="2C6NbhmiTygLgyzR57QK-3" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-720" y="-430" as="sourcePoint" />
+            <mxPoint x="-620" y="-430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2C6NbhmiTygLgyzR57QK-4" value="Réprésente le flux/relation logique entre les services" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="-610" y="-448" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="2C6NbhmiTygLgyzR57QK-5" value="NOTE: il n&#39;y a pas de communications directes, outre&lt;div&gt;&amp;nbsp;que supplies qui connait l&#39;adresse de RabbitMQ&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="-735" y="-400" width="310" height="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
